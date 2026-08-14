@@ -1,8 +1,8 @@
-import { text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v43";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260814-rebuild-v43";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v43";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260814-rebuild-v43";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260814-rebuild-v43";
+import { text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v45";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260814-rebuild-v45";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v45";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260814-rebuild-v45";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260814-rebuild-v45";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -87,7 +87,7 @@ function renderResourceInput(resource, state, locale, lead) {
       ${selectValue === "custom" ? `<label class="resource-custom-floor"><span class="sr-only">${escapeHtml(t(locale, "resourceCustomFloor"))}</span><input type="number" min="1" max="${resource.max_floor ?? 124}" step="1" data-resource-amount="${escapeHtml(resource.id)}" value="${isConfigured ? resource.amount : ""}" placeholder="1–${resource.max_floor ?? 124}" inputmode="numeric" aria-label="${escapeHtml(t(locale, "resourceCustomFloor"))}"></label>` : ""}
     </div>`;
   }
-  const inputLabel = resource.input_kind ? t(locale, "resourceInputLabel", resource.input_kind) : t(locale, "resourceValue");
+  const inputLabel = resource.input_kind ? t(locale, "resourceInputLabel", resource.input_kind, resource.id) : t(locale, "resourceValue");
   const inputTitle = resource.value_source === "user"
     ? t(locale, "resourceSourcePlayerOverride")
     : lead?.status === "user_confirmed"
@@ -119,6 +119,20 @@ function resourceMeta(resource, locale) {
   return resource.input_kind ? `${cadence} · ${resourceCopyUnit(resource, locale)}` : cadence;
 }
 
+function resourceIcon(resource, data) {
+  const assetKey = {
+    "weekly-manufacturing-stones": "item:3",
+    "monthly-synthesis-stones": "item:82",
+    "monthly-total-assault-gift-boxes": "item:100008",
+    "monthly-grand-assault-gift-boxes": "item:100009",
+    "monthly-unlimited-assault-gift-boxes": "item:100000",
+    "daily-schedule-exp": "ui:schedule-favor",
+    "daily-cafe-exp": "ui:kivo-favor",
+  }[resource.id];
+  const source = assetKey ? data?.assetManifest?.entries?.[assetKey] : null;
+  return source ? `<img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote ?? "")}" alt="" loading="lazy">` : (resource.cadence === "daily" ? "D" : resource.cadence === "weekly" ? "W" : "M");
+}
+
 function renderResourceRow({ resource, state, data, locale, evidenceById, sourceById }) {
   const isConfigured = resource.amount !== null;
   const forecast = calculateResourceForecast(resource, resource.amount, state.periodDays, data.unlimitedAssaultRewards);
@@ -126,7 +140,7 @@ function renderResourceRow({ resource, state, data, locale, evidenceById, source
   const source = lead?.source_id ? sourceById.get(lead.source_id) : null;
   const candidateUnit = locale === "en" ? lead?.candidate_unit_en : locale === "ja" ? lead?.candidate_unit_ja : lead?.candidate_unit_zh_cn;
   return `<article class="resource-row ${isConfigured ? "is-configured" : "is-missing"}">
-    <div class="resource-icon" aria-hidden="true">${resource.cadence === "daily" ? "D" : resource.cadence === "weekly" ? "W" : "M"}</div>
+    <div class="resource-icon" aria-hidden="true">${resourceIcon(resource, data)}</div>
     <div class="resource-copy"><strong><span class="resource-name">${escapeHtml(t(locale, "resourceName", resource.id))}</span><em class="resource-status ${isConfigured ? "is-configured" : "is-missing"}">${escapeHtml(t(locale, isConfigured ? "resourceConfigured" : "resourceMissing"))}</em></strong><small>${escapeHtml(resourceMeta(resource, locale))}</small></div>
     ${renderResourceInput(resource, state, locale, lead)}
     <div class="resource-forecast ${resource.input_kind === "floor" ? "is-reward-forecast" : ""}">${renderResourceForecast(resource, forecast, locale)}</div>
@@ -300,10 +314,11 @@ export function renderResourcesWorkspace({ data = {}, state, locale, evidence })
     stageThreeAlt: assetLocal(data, "ui:stage-mission-3-alternate", "./assets/ui/stages/mission_3_1.webp"),
     stageFive: assetLocal(data, "ui:stage-mission-5-normal", "./assets/ui/stages/mission_5_0.webp"),
     stageFiveAlt: assetLocal(data, "ui:stage-mission-5-alternate", "./assets/ui/stages/mission_5_1.webp"),
+    events: [812, 824, 834].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`)),
   };
   return `<section class="resource-workspace panel" aria-labelledby="resource-title">
     <div class="section-heading"><div class="resource-heading-copy"><h1 id="resource-title">${t(locale, "resourcesTitle")}</h1><p class="section-caption">${escapeHtml(t(locale, "resourcesCaption"))}</p></div></div>
-    <div class="resource-art-strip" aria-hidden="true"><div class="resource-art-stage"><img src="${escapeHtml(visualAssets.stageThree)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageThreeAlt)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFive)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFiveAlt)}" alt="" loading="lazy"></div><div class="resource-art-home"><img src="${escapeHtml(visualAssets.home)}" alt="" loading="lazy"></div><div class="resource-art-icons"><img src="${escapeHtml(visualAssets.favor)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"></div><div class="resource-art-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="resource-art-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="resource-art-kivo" src="${escapeHtml(visualAssets.logo)}" alt="" loading="lazy"></div>
+    <div class="resource-art-strip" aria-hidden="true"><div class="resource-art-stage"><img src="${escapeHtml(visualAssets.stageThree)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageThreeAlt)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFive)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFiveAlt)}" alt="" loading="lazy"></div><div class="resource-art-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="resource-art-home"><img src="${escapeHtml(visualAssets.home)}" alt="" loading="lazy"></div><div class="resource-art-icons"><img src="${escapeHtml(visualAssets.favor)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"></div><div class="resource-art-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="resource-art-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="resource-art-kivo" src="${escapeHtml(visualAssets.logo)}" alt="" loading="lazy"></div>
     <div class="resource-toolbar"><label><span>${t(locale, "periodDays")}</span><input type="number" min="1" max="366" step="1" data-period-days value="${state.periodDays}"></label><a class="template-link" href="../relationship_data/cn_planner_data_to_fill.md" target="_blank" rel="noreferrer">${t(locale, "fillDataTemplate")}</a></div>
     <div class="resource-kpi-grid"><article><span>${t(locale, "resourceConfigured")}</span><strong>${configured.length}/${state.resources.length}</strong></article><article><span>${t(locale, "effectiveExp")}</span><strong>${formatExp(projected, locale)}</strong></article><article><span>${t(locale, "resourceMissing")}</span><strong>${state.resources.length - configured.length}</strong></article></div>
     ${missing.length ? `<section class="resource-missing-panel" aria-labelledby="resource-missing-title"><div class="resource-missing-heading"><div><span class="resource-missing-kicker">${escapeHtml(t(locale, "resourceMissing"))}</span><h2 id="resource-missing-title">${escapeHtml(t(locale, "resourceMissingTitle"))}</h2></div><span>${missing.length}</span></div><div class="resource-list">${missing.map((resource) => renderResourceRow({ resource, state, data, locale, evidenceById, sourceById })).join("")}</div></section>` : ""}

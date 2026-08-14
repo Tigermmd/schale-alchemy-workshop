@@ -1,5 +1,5 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260814-rebuild-v43";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v43";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260814-rebuild-v45";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v45";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -51,6 +51,12 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
   const messages = Array.isArray(state.messages) ? state.messages : [];
   const proposal = state.proposal;
   const contextStudents = context?.students ?? [];
+  const plannedStudents = context?.plannerState?.students ?? [];
+  const mainTargetId = context?.plannerState?.mainTargetStudentId ?? context?.calculatedResults?.giftPlanning?.mainTargetId ?? null;
+  const plannedTarget = plannedStudents.find((plan) => String(plan.studentId) === String(mainTargetId)) ?? plannedStudents[0] ?? null;
+  const targetContextStudent = plannedTarget
+    ? contextStudents.find((student) => String(student.studentId) === String(plannedTarget.studentId))
+    : null;
   const contextSummary = t(locale, "agentContextSummary", contextStudents.length, Object.keys(context?.plannerState?.inventory ?? {}).length);
   const notice = state.notice ? `<div class="agent-notice" role="status">${escapeHtml(state.notice)}</div>` : "";
   const conversation = messages.length
@@ -75,9 +81,10 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
     empty: assetLocal(data, "ui:kivo-empty", "./assets/ui/kivo-empty.webp"),
     stage: assetLocal(data, "ui:stage-mission-1-normal", "./assets/ui/stages/mission_1_0.webp"),
     stageAlt: assetLocal(data, "ui:stage-mission-1-alternate", "./assets/ui/stages/mission_1_1.webp"),
-    target: contextStudents[0]
-      ? assetLocal(data, `student-portrait:${contextStudents[0].studentId}`, `./assets/students/portrait/${contextStudents[0].studentId}.webp`)
+    events: [701, 808, 844].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`)),
+    target: targetContextStudent
+      ? assetLocal(data, `student-portrait:${targetContextStudent.studentId}`, `./assets/students/portrait/${targetContextStudent.studentId}.webp`)
       : null,
   };
-  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><h1 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h1></div><div class="agent-visual-anchors" aria-hidden="true"><div class="agent-visual-stage"><img src="${escapeHtml(visualAssets.stage)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageAlt)}" alt="" loading="lazy"></div>${visualAssets.target ? `<div class="agent-visual-target"><img src="${escapeHtml(visualAssets.target)}" alt="" loading="lazy"></div>` : ""}<div class="agent-visual-momotalk"><img src="${escapeHtml(visualAssets.momotalk)}" alt="" loading="lazy"></div><div class="agent-visual-arona"><img src="${escapeHtml(visualAssets.arona)}" alt="" loading="lazy"></div><div class="agent-visual-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="agent-visual-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="agent-visual-kivo" src="${escapeHtml(visualAssets.kivo)}" alt="" loading="lazy"></div>${renderPlanSummary({ context, locale, localization: data.localization })}${settings}${chat}${proposalHtml}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p></details></section>`;
+  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><h1 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h1></div><div class="agent-visual-anchors" aria-hidden="true"><div class="agent-visual-stage"><img src="${escapeHtml(visualAssets.stage)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageAlt)}" alt="" loading="lazy"></div><div class="agent-visual-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div>${visualAssets.target ? `<div class="agent-visual-target"><img src="${escapeHtml(visualAssets.target)}" alt="" loading="lazy"></div>` : ""}<div class="agent-visual-momotalk"><img src="${escapeHtml(visualAssets.momotalk)}" alt="" loading="lazy"></div><div class="agent-visual-arona"><img src="${escapeHtml(visualAssets.arona)}" alt="" loading="lazy"></div><div class="agent-visual-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="agent-visual-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="agent-visual-kivo" src="${escapeHtml(visualAssets.kivo)}" alt="" loading="lazy"></div>${renderPlanSummary({ context, locale, localization: data.localization })}${settings}${chat}${proposalHtml}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p></details></section>`;
 }

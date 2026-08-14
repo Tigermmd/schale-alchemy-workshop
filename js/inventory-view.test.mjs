@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mappedPreview, renderInventoryWorkspace, renderPeriodicResources } from "./inventory-view.js";
+import { firstTargetStudent, mappedPreview, renderInventoryWorkspace, renderPeriodicResources } from "./inventory-view.js";
 
 const boxPreview = mappedPreview({
   stockResources: {},
@@ -11,6 +11,11 @@ assert.match(boxPreview, /\+3 金色礼物自选盒/);
 assert.match(boxPreview, /\+1\.50 紫色礼物随机盒/);
 assert.match(boxPreview, /\+80 金色随机礼物池（等效）/);
 assert.doesNotMatch(boxPreview, /100008|100009/);
+
+const targetData = {
+  studentById: new Map([["1", { student_id: 1 }], ["2", { student_id: 2 }]]),
+};
+assert.equal(firstTargetStudent(targetData, { mainTargetStudentId: 2, students: [{ studentId: 1 }, { studentId: 2 }] }).student_id, 2);
 
 const periodicHtml = renderPeriodicResources({
   data: { unlimitedAssaultRewards: null },
@@ -57,9 +62,36 @@ const reservationHtml = renderInventoryWorkspace({
     resourcePostingHistory: [],
   },
   locale: "zh_cn",
+  filters: { query: "", rarity: "all", exp: "all", onlyOwned: true },
   evidence: { rows: [], sources: [] },
 });
 assert.match(reservationHtml, /测试礼物 ×1/);
 assert.doesNotMatch(reservationHtml, /礼物 5000/);
+
+const emptyInventoryHtml = renderInventoryWorkspace({
+  data: {
+    gifts: [{ id: 5000, name_zh_cn: "测试礼物", name_en: "Test Gift", rarity: "SSR", base_exp: 60 }],
+    giftById: new Map([["5000", { id: 5000, name_zh_cn: "测试礼物", name_en: "Test Gift", rarity: "SSR", base_exp: 60 }]]),
+    giftBoxes: [],
+  },
+  state: {
+    periodDays: 30,
+    students: [],
+    giftBoxes: {},
+    resources: [],
+    inventory: {},
+    giftReservations: {},
+    stockResources: { manufacturing_stone: 0, synthesis_stone_gold: 0, gold_manufacturing_stone: 0 },
+    incomingResources: { stockResources: {}, giftBoxes: {}, equivalentGiftPools: {}, relationshipExp: {} },
+    equivalentGiftPools: {},
+    resourcePostingHistory: [],
+  },
+  locale: "zh_cn",
+  filters: { query: "", rarity: "all", exp: "all", onlyOwned: true },
+  evidence: { rows: [], sources: [] },
+});
+const emptyHero = emptyInventoryHtml.match(/<div class="inventory-hero-gifts">([\s\S]*?)<\/div>/)?.[1] ?? "";
+assert.doesNotMatch(emptyHero, /gifts\/5000\.webp/, "An empty inventory must not look like it owns a specific gift");
+assert.match(emptyInventoryHtml, /data-inventory-filter="onlyOwned"(?![^>]*checked)/, "An empty inventory must expose all gifts by default");
 
 console.log("inventory view tests passed");

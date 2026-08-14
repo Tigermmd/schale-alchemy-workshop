@@ -1,7 +1,7 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v43";
-import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260814-rebuild-v43";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v43";
-import { formatExp, formatSmartQuantity } from "./render.js?v=dashboard-20260814-rebuild-v43";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v45";
+import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260814-rebuild-v45";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v45";
+import { formatExp, formatSmartQuantity } from "./render.js?v=dashboard-20260814-rebuild-v45";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -23,6 +23,12 @@ function giftImage(gift, manifest, locale, localization) {
   return `<span class="inventory-gift-image ${rarity ? `gift-rarity-${rarity}` : ""}"><img src="${escapeHtml(source?.local ?? `./assets/gifts/${gift.id}.webp`)}" data-fallback="${escapeHtml(source?.remote ?? "")}" alt="${escapeHtml(name)}" loading="lazy"><span aria-hidden="true">${escapeHtml(name.slice(0, 1))}</span></span>`;
 }
 
+function itemImage(itemId, manifest, className = "inventory-item-image") {
+  const source = manifest?.entries?.[`item:${itemId}`];
+  if (!source) return `<span class="inventory-resource-glyph" aria-hidden="true">✧</span>`;
+  return `<span class="${className}"><img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote ?? "")}" alt="" loading="lazy"></span>`;
+}
+
 function boxName(box, locale) {
   if (locale === "en") return box?.name_en ?? box?.name_zh_cn ?? "";
   if (locale === "ja") return box?.name_ja ?? box?.name_en ?? box?.name_zh_cn ?? "";
@@ -34,8 +40,8 @@ function boxPoolLabel(box, locale) {
   return box?.[key] ?? box?.pool_label_zh_cn ?? "";
 }
 
-function firstTargetStudent(data, state) {
-  const plan = state.students?.[0];
+export function firstTargetStudent(data, state) {
+  const plan = state.students?.find((item) => String(item.studentId) === String(state.mainTargetStudentId)) ?? state.students?.[0];
   return plan ? data.studentById.get(String(plan.studentId)) : null;
 }
 
@@ -64,25 +70,31 @@ function quantityColumns(value, locale) {
   return `<details class="inventory-quantity-details"><summary><span>${escapeHtml(t(locale, "inventoryRemaining"))}</span><b>${formatSmartQuantity(normalized.remaining, locale)}</b></summary><div class="inventory-quantity-columns"><span><small>${escapeHtml(t(locale, "inventoryCurrent"))}</small><b>${formatSmartQuantity(normalized.current, locale)}</b></span><span><small>${escapeHtml(t(locale, "inventoryIncoming"))}</small><b>${formatSmartQuantity(normalized.incoming, locale)}</b></span><span><small>${escapeHtml(t(locale, "inventoryReserved"))}</small><b>${formatSmartQuantity(normalized.reserved, locale)}</b></span></div></details>`;
 }
 
-function renderInventoryArt({ data, locale, localization }) {
+function renderInventoryArt({ data, summary, locale, localization }) {
   const featuredIds = [5000, 5001, 5100, 5997];
   const featured = featuredIds
     .map((id) => data.giftById?.get(String(id)))
     .filter(Boolean)
+    .filter((gift) => Number(summaryValue(summary?.gifts, gift.id).current) > 0)
     .map((gift) => giftImage(gift, data.assetManifest, locale, localization))
+    .join("");
+  const fallbackItems = [3, 82, 100008, 100009]
+    .map((itemId) => itemImage(itemId, data.assetManifest, "inventory-hero-item"))
     .join("");
   const empty = assetLocal(data, "ui:kivo-empty", "./assets/ui/kivo-empty.webp");
   const logo = assetLocal(data, "ui:schaledb-logo-dark", "./assets/ui/schaledb-logo-dark.png");
   const stage = assetLocal(data, "ui:stage-mission-2-normal", "./assets/ui/stages/mission_2_0.webp");
   const stageAlt = assetLocal(data, "ui:stage-mission-2-alternate", "./assets/ui/stages/mission_2_1.webp");
-  return `<div class="inventory-hero-art" aria-hidden="true"><div class="inventory-hero-stage"><img src="${escapeHtml(stage)}" alt="" loading="lazy"><img src="${escapeHtml(stageAlt)}" alt="" loading="lazy"></div><div class="inventory-hero-art-glow"><img src="${escapeHtml(empty)}" alt="" loading="lazy"></div><div class="inventory-hero-gifts">${featured}</div><img class="inventory-hero-source" src="${escapeHtml(logo)}" alt="" loading="lazy"></div>`;
+  const events = [701, 805, 818].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`));
+  return `<div class="inventory-hero-art" aria-hidden="true"><div class="inventory-hero-stage"><img src="${escapeHtml(stage)}" alt="" loading="lazy"><img src="${escapeHtml(stageAlt)}" alt="" loading="lazy"></div><div class="inventory-hero-events">${events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="inventory-hero-art-glow"><img src="${escapeHtml(empty)}" alt="" loading="lazy"></div><div class="inventory-hero-gifts ${featured ? "has-owned" : "is-empty"}">${featured || fallbackItems}</div><img class="inventory-hero-source" src="${escapeHtml(logo)}" alt="" loading="lazy"></div>`;
 }
 
 function renderStockResources({ data, state, summary, locale }) {
   const ids = ["manufacturing_stone", "synthesis_stone_gold", "gold_manufacturing_stone"];
+  const itemIds = { manufacturing_stone: 3, synthesis_stone_gold: 82 };
   return `<section class="inventory-section" aria-labelledby="inventory-stock-title"><div class="section-heading compact"><h2 id="inventory-stock-title">${escapeHtml(t(locale, "inventoryStockTitle"))}</h2></div><div class="inventory-resource-list">${ids.map((id) => {
     const value = summary.stocks[id];
-    return `<article class="inventory-resource-card"><div class="inventory-resource-icon">${id === "manufacturing_stone" ? "✦" : id === "synthesis_stone_gold" ? "◇" : "✧"}</div><div class="inventory-resource-copy"><strong>${escapeHtml(t(locale, "inventoryStockName", id))}</strong></div><label class="inventory-current-input"><input type="number" min="0" step="1" inputmode="numeric" data-stock-resource="${escapeHtml(id)}" value="${value.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${t(locale, "inventoryStockName", id)}`)}"></label>${quantityColumns(value, locale)}</article>`;
+    return `<article class="inventory-resource-card"><div class="inventory-resource-icon">${itemIds[id] ? itemImage(itemIds[id], data.assetManifest) : "<span class=\"inventory-resource-glyph\" aria-hidden=\"true\">✧</span>"}</div><div class="inventory-resource-copy"><strong>${escapeHtml(t(locale, "inventoryStockName", id))}</strong></div><label class="inventory-current-input"><input type="number" min="0" step="1" inputmode="numeric" data-stock-resource="${escapeHtml(id)}" value="${value.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${t(locale, "inventoryStockName", id)}`)}"></label>${quantityColumns(value, locale)}</article>`;
   }).join("")}</div></section>`;
 }
 
@@ -122,7 +134,7 @@ function renderGiftBoxes({ data, state, summary, locale }) {
   return `<section class="inventory-section" aria-labelledby="inventory-box-title"><div class="section-heading compact"><h2 id="inventory-box-title">${escapeHtml(t(locale, "inventoryBoxTitle"))}</h2></div><details class="inventory-details"><summary>${escapeHtml(t(locale, "inventoryShowBoxes"))} · ${formatSmartQuantity(total, locale)}</summary><div class="inventory-box-grid">${boxes.map((box) => {
     const value = summaryValue(summary.giftBoxes, box.id);
     const expected = expectationForBox(box, target);
-    return `<article class="inventory-box-card"><div class="inventory-box-head"><strong>${escapeHtml(boxName(box, locale))}</strong><span>${escapeHtml(boxPoolLabel(box, locale))}</span></div><label class="inventory-current-input"><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><input type="number" min="0" step="1" inputmode="numeric" data-gift-box-count="${escapeHtml(box.id)}" value="${value.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${boxName(box, locale)}`)}"></label>${quantityColumns(value, locale)}<div class="inventory-box-expectation">${expected === null ? escapeHtml(t(locale, "inventoryNoTarget")) : `${escapeHtml(t(locale, "inventoryTargetExpectation", target?.name_zh_cn ?? target?.name_en ?? ""))} <b>${formatExp(expected, locale)}</b>`}<small>${escapeHtml(t(locale, "inventoryExpectedOnly"))}</small></div></article>`;
+    return `<article class="inventory-box-card"><div class="inventory-box-head"><div class="inventory-box-identity">${itemImage(box.id, data.assetManifest, "inventory-box-image")}<strong>${escapeHtml(boxName(box, locale))}</strong></div><span>${escapeHtml(boxPoolLabel(box, locale))}</span></div><label class="inventory-current-input"><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><input type="number" min="0" step="1" inputmode="numeric" data-gift-box-count="${escapeHtml(box.id)}" value="${value.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${boxName(box, locale)}`)}"></label>${quantityColumns(value, locale)}<div class="inventory-box-expectation">${expected === null ? escapeHtml(t(locale, "inventoryNoTarget")) : `${escapeHtml(t(locale, "inventoryTargetExpectation", target?.name_zh_cn ?? target?.name_en ?? ""))} <b>${formatExp(expected, locale)}</b>`}<small>${escapeHtml(t(locale, "inventoryExpectedOnly"))}</small></div></article>`;
   }).join("")}</div></details></section>`;
 }
 
@@ -131,7 +143,7 @@ function renderEquivalentPools({ data, state, summary, locale }) {
   const box = data.giftBoxes?.find((item) => String(item.id) === "100000");
   const target = firstTargetStudent(data, state);
   const expected = expectationForBox(box, target);
-  return `<section class="inventory-section" aria-labelledby="inventory-pool-title"><div class="section-heading compact"><h2 id="inventory-pool-title">${escapeHtml(t(locale, "inventoryPoolTitle"))}</h2></div><details class="inventory-details"><summary>${escapeHtml(t(locale, "inventoryShowPools"))} · ${formatSmartQuantity(randomGold.current, locale)}</summary><article class="inventory-pool-card"><div class="inventory-pool-copy"><strong>${escapeHtml(t(locale, "inventoryPoolName", "random-gold"))}</strong><small>${escapeHtml(t(locale, "inventoryActivityPoolHint"))}</small></div><label class="inventory-current-input"><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><input type="number" min="0" step="1" inputmode="numeric" data-equivalent-pool="random-gold" value="${randomGold.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${t(locale, "inventoryPoolName", "random-gold")}`)}"></label>${quantityColumns(randomGold, locale)}<div class="inventory-box-expectation">${expected === null ? escapeHtml(t(locale, "inventoryNoTarget")) : `${escapeHtml(t(locale, "inventoryTargetExpectation", target?.name_zh_cn ?? target?.name_en ?? ""))} <b>${formatExp(expected, locale)}</b>`}<small>${escapeHtml(t(locale, "inventoryExpectedOnly"))}</small></div></article></details></section>`;
+    return `<section class="inventory-section" aria-labelledby="inventory-pool-title"><div class="section-heading compact"><h2 id="inventory-pool-title">${escapeHtml(t(locale, "inventoryPoolTitle"))}</h2></div><details class="inventory-details"><summary>${escapeHtml(t(locale, "inventoryShowPools"))} · ${formatSmartQuantity(randomGold.current, locale)}</summary><article class="inventory-pool-card"><div class="inventory-pool-copy"><div class="inventory-pool-heading">${itemImage("100000", data.assetManifest, "inventory-box-image")}<strong>${escapeHtml(t(locale, "inventoryPoolName", "random-gold"))}</strong></div><small>${escapeHtml(t(locale, "inventoryActivityPoolHint"))}</small></div><label class="inventory-current-input"><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><input type="number" min="0" step="1" inputmode="numeric" data-equivalent-pool="random-gold" value="${randomGold.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${t(locale, "inventoryPoolName", "random-gold")}`)}"></label>${quantityColumns(randomGold, locale)}<div class="inventory-box-expectation">${expected === null ? escapeHtml(t(locale, "inventoryNoTarget")) : `${escapeHtml(t(locale, "inventoryTargetExpectation", target?.name_zh_cn ?? target?.name_en ?? ""))} <b>${formatExp(expected, locale)}</b>`}<small>${escapeHtml(t(locale, "inventoryExpectedOnly"))}</small></div></article></details></section>`;
 }
 
 function renderGiftRows({ data, state, summary, locale, localization, filters }) {
@@ -151,13 +163,39 @@ function renderGiftRows({ data, state, summary, locale, localization, filters })
 }
 
 function renderGifts({ data, state, summary, locale, localization, filters }) {
+  const model = giftFilterModel({ data, summary, filters, locale });
+  return renderGiftSection({ data, state, summary, locale, localization, filters, model });
+}
+
+function giftFilterModel({ data, summary, filters, locale }) {
   const options = [...new Set(data.gifts.map((gift) => gift.base_exp))].sort((a, b) => a - b);
   const hasFilters = Boolean(filters?.query || filters?.rarity !== "all" || filters?.exp !== "all" || filters?.onlyOwned === false);
   const ownedCount = data.gifts.filter((gift) => Number(summaryValue(summary.gifts, gift.id).current) > 0).length;
-  const effectiveFilters = hasFilters || ownedCount > 0 ? (hasFilters ? filters : { ...filters, onlyOwned: true }) : { ...filters, onlyOwned: false };
+  const effectiveFilters = ownedCount === 0
+    ? { ...filters, onlyOwned: false }
+    : hasFilters ? filters : { ...filters, onlyOwned: true };
   const summaryText = hasFilters ? t(locale, "inventoryShowAllGifts") : ownedCount ? `${t(locale, "inventoryOnlyOwned")} · ${ownedCount}/${data.gifts.length}` : t(locale, "inventoryNoOwnedGifts");
   const detailsOpen = hasFilters || ownedCount > 0;
-  return `<section class="inventory-section inventory-gifts-main" aria-labelledby="inventory-gifts-title"><div class="section-heading compact"><div><h2 id="inventory-gifts-title">${escapeHtml(t(locale, "inventoryGiftsTitle"))}</h2><span class="inventory-section-caption">${escapeHtml(t(locale, "inventoryGiftsCaption"))}</span></div><span class="inventory-section-count">${ownedCount}/${data.gifts.length}</span></div><div class="inventory-filters"><label><span>${escapeHtml(t(locale, "inventorySearch"))}</span><input type="search" data-inventory-filter="query" value="${escapeHtml(filters?.query ?? "")}" placeholder="${escapeHtml(t(locale, "inventorySearchPlaceholder"))}"></label><label><span>${escapeHtml(t(locale, "inventoryRarity"))}</span><select data-inventory-filter="rarity"><option value="all" ${filters?.rarity === "all" ? "selected" : ""}>${escapeHtml(t(locale, "inventoryAll"))}</option><option value="SR" ${filters?.rarity === "SR" ? "selected" : ""}>SR</option><option value="SSR" ${filters?.rarity === "SSR" ? "selected" : ""}>SSR</option></select></label><label><span>${escapeHtml(t(locale, "inventoryGiftExpFilter"))}</span><select data-inventory-filter="exp"><option value="all" ${String(filters?.exp) === "all" ? "selected" : ""}>${escapeHtml(t(locale, "inventoryAll"))}</option>${options.map((value) => `<option value="${value}" ${String(filters?.exp) === String(value) ? "selected" : ""}>${formatExp(value, locale)}</option>`).join("")}</select></label><label class="inventory-owned-toggle"><input type="checkbox" data-inventory-filter="onlyOwned" ${filters?.onlyOwned ? "checked" : ""}><span>${escapeHtml(t(locale, "inventoryOnlyOwned"))}</span></label></div><details class="inventory-details" ${detailsOpen ? "open" : ""}><summary>${escapeHtml(summaryText)}</summary>${renderGiftRows({ data, state, summary, locale, localization, filters: effectiveFilters })}</details></section>`;
+  return { options, ownedCount, effectiveFilters, summaryText, detailsOpen };
+}
+
+function renderGiftSection({ data, state, summary, locale, localization, filters, model }) {
+  return `<section class="inventory-section inventory-gifts-main" aria-labelledby="inventory-gifts-title"><div class="section-heading compact"><div><h2 id="inventory-gifts-title">${escapeHtml(t(locale, "inventoryGiftsTitle"))}</h2><span class="inventory-section-caption">${escapeHtml(t(locale, "inventoryGiftsCaption"))}</span></div><span class="inventory-section-count">${model.ownedCount}/${data.gifts.length}</span></div><div class="inventory-filters"><label><span>${escapeHtml(t(locale, "inventorySearch"))}</span><input type="search" data-inventory-filter="query" value="${escapeHtml(filters?.query ?? "")}" placeholder="${escapeHtml(t(locale, "inventorySearchPlaceholder"))}"></label><label><span>${escapeHtml(t(locale, "inventoryRarity"))}</span><select data-inventory-filter="rarity"><option value="all" ${filters?.rarity === "all" ? "selected" : ""}>${escapeHtml(t(locale, "inventoryAll"))}</option><option value="SR" ${filters?.rarity === "SR" ? "selected" : ""}>SR</option><option value="SSR" ${filters?.rarity === "SSR" ? "selected" : ""}>SSR</option></select></label><label><span>${escapeHtml(t(locale, "inventoryGiftExpFilter"))}</span><select data-inventory-filter="exp"><option value="all" ${String(filters?.exp) === "all" ? "selected" : ""}>${escapeHtml(t(locale, "inventoryAll"))}</option>${model.options.map((value) => `<option value="${value}" ${String(value) === String(filters?.exp) ? "selected" : ""}>${formatExp(value, locale)}</option>`).join("")}</select></label><label class="inventory-owned-toggle"><input type="checkbox" data-inventory-filter="onlyOwned" ${model.effectiveFilters?.onlyOwned ? "checked" : ""}><span>${escapeHtml(t(locale, "inventoryOnlyOwned"))}</span></label></div><details class="inventory-details" ${model.detailsOpen ? "open" : ""}><summary>${escapeHtml(model.summaryText)}</summary>${renderGiftRows({ data, state, summary, locale, localization, filters: model.effectiveFilters })}</details></section>`;
+}
+
+export function refreshInventoryGiftRows({ container, data, state, locale, localization, filters }) {
+  const section = container.querySelector(".inventory-gifts-main");
+  const list = section?.querySelector(".inventory-gift-list");
+  const details = section?.querySelector(".inventory-details");
+  const summaryNode = details?.querySelector(":scope > summary");
+  if (!section || !list || !details || !summaryNode) return;
+  const summary = calculateInventorySummary(state);
+  const model = giftFilterModel({ data, summary, filters, locale });
+  details.open = model.detailsOpen;
+  summaryNode.textContent = model.summaryText;
+  list.outerHTML = renderGiftRows({ data, state, summary, locale, localization, filters: model.effectiveFilters });
+  const nextList = section.querySelector(".inventory-gift-list");
+  if (nextList) wireInventoryImageFallbacks(nextList);
 }
 
 function renderSynthesis({ data, state, locale, localization }) {
@@ -180,7 +218,7 @@ export function renderInventoryWorkspace({ data, state, locale, localization, fi
   const currentBoxTotal = Object.values(summary.giftBoxes ?? {}).reduce((sum, value) => sum + Number(value.current || 0), 0);
   const transferPanel = `<details class="inventory-transfer-details"><summary>${escapeHtml(t(locale, "inventoryTransferTitle"))}</summary><div class="inventory-transfer-panel" aria-labelledby="inventory-transfer-title"><div class="inventory-transfer-copy"><h2 id="inventory-transfer-title">${escapeHtml(t(locale, "inventoryTransferTitle"))}</h2><small>${escapeHtml(t(locale, "inventoryImportHint"))}</small></div><div class="inventory-transfer-actions"><button type="button" class="secondary-button" data-export-inventory>${escapeHtml(t(locale, "inventoryExport"))}</button><button type="button" class="primary-button" data-import-inventory>${escapeHtml(t(locale, "inventoryImport"))}</button><input id="inventory-import-file" type="file" accept="application/json,.json" hidden></div></div></details>`;
   const secondaryTools = `${renderPeriodicResources({ data, state, locale })}${renderGiftBoxes({ data, state, summary, locale })}${renderEquivalentPools({ data, state, summary, locale })}${renderSynthesis({ data, state, locale, localization })}${transferPanel}`;
-  return `<section class="inventory-workspace" aria-labelledby="inventory-title"><div class="inventory-page-hero"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchInventory"))}</span><h1 id="inventory-title">${escapeHtml(t(locale, "inventoryManagementTitle"))}</h1><p>${escapeHtml(t(locale, "inventoryHint"))}</p></div>${renderInventoryArt({ data, locale, localization })}<div class="inventory-overview"><article><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><strong>${formatSmartQuantity(currentGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article><article><span>${escapeHtml(t(locale, "inventoryRemaining"))}</span><strong>${formatSmartQuantity(remainingGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article><article><span>${escapeHtml(t(locale, "inventoryBoxTitle"))}</span><strong>${formatSmartQuantity(currentBoxTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryCurrent"))}</small></article></div></div>${message ? `<div class="inventory-notice" role="status">${escapeHtml(message)}</div>` : ""}${renderReservationPanel({ data, state, summary, locale, localization })}${renderStockResources({ data, state, summary, locale })}${renderGifts({ data, state, summary, locale, localization, filters })}<details class="inventory-more-details"><summary>${escapeHtml(t(locale, "inventoryMoreTitle"))}</summary><div class="inventory-more-content">${secondaryTools}</div></details></section>`;
+  return `<section class="inventory-workspace" aria-labelledby="inventory-title"><div class="inventory-page-hero"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchInventory"))}</span><h1 id="inventory-title">${escapeHtml(t(locale, "inventoryManagementTitle"))}</h1><p>${escapeHtml(t(locale, "inventoryHint"))}</p></div>${renderInventoryArt({ data, summary, locale, localization })}<div class="inventory-overview"><article><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><strong>${formatSmartQuantity(currentGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article><article><span>${escapeHtml(t(locale, "inventoryRemaining"))}</span><strong>${formatSmartQuantity(remainingGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article><article><span>${escapeHtml(t(locale, "inventoryBoxTitle"))}</span><strong>${formatSmartQuantity(currentBoxTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryCurrent"))}</small></article></div></div>${message ? `<div class="inventory-notice" role="status">${escapeHtml(message)}</div>` : ""}${renderReservationPanel({ data, state, summary, locale, localization })}${renderStockResources({ data, state, summary, locale })}${renderGifts({ data, state, summary, locale, localization, filters })}<details class="inventory-more-details"><summary>${escapeHtml(t(locale, "inventoryMoreTitle"))}</summary><div class="inventory-more-content">${secondaryTools}</div></details></section>`;
 }
 
 export function wireInventoryImageFallbacks(container) {

@@ -1,17 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260814-rebuild-v43";
-import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260814-rebuild-v43";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260814-rebuild-v43";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setPackagePlan, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v43";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260814-rebuild-v43";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260814-rebuild-v43";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260814-rebuild-v43";
-import { renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260814-rebuild-v43";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260814-rebuild-v43";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260814-rebuild-v43";
-import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260814-rebuild-v43";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260814-rebuild-v43";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260814-rebuild-v43";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260814-rebuild-v43";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260814-rebuild-v45";
+import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260814-rebuild-v45";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260814-rebuild-v45";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setPackagePlan, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v45";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260814-rebuild-v45";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260814-rebuild-v45";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260814-rebuild-v45";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260814-rebuild-v45";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260814-rebuild-v45";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260814-rebuild-v45";
+import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260814-rebuild-v45";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260814-rebuild-v45";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260814-rebuild-v45";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260814-rebuild-v45";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260814-rebuild-v45";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -28,6 +29,7 @@ const elements = {
   directoryKicker: document.querySelector("#directory-kicker"),
   directoryCount: document.querySelector("#directory-count"),
   directoryToggle: document.querySelector("#directory-toggle"),
+  directoryPanel: document.querySelector(".directory-panel"),
   studentSearch: document.querySelector("#student-search"),
   studentSearchLabel: document.querySelector("#student-search-label"),
   studentList: document.querySelector("#student-list"),
@@ -76,15 +78,7 @@ function applyLocaleChrome() {
   elements.loadingTitle.textContent = t(state.locale, "loadingTitle");
   elements.loadingDescription.textContent = t(state.locale, "loadingDescription");
   elements.errorTitle.textContent = t(state.locale, "errorTitle");
-  const pageTitleKey = {
-    relationship: "workbenchRelationship",
-    planner: "workbenchPlanner",
-    inventory: "workbenchInventory",
-    resources: "workbenchResources",
-    packages: "workbenchPackages",
-    agent: "workbenchAgent",
-  }[state.workbench] ?? "pageTitle";
-  elements.pageTitle.textContent = t(state.locale, pageTitleKey);
+  elements.pageTitle.textContent = t(state.locale, getWorkbenchChromeState(state.workbench).titleKey);
   elements.headerMetaCopy.textContent = t(state.locale, "headerMeta", data?.students.length ?? "—");
   elements.directoryTitle.textContent = t(state.locale, "studentDirectory");
   elements.directoryKicker.textContent = t(state.locale, "studentIndex");
@@ -154,11 +148,20 @@ function renderDetails() {
   wireImageFallbacks(elements.detail);
 }
 
-function renderActiveWorkbench() {
+function renderActiveWorkbench({ resetScroll = false } = {}) {
   if (!data) return;
+  const chrome = getWorkbenchChromeState(state.workbench);
   elements.dashboard.dataset.workbench = state.workbench;
+  elements.dashboard.classList.toggle("directory-hidden", !chrome.showStudentDirectory);
+  elements.directoryPanel?.setAttribute("aria-hidden", String(!chrome.showStudentDirectory));
+  elements.pageTitle.textContent = t(state.locale, chrome.titleKey);
   elements.workbenchNav.innerHTML = renderWorkbenchTabs({ locale: state.locale, active: state.workbench });
-  elements.workbenchNav.querySelector("[data-workbench].is-active")?.scrollIntoView({ block: "nearest", inline: "center" });
+  scrollActiveWorkbenchIntoView();
+  updateWorkbenchNavigationCue();
+  if (resetScroll) {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    elements.detail.scrollTo?.({ top: 0, left: 0, behavior: "auto" });
+  }
   if (state.workbench === "relationship") {
     renderDetails();
     return;
@@ -203,6 +206,21 @@ function renderActiveWorkbench() {
     localization: data.localization,
     data: { ...data, giftBoxes: data.snapshots.giftBoxes?.boxes ?? [] },
   });
+}
+
+function scrollActiveWorkbenchIntoView() {
+  const active = elements.workbenchNav.querySelector("[data-workbench].is-active");
+  if (!active || window.innerWidth > 900) return;
+  const target = active.offsetLeft - (elements.workbenchNav.clientWidth - active.offsetWidth) / 2;
+  const maxScroll = Math.max(0, elements.workbenchNav.scrollWidth - elements.workbenchNav.clientWidth);
+  elements.workbenchNav.scrollLeft = Math.max(0, Math.min(maxScroll, target));
+}
+
+function updateWorkbenchNavigationCue() {
+  const nav = elements.workbenchNav;
+  const hasOverflow = nav.scrollWidth > nav.clientWidth + 1;
+  const atEnd = nav.scrollLeft + nav.clientWidth >= nav.scrollWidth - 2;
+  nav.dataset.overflowCue = String(hasOverflow && !atEnd);
 }
 
 function agentSettings(form) {
@@ -357,6 +375,8 @@ async function bootstrap() {
     renderActiveWorkbench();
     elements.loading.hidden = true;
     elements.dashboard.hidden = false;
+    scrollActiveWorkbenchIntoView();
+    updateWorkbenchNavigationCue();
     document.body.dataset.dashboardReady = "true";
   } catch (error) {
     showError(error instanceof Error ? error : new Error(String(error)));
@@ -392,9 +412,29 @@ function setDirectoryCollapsed(collapsed) {
   if (elements.directoryToggle) elements.directoryToggle.textContent = collapsed ? t(state.locale, "showStudentDirectory") : t(state.locale, "hideStudentDirectory");
 }
 
+function rerenderInventoryFilter(input) {
+  const key = input.dataset.inventoryFilter;
+  state.inventoryFilters = updateInventoryFilter(
+    state.inventoryFilters,
+    key,
+    input.type === "checkbox" ? input.checked : input.value,
+  );
+  if (state.workbench !== "inventory") return;
+  refreshInventoryGiftRows({
+    container: elements.detail,
+    data: { ...data, giftBoxes: data.snapshots.giftBoxes?.boxes ?? [] },
+    state: state.planner,
+    locale: state.locale,
+    localization: data.localization,
+    filters: state.inventoryFilters,
+  });
+}
+
 elements.directoryToggle?.addEventListener("click", () => {
   setDirectoryCollapsed(!elements.dashboard.classList.contains("directory-collapsed"));
 });
+
+elements.workbenchNav.addEventListener("scroll", updateWorkbenchNavigationCue, { passive: true });
 
 elements.detail.addEventListener("click", (event) => {
   const goPlanner = event.target.closest("[data-go-planner]");
@@ -582,7 +622,7 @@ elements.detail.addEventListener("input", (event) => {
   }
   const inventoryFilter = event.target.closest("[data-inventory-filter]");
   if (inventoryFilter) {
-    state.inventoryFilters = { ...state.inventoryFilters, [inventoryFilter.dataset.inventoryFilter]: inventoryFilter.type === "checkbox" ? inventoryFilter.checked : inventoryFilter.value };
+    rerenderInventoryFilter(inventoryFilter);
     return;
   }
   const inventoryGift = event.target.closest("[data-inventory-gift]");
@@ -612,7 +652,7 @@ elements.workbenchNav.addEventListener("click", (event) => {
   state.workbench = button.dataset.workbench;
   writeWorkbench(state.workbench);
   if (state.workbench === "relationship" && window.matchMedia("(max-width: 820px)").matches) setDirectoryCollapsed(false);
-  renderActiveWorkbench();
+  renderActiveWorkbench({ resetScroll: true });
 });
 
 elements.detail.addEventListener("change", (event) => {
@@ -684,8 +724,7 @@ elements.detail.addEventListener("change", (event) => {
   }
   const inventoryFilter = event.target.closest("[data-inventory-filter]");
   if (inventoryFilter) {
-    state.inventoryFilters = { ...state.inventoryFilters, [inventoryFilter.dataset.inventoryFilter]: inventoryFilter.type === "checkbox" ? inventoryFilter.checked : inventoryFilter.value };
-    renderActiveWorkbench();
+    rerenderInventoryFilter(inventoryFilter);
   }
 });
 

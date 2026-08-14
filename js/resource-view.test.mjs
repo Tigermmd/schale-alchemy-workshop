@@ -35,13 +35,20 @@ const html = renderResourcesWorkspace({
       input_kind: "daily_count",
       amount: null,
       expected_per_count: 31.25,
+    }, {
+      id: "daily-cafe-exp",
+      cadence: "daily",
+      unit: "relationship_exp",
+      input_kind: "daily_count",
+      amount: null,
+      expected_per_count: 15,
     }],
   },
   locale: "zh",
   evidence: { rows: [], sources: [] },
 });
 
-assert.match(html, /周期资源设置/);
+assert.match(html, /免费资源账本/);
 assert.match(html, /制造启动石/);
 assert.doesNotMatch(html, /每周制造启动石/);
 assert.match(html, />70</);
@@ -49,6 +56,8 @@ assert.doesNotMatch(html, /70\.00/);
 assert.match(html, />3</);
 assert.doesNotMatch(html, /3\.00/);
 assert.match(html, /待填写/);
+assert.match(html, /日程：每天摸头次数/);
+assert.match(html, /咖啡厅：每天摸头次数/);
 assert.match(html, /resource-art-strip/);
 assert.match(html, /kivo-favor\.webp/);
 assert.match(html, /schaledb-gdd-logo\.png/);

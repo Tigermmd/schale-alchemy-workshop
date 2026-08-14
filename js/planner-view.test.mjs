@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { filterPlannerStudents, plannerStudentLabel, renderPlannerStudentOptions } from "./planner-view.js";
+import { filterPlannerStudents, plannerStudentLabel, renderPlannerStudentOptions, renderWorkbenchTabs } from "./planner-view.js";
 import { text } from "./i18n.js";
 
 const students = [
@@ -11,6 +11,7 @@ assert.deepEqual(filterPlannerStudents(students, "mika", {}), [students[0]]);
 assert.deepEqual(filterPlannerStudents(students, "コユキ", {}), [students[1]]);
 assert.deepEqual(filterPlannerStudents(students, "10063", {}), [students[1]]);
 assert.equal(plannerStudentLabel(students[0], "zh_cn", {}), "未花（泳装）");
+assert.match(renderWorkbenchTabs({ locale: "zh_cn", active: "agent" }), /aria-label="工作区导航"/);
 
 const options = renderPlannerStudentOptions({ students, query: "mika", locale: "zh_cn", localization: {} });
 assert.match(options, /data-planner-student-option="10122"/);

@@ -75,6 +75,8 @@ const arona = parseInventoryImport(JSON.stringify({
     item_100008: 1475,
     item_5000: 25,
     item_5998: 2,
+    item_3: 17,
+    item_82: 4,
   },
   materialCalculator: [],
   farmingStudents: [],
@@ -88,6 +90,8 @@ assert.equal(arona.source, "arona.icu");
 assert.equal(arona.state.inventory["5000"], 25);
 assert.equal(arona.state.inventory["5998"], 2);
 assert.equal(arona.state.giftBoxes["100008"], 1475);
+assert.equal(arona.state.stockResources.manufacturing_stone, 17);
+assert.equal(arona.state.stockResources.synthesis_stone_gold, 4);
 assert.deepEqual(arona.warnings, []);
 
 assert.equal(parseInventoryImport("not json").ok, false);

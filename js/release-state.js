@@ -1,4 +1,4 @@
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v43";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v45";
 
 export const CN_PROGRESS_VERSION = 1;
 

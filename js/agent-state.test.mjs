@@ -57,6 +57,7 @@ assert.equal(context.students.find((student) => student.studentId === 10122).rel
 assert.equal(context.calculatedResults.gap, 123.456);
 assert.ok(Array.isArray(context.dataQuality.missingUserInputs));
 assert.equal(context.schemaVersion, 2);
+assert.equal(context.plannerState.mainTargetStudentId, null);
 assert.equal(context.disclosure.mode, "progressive");
 assert.ok(Array.isArray(context.calculationTools));
 assert.ok(context.calculationTools.some((tool) => tool.id === "calculate_student_plan"));

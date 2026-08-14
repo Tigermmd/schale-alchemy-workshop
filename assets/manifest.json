@@ -3,7 +3,7 @@
   "source": {
     "image_base": "https://schaledb.com",
     "crafting_source": "https://schaledb.com/data/crafting.min.json",
-    "retrieved_at": "2026-08-14T06:40:38+00:00"
+    "retrieved_at": "2026-08-14T07:15:18+00:00"
   },
   "entries": {
     "gift:5000": {
@@ -5309,6 +5309,108 @@
       "remote": "https://schaledb.com/images/stage/mission_6_1.webp",
       "downloaded": true,
       "bytes": 12280
+    },
+    "ui:event-scene-701": {
+      "local": "./assets/ui/events/event_701.webp",
+      "remote": "https://schaledb.com/images/stage/event_701.webp",
+      "downloaded": true,
+      "bytes": 9566
+    },
+    "ui:event-scene-801": {
+      "local": "./assets/ui/events/event_801.webp",
+      "remote": "https://schaledb.com/images/stage/event_801.webp",
+      "downloaded": true,
+      "bytes": 11774
+    },
+    "ui:event-scene-802": {
+      "local": "./assets/ui/events/event_802.webp",
+      "remote": "https://schaledb.com/images/stage/event_802.webp",
+      "downloaded": true,
+      "bytes": 12344
+    },
+    "ui:event-scene-805": {
+      "local": "./assets/ui/events/event_805.webp",
+      "remote": "https://schaledb.com/images/stage/event_805.webp",
+      "downloaded": true,
+      "bytes": 14246
+    },
+    "ui:event-scene-808": {
+      "local": "./assets/ui/events/event_808.webp",
+      "remote": "https://schaledb.com/images/stage/event_808.webp",
+      "downloaded": true,
+      "bytes": 13624
+    },
+    "ui:event-scene-812": {
+      "local": "./assets/ui/events/event_812.webp",
+      "remote": "https://schaledb.com/images/stage/event_812.webp",
+      "downloaded": true,
+      "bytes": 8722
+    },
+    "ui:event-scene-818": {
+      "local": "./assets/ui/events/event_818.webp",
+      "remote": "https://schaledb.com/images/stage/event_818.webp",
+      "downloaded": true,
+      "bytes": 13740
+    },
+    "ui:event-scene-824": {
+      "local": "./assets/ui/events/event_824.webp",
+      "remote": "https://schaledb.com/images/stage/event_824.webp",
+      "downloaded": true,
+      "bytes": 11116
+    },
+    "ui:event-scene-828": {
+      "local": "./assets/ui/events/event_828.webp",
+      "remote": "https://schaledb.com/images/stage/event_828.webp",
+      "downloaded": true,
+      "bytes": 11384
+    },
+    "ui:event-scene-834": {
+      "local": "./assets/ui/events/event_834.webp",
+      "remote": "https://schaledb.com/images/stage/event_834.webp",
+      "downloaded": true,
+      "bytes": 8734
+    },
+    "ui:event-scene-839": {
+      "local": "./assets/ui/events/event_839.webp",
+      "remote": "https://schaledb.com/images/stage/event_839.webp",
+      "downloaded": true,
+      "bytes": 9098
+    },
+    "ui:event-scene-844": {
+      "local": "./assets/ui/events/event_844.webp",
+      "remote": "https://schaledb.com/images/stage/event_844.webp",
+      "downloaded": true,
+      "bytes": 11820
+    },
+    "item:3": {
+      "local": "./assets/items/3.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_craftitem_1.webp",
+      "downloaded": true,
+      "bytes": 5786
+    },
+    "item:82": {
+      "local": "./assets/items/82.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_shiftingcraftitem_2.webp",
+      "downloaded": true,
+      "bytes": 4730
+    },
+    "item:100000": {
+      "local": "./assets/items/100000.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_favor_random.webp",
+      "downloaded": true,
+      "bytes": 6106
+    },
+    "item:100008": {
+      "local": "./assets/items/100008.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_favor_selection.webp",
+      "downloaded": true,
+      "bytes": 6040
+    },
+    "item:100009": {
+      "local": "./assets/items/100009.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_favor_random_lv2.webp",
+      "downloaded": true,
+      "bytes": 6804
     }
   },
   "counts": {
@@ -5319,6 +5421,8 @@
     "crafting_nodes": 132,
     "reaction_icons": 4,
     "ui_assets": 46,
-    "downloaded": 884
+    "event_art": 12,
+    "item_assets": 5,
+    "downloaded": 901
   }
 }

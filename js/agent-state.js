@@ -1,7 +1,7 @@
-import { addStudentPlan, normalizePlannerState, setPackagePlan } from "./planner-state.js?v=dashboard-20260814-rebuild-v43";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260814-rebuild-v43";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260814-rebuild-v43";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260814-rebuild-v43";
+import { addStudentPlan, normalizePlannerState, setPackagePlan } from "./planner-state.js?v=dashboard-20260814-rebuild-v45";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260814-rebuild-v45";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260814-rebuild-v45";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260814-rebuild-v45";
 
 const ALLOWED_CHANGE_KINDS = new Set(["set_student_target", "set_forecast_days", "set_cn_cutoff_student", "set_package_plan"]);
 const ALLOWED_CHANGE_FIELDS = Object.freeze({
@@ -329,6 +329,7 @@ export function buildAgentContext(state, calculatedResults, data, { message = ""
     plannerState: {
       forecastDays: normalizedState.forecastDays,
       periodDays: normalizedState.periodDays,
+      mainTargetStudentId: normalizedState.mainTargetStudentId ?? null,
       students: normalizedState.students,
       inventory: normalizedState.inventory,
       giftBoxes: normalizedState.giftBoxes,

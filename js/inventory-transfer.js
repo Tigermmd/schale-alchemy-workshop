@@ -1,4 +1,4 @@
-import { createInventoryState } from "./inventory-state.js?v=dashboard-20260814-rebuild-v43";
+import { createInventoryState } from "./inventory-state.js?v=dashboard-20260814-rebuild-v45";
 
 export const INVENTORY_TRANSFER_FORMAT = "schale-relationship-inventory";
 export const INVENTORY_TRANSFER_SCHEMA_VERSION = 1;
@@ -135,6 +135,7 @@ function parseAronaInventory(payload, { giftIds, giftBoxIds } = {}) {
   if (typeof payload.version !== "string" || !isRecord(payload.inventory)) return { ok: false, reason: "unsupported_format" };
   const inventory = {};
   const giftBoxes = {};
+  const stockResources = {};
   const warnings = [];
   const knownBoxIds = giftBoxIds instanceof Set ? giftBoxIds : new Set(["100000", "100008", "100009"]);
   const knownGiftIds = giftIds instanceof Set ? giftIds : new Set();
@@ -146,6 +147,8 @@ function parseAronaInventory(payload, { giftIds, giftBoxIds } = {}) {
     }
     const id = match[1];
     if (knownBoxIds.has(id)) giftBoxes[id] = value;
+    else if (id === "3") stockResources.manufacturing_stone = value;
+    else if (id === "82") stockResources.synthesis_stone_gold = value;
     else {
       inventory[id] = value;
       if (!knownGiftIds.has(id)) warnings.push({ type: "unknown_gift_id", id });
@@ -154,7 +157,7 @@ function parseAronaInventory(payload, { giftIds, giftBoxIds } = {}) {
   return {
     ok: true,
     source: "arona.icu",
-    state: createInventoryState({ inventory, giftBoxes }),
+    state: createInventoryState({ inventory, giftBoxes, stockResources }),
     warnings,
   };
 }

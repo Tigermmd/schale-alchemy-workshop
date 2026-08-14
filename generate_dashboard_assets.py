@@ -291,6 +291,38 @@ STAGE_ART_SPECS = [
     ]
 ]
 
+# Small event-scene illustrations from SchaleDB.  They are intentionally
+# cached as a separate family: these are atmosphere, not data-bearing
+# student or gift images.  Each workspace can use a different trio so the
+# dashboard does not feel like the same stage screenshot repeated everywhere.
+EVENT_ART_IDS = (701, 801, 802, 805, 808, 812, 818, 824, 828, 834, 839, 844)
+EVENT_ART_SPECS = [
+    (
+        f"ui:event-scene-{event_id}",
+        f"./assets/ui/events/event_{event_id}.webp",
+        f"{BASE_URL}/images/stage/event_{event_id}.webp",
+    )
+    for event_id in EVENT_ART_IDS
+]
+
+# Non-gift items that appear in inventory, periodic resources and package
+# contents.  Keeping their native icons next to the gift cache makes those
+# sections readable without inventing glyphs for stones and boxes.
+ITEM_ASSET_SPECS = [
+    (
+        f"item:{item_id}",
+        f"./assets/items/{item_id}.webp",
+        f"{BASE_URL}/images/item/icon/{icon}.webp",
+    )
+    for item_id, icon in (
+        (3, "item_icon_craftitem_1"),
+        (82, "item_icon_shiftingcraftitem_2"),
+        (100000, "item_icon_favor_random"),
+        (100008, "item_icon_favor_selection"),
+        (100009, "item_icon_favor_random_lv2"),
+    )
+]
+
 # Future-planning entries are not part of the released-student preference
 # snapshot, but their portraits are still useful when the planner is opened
 # for a not-yet-released student.
@@ -410,6 +442,8 @@ def build_manifest(data_dir: Path, output_dir: Path) -> dict:
     specs.extend(REACTION_ICON_SPECS)
     specs.extend(UI_ASSET_SPECS)
     specs.extend(STAGE_ART_SPECS)
+    specs.extend(EVENT_ART_SPECS)
+    specs.extend(ITEM_ASSET_SPECS)
 
     with ThreadPoolExecutor(max_workers=12) as executor:
         entries = dict(
@@ -435,6 +469,8 @@ def build_manifest(data_dir: Path, output_dir: Path) -> dict:
             "crafting_nodes": len(crafting.get("Nodes", [])),
             "reaction_icons": len(REACTION_ICON_SPECS),
             "ui_assets": len(UI_ASSET_SPECS),
+            "event_art": len(EVENT_ART_SPECS),
+            "item_assets": len(ITEM_ASSET_SPECS),
             "downloaded": sum(1 for entry in entries.values() if entry["downloaded"]),
         },
     }

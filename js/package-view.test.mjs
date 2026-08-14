@@ -33,12 +33,13 @@ const html = renderPackagesWorkspace({
   locale: "zh_cn",
   data: { packageCatalog: { scope: { as_of: "2026-08-10" }, packages: [catalogPackage] }, studentById: new Map([["1", { student_id: 1, name_zh_cn: "甲", name_en: "A", gift_values: [] }]]), giftBoxes: [], assetManifest: { entries: { "ui:arona-title-new": { local: "./assets/ui/arona-title-new.webp" }, "ui:kivo-options": { local: "./assets/ui/kivo-options.webp" } } } },
 });
-assert.match(html, /礼包性价比/);
+assert.match(html, /礼包购买参考/);
 assert.match(html, /好感 \/ 元/);
 assert.match(html, /¥78/);
 assert.doesNotMatch(html, /甲 · #1/);
 assert.match(html, /data-package-target-student/);
 assert.match(html, /package-visual-anchors/);
+assert.match(html, /package-visual-items/);
 assert.match(html, /arona-title-new\.webp/);
 
 const noTargetHtml = renderPackagesWorkspace({
