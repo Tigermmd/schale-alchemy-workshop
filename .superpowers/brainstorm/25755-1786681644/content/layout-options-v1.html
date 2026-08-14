@@ -1,0 +1,103 @@
+<style>
+  :root { --ink:#1e2f45; --muted:#70839a; --line:#d7e3ee; --blue:#2f9de8; --blue2:#eaf6ff; --cyan:#43d0d6; --cream:#fffdf8; --paper:#f7fbfe; --pink:#f3a8bd; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#edf6fb; color:var(--ink); font:14px/1.45 Inter,"PingFang SC",system-ui,sans-serif; }
+  h2 { margin:0 0 5px; font-size:25px; letter-spacing:-.03em; }
+  .intro { margin:0 0 18px; color:var(--muted); }
+  .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  .pick { cursor:pointer; min-width:0; border:1px solid #cfdeea; border-radius:10px; background:#fff; overflow:hidden; transition:.15s; }
+  .pick:hover { transform:translateY(-2px); border-color:var(--blue); box-shadow:0 8px 24px #68a8c522; }
+  .pick-head { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-bottom:1px solid var(--line); }
+  .pick-head strong { font-size:16px; }
+  .tag { color:#167ab6; background:var(--blue2); border-radius:999px; padding:3px 8px; font-size:11px; }
+  .screen { height:330px; padding:10px; background:#f1f7fb; }
+  .app { height:100%; display:grid; grid-template-columns:52px 1fr; border:1px solid #d1e0eb; border-radius:7px; overflow:hidden; background:var(--paper); box-shadow:0 2px 7px #5f819215; }
+  .rail { background:#21344c; color:#c9e4f7; padding:12px 7px; display:flex; flex-direction:column; gap:12px; align-items:center; }
+  .rail .logo { width:29px;height:29px;display:grid;place-items:center;background:#fff;color:#21344c;font-weight:800;font-size:16px; }
+  .rail span { width:28px;height:28px;display:grid;place-items:center;border-radius:6px;font-size:16px; }
+  .rail span.active { background:#2f9de8;color:#fff; }
+  .pane { min-width:0; padding:12px; }
+  .topline { display:flex; justify-content:space-between; align-items:center; gap:6px; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:10px; }
+  .tiny { color:var(--muted); font-size:10px; }
+  .mini-title { font-weight:750; font-size:17px; }
+  .row { display:flex; gap:8px; align-items:center; }
+  .avatar { width:35px;height:35px; border-radius:50%; background:linear-gradient(145deg,#f8c8da,#70c7e7); border:2px solid #fff; box-shadow:0 0 0 1px #c7dbe8; }
+  .pill { padding:5px 8px; border-radius:5px; background:#fff; border:1px solid var(--line); color:var(--muted); font-size:10px; }
+  .button { padding:6px 9px; border-radius:5px; background:var(--blue); color:#fff; font-size:10px; font-weight:700; }
+  .hero { padding:10px; background:#fff; border:1px solid var(--line); border-left:4px solid var(--cyan); border-radius:6px; margin-bottom:8px; }
+  .kpis { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:6px; margin-top:8px; }
+  .kpi { padding:8px; background:#f8fbfd; border:1px solid var(--line); border-radius:5px; }
+  .kpi b { display:block; font-size:17px; margin-top:2px; }
+  .gap { color:#ee6d91; }
+  .section { background:#fff; border:1px solid var(--line); border-radius:6px; padding:9px; margin-top:7px; }
+  .section-line { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .dots { display:flex; gap:5px; margin-top:8px; }
+  .dot { height:25px; flex:1; border-radius:4px; background:#eaf6ff; border:1px solid #b8ddf3; }
+  .dot.hot { background:#d4f8f4; border-color:#73d8d4; }
+  .layout-b.app { display:block; }
+  .layout-b .pane { padding:15px 18px; }
+  .layout-b .hero { background:linear-gradient(100deg,#fff,#f1fbff); padding:14px; }
+  .layout-b .main-result { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+  .big-stat { padding:12px; background:#fff; border:1px solid var(--line); border-radius:6px; }
+  .big-stat b { display:block; font-size:27px; letter-spacing:-.05em; }
+  .big-stat .gap { font-size:27px; }
+  .layout-b .section { margin-top:11px; }
+  .layout-c .app { grid-template-columns:130px 1fr; }
+  .directory { background:#f7fbfe; border-right:1px solid var(--line); padding:10px; }
+  .search { border:1px solid var(--line); border-radius:4px; padding:6px; color:#9aaaba; margin:8px 0; background:#fff; font-size:10px; }
+  .student { display:flex; align-items:center; gap:6px; padding:6px; border-radius:5px; font-size:10px; }
+  .student.active { background:#dff3ff; color:#167ab6; font-weight:700; }
+  .student .avatar { width:22px;height:22px; }
+  .layout-c .pane { padding:12px; }
+  .notes { display:flex; gap:6px; margin-top:8px; }
+  .note { flex:1; padding:7px; background:#fff9e8; border:1px solid #f1dc99; border-radius:5px; font-size:10px; }
+  @media (max-width:850px) { .grid { grid-template-columns:1fr; } .screen { height:310px; } }
+</style>
+
+<h2>先选工作台的气质</h2>
+<p class="intro">下面不是最终页面，而是三种完整的信息架构方向。点击你更想继续打磨的一套，也可以说“混合 A 和 C”。</p>
+
+<div class="grid">
+  <div class="pick" data-choice="A" onclick="toggleSelect(this)">
+    <div class="pick-head"><strong>A · 轻量研究终端</strong><span class="tag">推荐</span></div>
+    <div class="screen"><div class="app">
+      <div class="rail"><div class="logo">S</div><span class="active">⌂</span><span>◈</span><span>▣</span><span>◌</span></div>
+      <div class="pane"><div class="topline"><span class="mini-title">养成规划</span><span class="tiny">CN · 60 天</span></div>
+        <div class="hero"><div class="row"><div class="avatar"></div><div><b>未花（泳装）</b><div class="tiny">目标 Lv.100 · 礼物规划</div></div><span class="button" style="margin-left:auto">切换目标</span></div>
+          <div class="kpis"><div class="kpi"><span class="tiny">还差好感</span><b class="gap">16,288.89</b></div><div class="kpi"><span class="tiny">预计天数</span><b>24 天</b></div><div class="kpi"><span class="tiny">库存覆盖</span><b>93.21%</b></div></div>
+        </div>
+        <div class="section"><div class="section-line"><b>制造路径</b><span class="tiny">查看详情⌄</span></div><div class="dots"><div class="dot hot"></div><div class="dot"></div><div class="dot"></div></div></div>
+        <div class="section"><div class="section-line"><b>下一步</b><span class="button">生成预留</span></div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="pick" data-choice="B" onclick="toggleSelect(this)">
+    <div class="pick-head"><strong>B · 规划中心</strong><span class="tag">结果最强</span></div>
+    <div class="screen"><div class="app layout-b">
+      <div class="pane"><div class="topline"><div><span class="tiny">SCHale / 养成规划</span><div class="mini-title">老师，先看结果</div></div><span class="pill">中文⌄</span></div>
+        <div class="hero"><div class="row"><div class="avatar"></div><div><b>未花（泳装）</b><div class="tiny">从 Lv.1 到 Lv.100</div></div><span class="pill" style="margin-left:auto">修改目标</span></div>
+          <div class="main-result"><div class="big-stat"><span class="tiny">指定周期内好感缺口</span><b class="gap">16,288.89</b></div><div class="big-stat"><span class="tiny">按免费资源预计</span><b>24 天</b></div></div>
+        </div>
+        <div class="section"><div class="section-line"><b>礼物怎么分配</b><span class="tiny">展开⌄</span></div><div class="notes"><div class="note">240 · 最喜欢</div><div class="note">180 · 喜欢</div></div></div>
+        <div class="section"><div class="section-line"><b>库存与免费资源</b><span class="tiny">展开⌄</span></div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="pick" data-choice="C" onclick="toggleSelect(this)">
+    <div class="pick-head"><strong>C · 图鉴 + 规划抽屉</strong><span class="tag">资料感</span></div>
+    <div class="screen"><div class="app layout-c">
+      <aside class="directory"><b>学生图鉴</b><div class="search">⌕ 搜索学生</div><div class="student active"><span class="avatar"></span>未花（泳装）</div><div class="student"><span class="avatar"></span>未花</div><div class="student"><span class="avatar"></span>星野</div><div class="student"><span class="avatar"></span>爱露</div></aside>
+      <div class="pane"><div class="topline"><span class="mini-title">未花（泳装）</span><span class="button">加入规划</span></div>
+        <div class="hero"><div class="row"><div class="avatar"></div><div><b>喜欢的礼物</b><div class="tiny">按反应分组 · 直接查看图标</div></div></div><div class="dots"><div class="dot hot"></div><div class="dot hot"></div><div class="dot"></div></div></div>
+        <div class="section"><div class="section-line"><b>三阶段制造期望</b><span class="tiny">阶段 1 / 2 / 3</span></div><div class="dots"><div class="dot hot"></div><div class="dot"></div><div class="dot"></div></div></div>
+        <div class="section"><div class="section-line"><b>养成规划</b><span class="tiny">右侧抽屉 · 不离开图鉴</span></div></div>
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<div style="margin-top:18px;padding:12px 14px;background:#fff;border:1px solid #cfdeea;border-radius:8px;color:#536a80">
+  <b style="color:#1e2f45">共同原则：</b>桌面端不再同时显示六个工作区的所有内容；移动端不横向裁切；主结果只回答“缺口 / 天数”，库存、概率、来源和 Agent 全部按需展开。
+</div>

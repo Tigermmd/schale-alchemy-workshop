@@ -1,0 +1,8 @@
+/* Agent workspace keeps its own cache key for safe rollout, while the
+   shared visual language lives in styles.css. */
+.agent-workspace .agent-api-key-input {
+  -webkit-text-security: disc;
+  text-security: disc;
+  letter-spacing: .08em;
+}
+

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#11213b" />
+    <title>Schale 制造研究台</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=dashboard-20260814-rebuild-v43" />
+    <link rel="stylesheet" href="./agent.css?v=dashboard-20260814-agent-v31" />
+  </head>
+  <body>
+    <div class="app-shell" id="app">
+      <div class="loading-state" id="loading-state" role="status" aria-live="polite">
+        <span class="loading-mark" aria-hidden="true"><img src="./assets/ui/kivo-loading.gif" alt="" /></span>
+        <div>
+          <strong id="loading-title">正在载入 Schale 快照</strong>
+          <p id="loading-description">准备学生、礼物与制造期望数据……</p>
+        </div>
+      </div>
+      <div class="error-state" id="error-state" hidden role="alert">
+        <strong id="error-title">数据载入失败</strong>
+        <p id="error-message">请通过本地 HTTP 服务打开页面。</p>
+      </div>
+      <main class="dashboard" id="dashboard" hidden>
+        <aside class="app-rail" aria-label="工作区导航">
+          <div class="rail-brand" aria-label="Schale">
+            <span class="brand-glyph" aria-hidden="true"><span>S</span><i>01</i></span>
+            <span class="rail-brand-name">SCHALE</span>
+          </div>
+          <div id="workbench-nav"></div>
+          <div class="rail-note" aria-hidden="true">CN<br><span>LAB</span></div>
+        </aside>
+        <div class="app-content">
+          <header class="dashboard-header">
+            <div class="topbar-title">
+              <span class="topbar-kicker">SCHale / CN</span>
+              <h1 id="page-title">制造与好感研究台</h1>
+            </div>
+            <div class="header-meta">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="header-meta-copy">SchaleDB CN · — 学生条目</span>
+              <div class="language-switcher" id="language-switcher" role="group" aria-label="语言"></div>
+              <div class="header-art" aria-hidden="true"><img src="./assets/ui/arona-title.webp" alt="" /></div>
+            </div>
+          </header>
+          <div class="dashboard-layout">
+            <aside class="directory-panel panel" aria-labelledby="directory-title">
+              <div class="directory-heading"><div><span class="directory-kicker" id="directory-kicker">学生</span><h2 id="directory-title">学生目录</h2></div><button type="button" class="directory-toggle" id="directory-toggle" aria-controls="student-list" aria-expanded="true">收起</button><span class="directory-count" id="directory-count">—</span></div>
+              <label class="search-box"><span class="search-icon" aria-hidden="true">⌕</span><span class="sr-only" id="student-search-label">搜索学生</span><input id="student-search" type="search" placeholder="搜索中文名 / English" autocomplete="off" /></label>
+              <div class="student-list" id="student-list" role="listbox" aria-label="学生条目"></div>
+            </aside>
+            <section class="detail-column" id="detail-column"></section>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="./js/app.js?v=dashboard-20260814-rebuild-v43"></script>
+  </body>
+</html>

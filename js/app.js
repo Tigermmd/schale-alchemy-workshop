@@ -1,0 +1,728 @@
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260814-rebuild-v43";
+import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260814-rebuild-v43";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260814-rebuild-v43";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setPackagePlan, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v43";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260814-rebuild-v43";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260814-rebuild-v43";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260814-rebuild-v43";
+import { renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260814-rebuild-v43";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260814-rebuild-v43";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260814-rebuild-v43";
+import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260814-rebuild-v43";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260814-rebuild-v43";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260814-rebuild-v43";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260814-rebuild-v43";
+
+const elements = {
+  loading: document.querySelector("#loading-state"),
+  loadingTitle: document.querySelector("#loading-title"),
+  loadingDescription: document.querySelector("#loading-description"),
+  error: document.querySelector("#error-state"),
+  errorTitle: document.querySelector("#error-title"),
+  errorMessage: document.querySelector("#error-message"),
+  dashboard: document.querySelector("#dashboard"),
+  pageTitle: document.querySelector("#page-title"),
+  headerMetaCopy: document.querySelector("#header-meta-copy"),
+  languageSwitcher: document.querySelector("#language-switcher"),
+  directoryTitle: document.querySelector("#directory-title"),
+  directoryKicker: document.querySelector("#directory-kicker"),
+  directoryCount: document.querySelector("#directory-count"),
+  directoryToggle: document.querySelector("#directory-toggle"),
+  studentSearch: document.querySelector("#student-search"),
+  studentSearchLabel: document.querySelector("#student-search-label"),
+  studentList: document.querySelector("#student-list"),
+  detail: document.querySelector("#detail-column"),
+  workbenchNav: document.querySelector("#workbench-nav"),
+};
+
+const WORKBENCHES = new Set(["relationship", "planner", "inventory", "resources", "packages", "agent"]);
+
+function readWorkbench(search) {
+  const value = new URLSearchParams(search).get("view");
+  return WORKBENCHES.has(value) ? value : "planner";
+}
+
+function writeWorkbench(workbench) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("view", workbench);
+  window.history.replaceState({}, "", url);
+}
+
+const state = {
+  selectedId: "",
+  query: "",
+  giftFilter: "preferred",
+  locale: readStoredLocale(window.localStorage),
+  workbench: readWorkbench(window.location.search),
+  planner: readPlannerState(window.localStorage),
+  inventoryFilters: { query: "", rarity: "all", exp: "all", onlyOwned: true },
+  inventoryNotice: "",
+  packageTargetStudentId: null,
+  agent: { baseUrl: "", model: "", configured: false, messages: [], proposal: null, busy: false, notice: "" },
+};
+
+let data;
+
+function renderLanguageSwitcher() {
+  elements.languageSwitcher.innerHTML = LANGUAGE_OPTIONS.map((option) => `
+    <button type="button" class="language-option ${state.locale === option.id ? "is-active" : ""}" data-locale="${option.id}" aria-pressed="${state.locale === option.id}">${option.label}</button>
+  `).join("");
+  elements.languageSwitcher.setAttribute("aria-label", t(state.locale, "languageLabel"));
+}
+
+function applyLocaleChrome() {
+  document.documentElement.lang = localeTag(state.locale);
+  document.title = t(state.locale, "documentTitle");
+  elements.loadingTitle.textContent = t(state.locale, "loadingTitle");
+  elements.loadingDescription.textContent = t(state.locale, "loadingDescription");
+  elements.errorTitle.textContent = t(state.locale, "errorTitle");
+  const pageTitleKey = {
+    relationship: "workbenchRelationship",
+    planner: "workbenchPlanner",
+    inventory: "workbenchInventory",
+    resources: "workbenchResources",
+    packages: "workbenchPackages",
+    agent: "workbenchAgent",
+  }[state.workbench] ?? "pageTitle";
+  elements.pageTitle.textContent = t(state.locale, pageTitleKey);
+  elements.headerMetaCopy.textContent = t(state.locale, "headerMeta", data?.students.length ?? "—");
+  elements.directoryTitle.textContent = t(state.locale, "studentDirectory");
+  elements.directoryKicker.textContent = t(state.locale, "studentIndex");
+  elements.studentSearch.placeholder = t(state.locale, "searchPlaceholder");
+  elements.studentSearchLabel.textContent = t(state.locale, "studentDirectory");
+  elements.studentList.setAttribute("aria-label", t(state.locale, "searchAria"));
+  renderLanguageSwitcher();
+}
+
+function showError(error) {
+  elements.loading.hidden = true;
+  elements.dashboard.hidden = true;
+  elements.error.hidden = false;
+  elements.errorMessage.textContent = error?.message || t(state.locale, "errorOpen");
+}
+
+function selectedStudent() {
+  return data.studentById.get(state.selectedId);
+}
+
+function renderDirectory() {
+  const filtered = filterStudents(data.students, state.query, data.localization);
+  elements.directoryCount.textContent = `${filtered.length}/${data.students.length}`;
+  renderStudentList({
+    container: elements.studentList,
+    students: filtered,
+    selectedId: state.selectedId,
+    manifest: data.assetManifest,
+    locale: state.locale,
+    localization: data.localization,
+  });
+}
+
+function renderDetails() {
+  const student = selectedStudent();
+  const crafting = data.craftingById.get(state.selectedId);
+  const mechanism = getCraftingMechanismSummary(data.snapshots.crafting, crafting);
+  elements.detail.innerHTML = renderStudentDetails({
+    student,
+    crafting,
+    craftingSnapshot: data.snapshots.crafting,
+    mechanism,
+    giftsById: data.giftById,
+    manifest: data.assetManifest,
+    giftFilter: state.giftFilter,
+    locale: state.locale,
+    localization: data.localization,
+  });
+  const avatarSlot = elements.detail.querySelector("[data-student-avatar]");
+  if (avatarSlot && student) {
+    const localizedStudentName = localizedName(student, "student", state.locale, data.localization);
+    const fallbackName = localizedStudentName.slice(0, 1);
+    avatarSlot.innerHTML = `<div class="hero-avatar">${fallbackName}</div>`;
+    const heroImage = document.createElement("img");
+    const collectionLocal = data.assetManifest?.entries?.[`student-collection:${student.student_id}`]?.local
+      ?? (data.students.some((candidate) => String(candidate.student_id) === String(student.student_id))
+        ? `./assets/students/collection/${student.student_id}.webp`
+        : null);
+    heroImage.src = collectionLocal
+      ?? data.assetManifest?.entries?.[`student:${student.student_id}`]?.local
+      ?? `./assets/students/${student.student_id}.webp`;
+    heroImage.dataset.fallback = `https://schaledb.com/images/student/icon/${student.student_id}.webp`;
+    heroImage.alt = localizedStudentName;
+    heroImage.loading = "eager";
+    avatarSlot.querySelector(".hero-avatar").replaceWith(heroImage);
+  }
+  wireImageFallbacks(elements.detail);
+}
+
+function renderActiveWorkbench() {
+  if (!data) return;
+  elements.dashboard.dataset.workbench = state.workbench;
+  elements.workbenchNav.innerHTML = renderWorkbenchTabs({ locale: state.locale, active: state.workbench });
+  elements.workbenchNav.querySelector("[data-workbench].is-active")?.scrollIntoView({ block: "nearest", inline: "center" });
+  if (state.workbench === "relationship") {
+    renderDetails();
+    return;
+  }
+  if (state.workbench === "planner") {
+    elements.detail.innerHTML = renderPlannerWorkspace({ data, state: state.planner, locale: state.locale, localization: data.localization });
+    wirePlannerImageFallbacks(elements.detail);
+    return;
+  }
+  if (state.workbench === "inventory") {
+    elements.detail.innerHTML = renderInventoryWorkspace({
+      data: { ...data, giftBoxes: data.snapshots.giftBoxes?.boxes ?? [], unlimitedAssaultRewards: data.snapshots.unlimitedAssaultRewards },
+      state: state.planner,
+      locale: state.locale,
+      localization: data.localization,
+      filters: state.inventoryFilters,
+      notice: state.inventoryNotice,
+    });
+    wireInventoryImageFallbacks(elements.detail);
+    return;
+  }
+  if (state.workbench === "resources") {
+    elements.detail.innerHTML = renderResourcesWorkspace({
+      data: { ...data, unlimitedAssaultRewards: data.snapshots.unlimitedAssaultRewards },
+      state: state.planner,
+      locale: state.locale,
+      evidence: data.snapshots.resourceEvidence,
+    });
+    return;
+  }
+  if (state.workbench === "agent") {
+    const context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
+      conversation: state.agent.messages,
+    });
+    elements.detail.innerHTML = renderAgentWorkspace({ data, state: state.agent, locale: state.locale, context });
+    return;
+  }
+  if (state.workbench === "packages") elements.detail.innerHTML = renderPackagesWorkspace({
+    state: state.planner,
+    selectedStudentId: state.packageTargetStudentId,
+    locale: state.locale,
+    localization: data.localization,
+    data: { ...data, giftBoxes: data.snapshots.giftBoxes?.boxes ?? [] },
+  });
+}
+
+function agentSettings(form) {
+  const values = new FormData(form);
+  return { baseUrl: String(values.get("baseUrl") || "").trim(), model: String(values.get("model") || "").trim(), apiKey: String(values.get("apiKey") || "") };
+}
+
+async function postAgent(path, payload) {
+  const response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body?.error?.message || `HTTP ${response.status}`);
+  return body;
+}
+
+async function refreshAgentProxyStatus() {
+  try {
+    const response = await fetch("/api/health", { cache: "no-store" });
+    const body = await response.json().catch(() => ({}));
+    if (response.ok && body.configured === true) {
+      state.agent = { ...state.agent, configured: true, baseUrl: String(body.baseUrl || ""), model: String(body.model || "") };
+    }
+  } catch {
+    // The dashboard can still run as a static page without the optional Harness.
+  }
+}
+
+async function testAgentConnection() {
+  const form = elements.detail.querySelector("#agent-settings-form");
+  if (!form) return;
+  const settings = agentSettings(form);
+  const canReuse = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.baseUrl, configuredModel: state.agent.model, baseUrl: settings.baseUrl, model: settings.model });
+  if (!settings.baseUrl || !settings.model || (!settings.apiKey && !canReuse)) { state.agent.notice = t(state.locale, "agentNeedSettings"); renderActiveWorkbench(); return; }
+  try {
+    if (settings.apiKey) await postAgent("/api/config", settings);
+    await postAgent("/api/config/test", {});
+    state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, notice: t(state.locale, "agentConnectionOk") };
+  } catch (error) { state.agent.notice = `${t(state.locale, "agentRequestFailed")}${error.message}`; }
+  renderActiveWorkbench();
+}
+
+async function sendAgentMessage(form) {
+  const settingsForm = elements.detail.querySelector("#agent-settings-form");
+  const settings = settingsForm ? agentSettings(settingsForm) : null;
+  const values = new FormData(form);
+  const message = String(values.get("message") || "").trim();
+  const sameConfiguredProxy = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.baseUrl, configuredModel: state.agent.model, baseUrl: settings?.baseUrl, model: settings?.model });
+  if (!settings?.baseUrl || !settings?.model || (!settings?.apiKey && !sameConfiguredProxy) || !message) { state.agent.notice = t(state.locale, "agentNeedSettings"); renderActiveWorkbench(); return; }
+  const nextMessages = [...state.agent.messages, { role: "user", content: message }];
+  const context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
+    message,
+    conversation: state.agent.messages,
+  });
+  state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, messages: nextMessages, busy: true, notice: "" };
+  renderActiveWorkbench();
+  try {
+    if (settings.apiKey) await postAgent("/api/config", settings);
+    const result = await postAgent("/api/chat", { message, context, conversation: nextMessages });
+    let proposal = null;
+    if (result.proposal) {
+      const validation = validatePlanningProposal(result.proposal, { state: state.planner, data });
+      proposal = validation.ok ? result.proposal : null;
+      if (!validation.ok) state.agent.notice = `${t(state.locale, "agentInvalidProposal")} ${validation.errors.join("; ")}`;
+    }
+    state.agent = {
+      ...state.agent,
+      messages: [...nextMessages, {
+        role: "assistant",
+        content: String(result.answer || ""),
+        questions: Array.isArray(result.questions) ? result.questions : [],
+      }],
+      proposal: result.needs_user_input === true ? null : proposal,
+      busy: false,
+    };
+  } catch (error) { state.agent = { ...state.agent, busy: false, notice: `${t(state.locale, "agentRequestFailed")}${error.message}` }; }
+  renderActiveWorkbench();
+}
+
+function applyAgentChanges(indices) {
+  const proposal = state.agent.proposal;
+  if (!proposal) return;
+  const changes = proposal.changes.filter((_, index) => indices.includes(index));
+  const result = applyPlanningProposal(state.planner, { ...proposal, changes }, { data });
+  if (!result.ok) { state.agent.notice = t(state.locale, "agentInvalidProposal"); renderActiveWorkbench(); return; }
+  state.planner = writePlannerState(window.localStorage, result.state);
+  state.agent = { ...state.agent, proposal: null, notice: t(state.locale, "agentApplied") };
+  renderActiveWorkbench();
+}
+
+function downloadInventoryJson() {
+  const content = serializeInventoryExport(state.planner);
+  const blob = new Blob([content], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `schale-inventory-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  state.inventoryNotice = "inventoryNoticeExported";
+  renderActiveWorkbench();
+}
+
+async function importInventoryFile(file) {
+  try {
+    const result = parseInventoryImport(await file.text(), {
+      giftIds: new Set(data.gifts.map((gift) => String(gift.id))),
+      giftBoxIds: new Set((data.giftBoxes ?? []).map((box) => String(box.id))),
+    });
+    if (!result.ok) {
+      state.inventoryNotice = "inventoryNoticeImportFailed";
+      renderActiveWorkbench();
+      return;
+    }
+    const baseForImport = migrateLegacyAutoPostedPackageContents(state.planner, data.snapshots.packages?.packages ?? []);
+    const importedState = applyInventoryImport(baseForImport, result.state, { preserveStockResources: result.source === "arona.icu", preservePackageInventoryPostings: true });
+    state.planner = writePlannerState(window.localStorage, importedState);
+    state.planner = writePlannerState(window.localStorage, syncPurchasedPackagesToInventory(
+      migrateLegacyAutoPostedPackageContents(state.planner, data.snapshots.packages?.packages ?? []),
+      data.snapshots.packages?.packages ?? [],
+    ));
+    state.planner = writePlannerState(window.localStorage, { ...state.planner, cnProgress: state.planner.cnProgress
+      ? normalizeCnProgress(state.planner.cnProgress, data.releaseTimeline, data.plannerStudents)
+      : getDefaultCnProgress(data.releaseTimeline, data.plannerStudents) });
+    const aronaImport = result.source === "arona.icu";
+    state.inventoryNotice = result.warnings.length
+      ? { key: aronaImport ? "inventoryNoticeImportedAronaWarnings" : "inventoryNoticeImportedWarnings", args: [result.warnings.length] }
+      : aronaImport ? "inventoryNoticeImportedArona" : "inventoryNoticeImported";
+    renderActiveWorkbench();
+  } catch {
+    state.inventoryNotice = "inventoryNoticeImportFailed";
+    renderActiveWorkbench();
+  }
+}
+
+async function bootstrap() {
+  applyLocaleChrome();
+  try {
+    data = await loadDashboardData();
+    await refreshAgentProxyStatus();
+    state.planner = writePlannerState(window.localStorage, syncPurchasedPackagesToInventory(
+      migrateLegacyAutoPostedPackageContents(state.planner, data.snapshots.packages?.packages ?? []),
+      data.snapshots.packages?.packages ?? [],
+    ));
+    state.planner = writePlannerState(window.localStorage, { ...state.planner, cnProgress: state.planner.cnProgress
+      ? normalizeCnProgress(state.planner.cnProgress, data.releaseTimeline, data.plannerStudents)
+      : getDefaultCnProgress(data.releaseTimeline, data.plannerStudents) });
+    state.selectedId = readSelectedStudentId(window.location.search, data.students);
+    if (state.workbench === "relationship" && window.matchMedia("(max-width: 1100px)").matches) setDirectoryCollapsed(true);
+    applyLocaleChrome();
+    renderDirectory();
+    renderActiveWorkbench();
+    elements.loading.hidden = true;
+    elements.dashboard.hidden = false;
+    document.body.dataset.dashboardReady = "true";
+  } catch (error) {
+    showError(error instanceof Error ? error : new Error(String(error)));
+  }
+}
+
+elements.studentSearch.addEventListener("input", () => {
+  state.query = elements.studentSearch.value;
+  if (!filterStudents(data.students, state.query, data.localization).length) state.selectedId = "";
+  renderDirectory();
+  if (state.workbench === "relationship") renderDetails();
+});
+
+elements.studentList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-student-id]");
+  if (!button) return;
+  state.selectedId = button.dataset.studentId;
+  writeSelectedStudentId(state.selectedId);
+  renderDirectory();
+  if (state.workbench === "relationship") {
+    renderDetails();
+    elements.detail.querySelector("#student-title")?.focus({ preventScroll: true });
+    if (window.matchMedia("(max-width: 820px)").matches) {
+      setDirectoryCollapsed(true);
+      window.setTimeout(() => elements.detail.scrollIntoView({ block: "start", behavior: "smooth" }), 0);
+    }
+  }
+});
+
+function setDirectoryCollapsed(collapsed) {
+  elements.dashboard.classList.toggle("directory-collapsed", collapsed);
+  elements.directoryToggle?.setAttribute("aria-expanded", String(!collapsed));
+  if (elements.directoryToggle) elements.directoryToggle.textContent = collapsed ? t(state.locale, "showStudentDirectory") : t(state.locale, "hideStudentDirectory");
+}
+
+elements.directoryToggle?.addEventListener("click", () => {
+  setDirectoryCollapsed(!elements.dashboard.classList.contains("directory-collapsed"));
+});
+
+elements.detail.addEventListener("click", (event) => {
+  const goPlanner = event.target.closest("[data-go-planner]");
+  if (goPlanner) {
+    state.workbench = "planner";
+    writeWorkbench(state.workbench);
+    renderActiveWorkbench();
+    return;
+  }
+  const quickQuestion = event.target.closest("[data-agent-question]");
+  if (quickQuestion) {
+    const message = elements.detail.querySelector("#agent-chat-form textarea[name=message]");
+    if (message) {
+      message.value = quickQuestion.dataset.agentQuestion || "";
+      message.focus();
+    }
+    return;
+  }
+  if (event.target.closest("[data-agent-test]")) { void testAgentConnection(); return; }
+  const applyOne = event.target.closest("[data-agent-apply-one]");
+  if (applyOne) { applyAgentChanges([Number(applyOne.dataset.agentApplyOne)]); return; }
+  if (event.target.closest("[data-agent-apply-selected]")) {
+    const indices = [...elements.detail.querySelectorAll("[data-agent-change-index]:checked")].map((input) => Number(input.dataset.agentChangeIndex));
+    applyAgentChanges(indices);
+    return;
+  }
+  if (event.target.closest("[data-agent-apply-all]")) { applyAgentChanges((state.agent.proposal?.changes ?? []).map((_, index) => index)); return; }
+  if (event.target.closest("[data-agent-reject]")) { state.agent = { ...state.agent, proposal: null, notice: t(state.locale, "agentRejected") }; renderActiveWorkbench(); return; }
+  const plannerStudentOption = event.target.closest("[data-planner-student-option]");
+  if (plannerStudentOption) {
+    const form = plannerStudentOption.closest("#planner-student-form");
+    const searchInput = form?.querySelector("[data-planner-student-search]");
+    const hiddenInput = form?.querySelector("[name=studentId]");
+    const options = form?.querySelector("[data-planner-student-options]");
+    if (searchInput && hiddenInput && options) {
+      searchInput.value = plannerStudentOption.dataset.plannerStudentLabel ?? "";
+      hiddenInput.value = plannerStudentOption.dataset.plannerStudentOption ?? "";
+      const existingPlan = state.planner.students.find((plan) => String(plan.studentId) === String(hiddenInput.value));
+      for (const [name, fallback] of [["currentLevel", 1], ["currentProgress", 0], ["targetLevel", 50]]) {
+        const input = form.querySelector(`[name="${name}"]`);
+        if (input) input.value = String(existingPlan?.[name] ?? fallback);
+      }
+      searchInput.setAttribute("aria-expanded", "false");
+      searchInput.setAttribute("aria-activedescendant", "");
+      options.hidden = true;
+    }
+    return;
+  }
+  if (event.target.closest("[data-export-inventory]")) {
+    downloadInventoryJson();
+    return;
+  }
+  if (event.target.closest("[data-import-inventory]")) {
+    elements.detail.querySelector("#inventory-import-file")?.click();
+    return;
+  }
+  const filterButton = event.target.closest("[data-gift-filter]");
+  if (filterButton) {
+    state.giftFilter = filterButton.dataset.giftFilter;
+    renderDetails();
+    return;
+  }
+  const removePlan = event.target.closest("[data-remove-plan]");
+  if (removePlan) {
+    state.planner = writePlannerState(window.localStorage, removeStudentPlan(state.planner, removePlan.dataset.removePlan));
+    renderActiveWorkbench();
+    return;
+  }
+  const setMainTarget = event.target.closest("[data-set-main-target]");
+  if (setMainTarget) {
+    state.planner = writePlannerState(window.localStorage, setMainTargetStudent(state.planner, setMainTarget.dataset.setMainTarget));
+    renderActiveWorkbench();
+    return;
+  }
+  // Package efficiency is read-only. Purchase facts remain in packagePlans;
+  // this page intentionally has no purchase controls.
+  const postResource = event.target.closest("[data-post-resource]");
+  if (postResource) {
+    state.planner = writePlannerState(window.localStorage, postPeriodicResource(state.planner, postResource.dataset.postResource, {
+      periodDays: state.planner.periodDays,
+      rewardSnapshot: data.snapshots.unlimitedAssaultRewards,
+    }));
+    renderActiveWorkbench();
+    return;
+  }
+  const undoPosting = event.target.closest("[data-undo-posting]");
+  if (undoPosting) {
+    state.planner = writePlannerState(window.localStorage, undoPeriodicResource(state.planner, undoPosting.dataset.undoPosting));
+    renderActiveWorkbench();
+    return;
+  }
+  if (event.target.closest("[data-release-reservations]")) {
+    state.planner = writePlannerState(window.localStorage, releaseGiftReservations(state.planner));
+    state.inventoryNotice = "inventoryNoticeReleased";
+    renderActiveWorkbench();
+    return;
+  }
+  if (event.target.closest("[data-confirm-reservations]")) {
+    state.planner = writePlannerState(window.localStorage, confirmGiftReservations(state.planner));
+    state.inventoryNotice = "inventoryNoticeConfirmed";
+    renderActiveWorkbench();
+    return;
+  }
+  if (event.target.closest("[data-reserve-allocation]")) {
+    const { allocation } = prepareAllocation(data, state.planner, data.snapshots.thresholds);
+    state.planner = writePlannerState(window.localStorage, reserveGiftAllocation(state.planner, allocation.assignments));
+    renderActiveWorkbench();
+    return;
+  }
+});
+
+elements.detail.addEventListener("keydown", (event) => {
+  const searchInput = event.target.closest("[data-planner-student-search]");
+  if (!searchInput) return;
+  const options = searchInput.closest(".planner-student-combobox")?.querySelector("[data-planner-student-options]");
+  const optionButtons = options ? [...options.querySelectorAll("[data-planner-student-option]")] : [];
+  if (!options || !optionButtons.length) {
+    if (event.key === "Escape") searchInput.setAttribute("aria-expanded", "false");
+    return;
+  }
+  const activeId = searchInput.getAttribute("aria-activedescendant");
+  let activeIndex = optionButtons.findIndex((button) => button.id === activeId);
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    options.hidden = false;
+    activeIndex = event.key === "ArrowDown"
+      ? Math.min(optionButtons.length - 1, activeIndex + 1)
+      : Math.max(0, activeIndex <= 0 ? 0 : activeIndex - 1);
+    const active = optionButtons[activeIndex];
+    optionButtons.forEach((button, index) => button.setAttribute("aria-selected", String(index === activeIndex)));
+    searchInput.setAttribute("aria-activedescendant", active.id);
+    active.scrollIntoView({ block: "nearest" });
+    return;
+  }
+  if (event.key === "Enter" && !options.hidden) {
+    event.preventDefault();
+    (optionButtons[activeIndex >= 0 ? activeIndex : 0]).click();
+    return;
+  }
+  if (event.key === "Escape") {
+    event.preventDefault();
+    options.hidden = true;
+    searchInput.setAttribute("aria-expanded", "false");
+    searchInput.setAttribute("aria-activedescendant", "");
+  }
+});
+
+elements.detail.addEventListener("input", (event) => {
+  const plannerStudentSearch = event.target.closest("[data-planner-student-search]");
+  if (plannerStudentSearch) {
+    const form = plannerStudentSearch.closest("#planner-student-form");
+    const hiddenInput = form?.querySelector("[name=studentId]");
+    const options = form?.querySelector("[data-planner-student-options]");
+    if (hiddenInput && options) {
+      hiddenInput.value = "";
+      options.innerHTML = renderPlannerStudentOptions({
+        students: data.plannerStudents ?? data.students,
+        query: plannerStudentSearch.value,
+        locale: state.locale,
+        localization: data.localization,
+      });
+      options.hidden = false;
+      plannerStudentSearch.setAttribute("aria-expanded", "true");
+      plannerStudentSearch.setAttribute("aria-activedescendant", "");
+    }
+    return;
+  }
+  const resourceInput = event.target.closest("[data-resource-amount]");
+  if (resourceInput) {
+    state.planner = writePlannerState(window.localStorage, setResourceAmount(state.planner, resourceInput.dataset.resourceAmount, resourceInput.value));
+    return;
+  }
+  const packagePlanInput = event.target.closest("[data-package-plan]");
+  if (packagePlanInput) {
+    state.planner = writePlannerState(window.localStorage, syncPurchasedPackagesToInventory(
+      setPackagePlan(state.planner, packagePlanInput.dataset.packagePlan, packagePlanInput.dataset.packagePlanField, packagePlanInput.value),
+      data.snapshots.packages?.packages ?? [],
+    ));
+    return;
+  }
+  const plannerInventory = event.target.closest("[data-planner-inventory]");
+  if (plannerInventory) {
+    state.planner = writePlannerState(window.localStorage, setInventoryCount(state.planner, plannerInventory.dataset.plannerInventory, plannerInventory.value));
+    return;
+  }
+  const inventoryFilter = event.target.closest("[data-inventory-filter]");
+  if (inventoryFilter) {
+    state.inventoryFilters = { ...state.inventoryFilters, [inventoryFilter.dataset.inventoryFilter]: inventoryFilter.type === "checkbox" ? inventoryFilter.checked : inventoryFilter.value };
+    return;
+  }
+  const inventoryGift = event.target.closest("[data-inventory-gift]");
+  if (inventoryGift) {
+    state.planner = writePlannerState(window.localStorage, setInventoryCount(state.planner, inventoryGift.dataset.inventoryGift, inventoryGift.value));
+    return;
+  }
+  const inventoryGiftBox = event.target.closest("[data-gift-box-count]");
+  if (inventoryGiftBox) {
+    state.planner = writePlannerState(window.localStorage, setGiftBoxCount(state.planner, inventoryGiftBox.dataset.giftBoxCount, inventoryGiftBox.value));
+    return;
+  }
+  const stockInput = event.target.closest("[data-stock-resource]");
+  if (stockInput) {
+    state.planner = writePlannerState(window.localStorage, setStockResourceCount(state.planner, stockInput.dataset.stockResource, stockInput.value));
+    return;
+  }
+  const poolInput = event.target.closest("[data-equivalent-pool]");
+  if (poolInput) {
+    state.planner = writePlannerState(window.localStorage, setEquivalentGiftPoolCount(state.planner, poolInput.dataset.equivalentPool, poolInput.value));
+  }
+});
+
+elements.workbenchNav.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-workbench]");
+  if (!button || !WORKBENCHES.has(button.dataset.workbench)) return;
+  state.workbench = button.dataset.workbench;
+  writeWorkbench(state.workbench);
+  if (state.workbench === "relationship" && window.matchMedia("(max-width: 820px)").matches) setDirectoryCollapsed(false);
+  renderActiveWorkbench();
+});
+
+elements.detail.addEventListener("change", (event) => {
+  const packageTarget = event.target.closest("[data-package-target-student]");
+  if (packageTarget) {
+    state.packageTargetStudentId = packageTarget.value;
+    renderActiveWorkbench();
+    return;
+  }
+  const inventoryImport = event.target.closest("#inventory-import-file");
+  if (inventoryImport) {
+    const file = inventoryImport.files?.[0];
+    if (file) void importInventoryFile(file);
+    return;
+  }
+  const inventoryInput = event.target.closest("[data-planner-inventory]");
+  if (inventoryInput) {
+    state.planner = writePlannerState(window.localStorage, setInventoryCount(state.planner, inventoryInput.dataset.plannerInventory, inventoryInput.value));
+    renderActiveWorkbench();
+    return;
+  }
+  const inventoryGiftInput = event.target.closest("[data-inventory-gift]");
+  if (inventoryGiftInput) {
+    state.planner = writePlannerState(window.localStorage, setInventoryCount(state.planner, inventoryGiftInput.dataset.inventoryGift, inventoryGiftInput.value));
+    renderActiveWorkbench();
+    return;
+  }
+  const stockInput = event.target.closest("[data-stock-resource]");
+  if (stockInput) {
+    state.planner = writePlannerState(window.localStorage, setStockResourceCount(state.planner, stockInput.dataset.stockResource, stockInput.value));
+    renderActiveWorkbench();
+    return;
+  }
+  const poolInput = event.target.closest("[data-equivalent-pool]");
+  if (poolInput) {
+    state.planner = writePlannerState(window.localStorage, setEquivalentGiftPoolCount(state.planner, poolInput.dataset.equivalentPool, poolInput.value));
+    renderActiveWorkbench();
+    return;
+  }
+  const resourceInput = event.target.closest("[data-resource-amount]");
+  if (resourceInput) {
+    state.planner = writePlannerState(window.localStorage, setResourceAmount(state.planner, resourceInput.dataset.resourceAmount, resourceInput.value));
+    renderActiveWorkbench();
+    return;
+  }
+  const resourceFloor = event.target.closest("[data-resource-floor]");
+  if (resourceFloor) {
+    const amount = resourceFloor.value === "custom" ? null : resourceFloor.value;
+    state.planner = writePlannerState(window.localStorage, setResourceAmount(state.planner, resourceFloor.dataset.resourceFloor, amount));
+    renderActiveWorkbench();
+    return;
+  }
+  const giftBoxInput = event.target.closest("[data-gift-box-count]");
+  if (giftBoxInput) {
+    state.planner = writePlannerState(window.localStorage, setGiftBoxCount(state.planner, giftBoxInput.dataset.giftBoxCount, giftBoxInput.value));
+    renderActiveWorkbench();
+    return;
+  }
+  const periodInput = event.target.closest("[data-period-days]");
+  if (periodInput) {
+    state.planner = writePlannerState(window.localStorage, { ...state.planner, periodDays: periodInput.value });
+    renderActiveWorkbench();
+    return;
+  }
+  const forecastDaysInput = event.target.closest("[data-planner-forecast-days]");
+  if (forecastDaysInput) {
+    state.planner = writePlannerState(window.localStorage, { ...state.planner, forecastDays: forecastDaysInput.value });
+    renderActiveWorkbench();
+  }
+  const inventoryFilter = event.target.closest("[data-inventory-filter]");
+  if (inventoryFilter) {
+    state.inventoryFilters = { ...state.inventoryFilters, [inventoryFilter.dataset.inventoryFilter]: inventoryFilter.type === "checkbox" ? inventoryFilter.checked : inventoryFilter.value };
+    renderActiveWorkbench();
+  }
+});
+
+elements.detail.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (event.target.id === "agent-chat-form") { void sendAgentMessage(event.target); return; }
+  if (event.target.id === "planner-student-form") {
+    const form = new FormData(event.target);
+    const studentId = parseStudentIdInput(form.get("studentId") || form.get("studentSearch"));
+    if (!studentId) return;
+    state.planner = writePlannerState(window.localStorage, addStudentPlan(state.planner, {
+      studentId,
+      currentLevel: form.get("currentLevel"),
+      currentProgress: form.get("currentProgress"),
+      targetLevel: form.get("targetLevel"),
+    }));
+    renderActiveWorkbench();
+    return;
+  }
+  if (event.target.id === "inventory-synthesis-form") {
+    const form = new FormData(event.target);
+    const result = synthesizeGoldGift(state.planner, form.get("firstGiftId"), form.get("secondGiftId"), data.giftById);
+    state.planner = writePlannerState(window.localStorage, result.state);
+    state.inventoryNotice = result.ok ? "inventoryNoticeSynthesized" : result.reason === "gold_gifts_only" ? "inventoryNoticeGoldOnly" : "inventoryNoticeInsufficient";
+    renderActiveWorkbench();
+  }
+});
+
+elements.languageSwitcher.addEventListener("click", (event) => {
+  const languageButton = event.target.closest("[data-locale]");
+  if (!languageButton) return;
+  state.locale = writeStoredLocale(window.localStorage, languageButton.dataset.locale);
+  applyLocaleChrome();
+  if (data) {
+    renderDirectory();
+    renderActiveWorkbench();
+  }
+});
+
+bootstrap();
