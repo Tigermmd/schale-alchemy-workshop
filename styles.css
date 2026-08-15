@@ -748,6 +748,29 @@ textarea::placeholder { color: #9aabba; }
   line-height: 1.05;
 }
 
+.profile-gifts-details {
+  margin-top: .65rem;
+  border-top: 1px solid rgba(184, 219, 228, .72);
+}
+
+.profile-gifts-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .45rem 0;
+  color: var(--blue-deep);
+  cursor: pointer;
+  font-size: .65rem;
+  font-weight: 900;
+  list-style: none;
+}
+
+.profile-gifts-details > summary::-webkit-details-marker { display: none; }
+.profile-gifts-details > summary::after { content: "＋"; font-size: .85rem; }
+.profile-gifts-details[open] > summary::after { content: "－"; }
+.profile-gifts-details > summary small { color: var(--muted); font-size: .58rem; font-weight: 700; }
+
 .profile-gifts {
   display: grid;
   gap: .45rem;
@@ -1476,7 +1499,8 @@ textarea::placeholder { color: #9aabba; }
 
 .planner-hero-copy { position: relative; z-index: 2; grid-area: copy; min-width: 0; }
 
-.planner-hero-copy h1 {
+.planner-hero-copy h1,
+.planner-hero-copy h2 {
   color: var(--navy);
   font-size: clamp(1.55rem, 3.1vw, 2.45rem);
   font-weight: 950;
@@ -1750,6 +1774,7 @@ textarea::placeholder { color: #9aabba; }
 .planner-detail-grid b { color: var(--navy); font-size: .72rem; }
 
 .planner-edit-details { margin-top: .2rem; }
+.planner-empty-form:not([open]) > summary { display: none; }
 .planner-student-form {
   display: grid;
   grid-template-columns: minmax(12rem, 1.7fr) repeat(3, minmax(7rem, .8fr)) auto;
@@ -1867,7 +1892,8 @@ textarea::placeholder { color: #9aabba; }
 }
 
 .inventory-page-hero > div:first-child { grid-area: copy; position: relative; z-index: 2; }
-.inventory-page-hero h1 { color: var(--navy); font-size: clamp(1.55rem, 3vw, 2.35rem); font-weight: 950; letter-spacing: -.05em; }
+.inventory-page-hero h1,
+.inventory-page-hero h2 { color: var(--navy); font-size: clamp(1.55rem, 3vw, 2.35rem); font-weight: 950; letter-spacing: -.05em; }
 .inventory-page-hero p { max-width: 33rem; margin-top: .4rem; color: var(--muted); font-size: .7rem; }
 
 .inventory-hero-art {
@@ -1899,7 +1925,7 @@ textarea::placeholder { color: #9aabba; }
 .inventory-overview {
   grid-area: overview;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: .55rem;
 }
 
@@ -1918,7 +1944,7 @@ textarea::placeholder { color: #9aabba; }
 
 .inventory-section,
 .inventory-reservation-panel,
-.inventory-transfer-details,
+.inventory-transfer-primary,
 .inventory-more-details {
   position: relative;
   margin-top: var(--space-4);
@@ -2068,6 +2094,7 @@ textarea::placeholder { color: #9aabba; }
 .inventory-reservation-list span { padding: .25rem .4rem; border-radius: 99px; background: rgba(255,255,255,.75); font-size: .59rem; }
 .inventory-reservation-actions { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: end; }
 .inventory-transfer-panel { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: .45rem; }
+.inventory-transfer-primary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .inventory-transfer-copy { display: grid; gap: .15rem; }
 .inventory-transfer-copy h2 { color: var(--navy); font-size: .82rem; }
 .inventory-transfer-copy small { color: var(--muted); font-size: .62rem; }
@@ -2241,8 +2268,8 @@ textarea::placeholder { color: #9aabba; }
 .package-efficiency-rate { display: grid; justify-items: end; }
 .package-efficiency-rate b { color: #2b906c; font-size: 1rem; font-variant-numeric: tabular-nums; }
 .package-efficiency-rate small { color: var(--muted); font-size: .56rem; }
-.package-efficiency-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem; margin-top: .7rem; }
-.package-efficiency-kpis > div { display: grid; gap: .1rem; padding: .5rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.package-efficiency-kpis { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; margin-top: .55rem; color: var(--muted); }
+.package-efficiency-kpis > div { display: inline-flex; align-items: baseline; gap: .28rem; padding: 0; border: 0; background: transparent; }
 .package-efficiency-kpis span { color: var(--muted); font-size: .56rem; }
 .package-efficiency-kpis b { color: var(--ink); font-size: .72rem; font-variant-numeric: tabular-nums; }
 .package-details { margin-top: .45rem; border-top: 1px solid var(--line); }
@@ -2280,6 +2307,10 @@ textarea::placeholder { color: #9aabba; }
 .agent-plan-summary-row small { color: var(--muted); font-size: .56rem; }
 .agent-plan-summary-row b { color: var(--navy); font-size: .7rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .agent-plan-summary-empty { min-height: 3rem; align-items: center; }
+.agent-connection-empty { display: flex; align-items: center; gap: .7rem; padding: 1rem; border: 1px dashed #acd8e2; border-radius: var(--radius-md); background: var(--cyan-soft); }
+.agent-connection-mark { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--navy); color: #fff; font-size: 1rem; }
+.agent-connection-empty strong { color: var(--navy); font-size: .8rem; }
+.agent-connection-empty p { margin-top: .18rem; color: var(--muted); font-size: .65rem; line-height: 1.45; }
 .agent-quick { display: grid; gap: .4rem; padding: .7rem .8rem; border-color: #b8dfe1; background: var(--cyan-soft); }
 .agent-quick > div { display: flex; flex-wrap: wrap; gap: .35rem; }
 .agent-quick-button { padding: .4rem .5rem; border: 1px solid #b8dfe1; border-radius: var(--radius-sm); background: #fff; color: #236d70; font-size: .63rem; text-align: left; }
@@ -2451,17 +2482,19 @@ textarea::placeholder { color: #9aabba; }
   .planner-result-kpis,
   .planner-detail-grid,
   .resource-kpi-grid,
-  .inventory-overview { grid-template-columns: 1fr; }
+  .inventory-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stage-card { grid-template-columns: 1fr; grid-template-areas: "top" "visual" "copy" "list" "stats" "details"; }
   .stage-card-visual { min-height: 7rem; }
   .node-stats { grid-template-columns: 1fr; }
   .node-stats > div { border-right: 0; border-bottom: 1px solid var(--line); }
   .node-stats > div:last-child { border-bottom: 0; }
   .stage-pool-details { grid-template-columns: 1fr; }
-  .planner-hero { grid-template-columns: 1fr; grid-template-areas: "copy" "art" "days"; }
-  .planner-hero-art { min-height: 7rem; }
-  .planner-hero-target-portrait { width: 6rem; height: 7.5rem; }
-  .planner-hero-art-title { display: none; }
+  .planner-hero { grid-template-columns: 1fr; grid-template-areas: "copy" "days"; min-height: 0; padding: 1rem; border-radius: var(--radius-lg); }
+  .planner-hero::after,
+  .planner-hero-art { display: none; }
+  .planner-hero-copy > p { display: none; }
+  .planner-hero-copy h1,
+  .planner-hero-copy h2 { font-size: 1.45rem; }
   .planner-forecast-days { width: 100%; }
   .planner-student-form { grid-template-columns: 1fr; }
   .planner-empty-guide { grid-template-columns: auto minmax(0, 1fr); }
@@ -2484,7 +2517,8 @@ textarea::placeholder { color: #9aabba; }
   .inventory-periodic-actions { justify-content: start; }
   .inventory-reservation-panel { grid-template-columns: 1fr; }
   .inventory-reservation-actions { justify-content: start; }
-  .inventory-transfer-panel { align-items: start; flex-direction: column; }
+  .inventory-transfer-panel,
+  .inventory-transfer-primary { align-items: start; flex-direction: column; }
   .inventory-synthesis-form { grid-template-columns: 1fr; }
   .inventory-plus { display: none; }
   .resource-toolbar { align-items: start; flex-direction: column; }
@@ -2499,7 +2533,7 @@ textarea::placeholder { color: #9aabba; }
   .package-target-picker { grid-template-columns: 1fr; width: 100%; }
   .package-efficiency-head { grid-template-columns: auto minmax(0, 1fr); }
   .package-efficiency-rate { grid-column: 2; justify-items: start; }
-  .package-efficiency-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .package-efficiency-kpis { gap: .25rem .6rem; }
   .package-visual-ribbon,
   .package-visual-items,
   .package-visual-kivo,
@@ -2529,4 +2563,100 @@ textarea::placeholder { color: #9aabba; }
   *,
   *::before,
   *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+/* v46: make navigation and empty states task-first on small screens. */
+.workbench-tab-list {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  width: 100%;
+}
+
+.workbench-mobile-picker { display: none; }
+
+.planner-empty-copy .primary-button { margin-top: .55rem; }
+
+.inventory-empty-hint {
+  margin: .65rem 0 .45rem;
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.inventory-show-all { margin-bottom: .45rem; }
+
+.resource-art-materials {
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+  padding-inline: .25rem;
+}
+
+.resource-art-materials img {
+  width: 2.15rem;
+  height: 2.15rem;
+  object-fit: contain;
+  filter: drop-shadow(0 .15rem .12rem rgba(28, 54, 91, .16));
+}
+
+.agent-settings-details[open] > summary {
+  color: var(--blue-deep);
+  background: var(--cyan-soft);
+}
+
+@media (max-width: 900px) {
+  .workbench-tabs {
+    display: block;
+    width: max-content;
+  }
+
+  .workbench-tab-list {
+    flex-direction: row;
+    width: max-content;
+    gap: .35rem;
+    padding: 0 .7rem;
+  }
+}
+
+@media (max-width: 620px) {
+  #workbench-nav {
+    overflow: visible;
+  }
+
+  #workbench-nav[data-overflow-cue="true"]::after { display: none; }
+
+  .workbench-tabs {
+    width: 100%;
+    padding: 0 .2rem;
+  }
+
+  .workbench-tab-list { display: none; }
+
+  .workbench-mobile-picker {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: .45rem;
+    width: 100%;
+    padding: 0 .45rem;
+    color: rgba(255, 255, 255, .72);
+    font-size: .62rem;
+    font-weight: 800;
+  }
+
+  .workbench-mobile-picker select {
+    min-height: 2.5rem;
+    border-color: rgba(255, 255, 255, .24);
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 800;
+  }
+
+  .workbench-mobile-picker select option {
+    color: var(--ink);
+    background: #fff;
+  }
+
+  .resource-art-materials img { width: 1.8rem; height: 1.8rem; }
 }

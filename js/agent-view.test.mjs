@@ -8,10 +8,21 @@ const html = renderAgentWorkspace({
   context: { students: [{ studentId: 10000, names: { zh_cn: "爱露" } }], plannerState: { inventory: {}, students: [] }, calculatedResults: { giftPlanning: { projections: [] } }, disclosure: {} },
 });
 
-assert.match(html, /agent-visual-anchors/);
-assert.match(html, /momotalk\.png/);
-assert.match(html, /arona-avatar-1\.png/);
 assert.doesNotMatch(html, /portrait\/10000\.webp/, "Agent must not show a student portrait without a planned target");
-assert.doesNotMatch(html, /<details class="agent-settings-details" open>/, "Agent connection settings should stay collapsed until requested");
+assert.match(html, /agent-connection-empty/, "Unconfigured Agent should have a focused connection entry state");
+assert.doesNotMatch(html, /class="agent-chat"/, "Unconfigured Agent should not show a chat area before connection");
+assert.doesNotMatch(html, /class="agent-quick"/, "Unconfigured Agent should not show quick questions before connection");
+assert.match(html, /<details class="agent-settings-details">/, "Connection settings should be collapsed behind the setup CTA");
+
+const configuredHtml = renderAgentWorkspace({
+  locale: "zh_cn",
+  state: { messages: [], proposal: null, configured: true, baseUrl: "https://api.example.com", model: "test-model", notice: "", busy: false },
+  data: { localization: {} },
+  context: { students: [{ studentId: 10000, names: { zh_cn: "爱露" } }], plannerState: { inventory: {}, students: [] }, calculatedResults: { giftPlanning: { projections: [] } }, disclosure: {} },
+});
+assert.match(configuredHtml, /agent-visual-anchors/);
+assert.match(configuredHtml, /momotalk\.png/);
+assert.match(configuredHtml, /arona-avatar-1\.png/);
+assert.match(configuredHtml, /class="agent-chat"/);
 
 console.log("agent view tests passed");

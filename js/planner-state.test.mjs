@@ -6,6 +6,7 @@ import {
   normalizePlannerState,
   parseStudentIdInput,
   planGiftAllocation,
+  removeStudentPlan,
   setResourceAmount,
   setInventoryCount,
 } from "./planner-state.js";
@@ -51,6 +52,12 @@ assert.equal(withStudent.students.length, 1);
 assert.equal(withStudent.students[0].studentId, 10063);
 assert.equal(withStudent.students[0].targetLevel, 4);
 assert.equal(addStudentPlan(withStudent, { studentId: 10063, targetLevel: 5 }).students.length, 1);
+const removedPlanState = removeStudentPlan(withStudent, withStudent.students[0].id);
+assert.equal(removedPlanState.students.length, 0);
+assert.equal(removedPlanState.studentDrafts["10063"].targetLevel, 4, "Removing a target must preserve its last form values for accidental re-add");
+const readdedFromDraft = addStudentPlan(removedPlanState, { studentId: 10063 });
+assert.equal(readdedFromDraft.students[0].currentLevel, 2, "Re-adding a target must restore its last current level");
+assert.equal(readdedFromDraft.students[0].targetLevel, 4, "Re-adding a target must restore its last target level");
 
 const withInventory = setInventoryCount(withStudent, "5000", 3);
 assert.equal(withInventory.inventory["5000"], 3);

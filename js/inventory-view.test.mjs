@@ -93,5 +93,33 @@ const emptyInventoryHtml = renderInventoryWorkspace({
 const emptyHero = emptyInventoryHtml.match(/<div class="inventory-hero-gifts">([\s\S]*?)<\/div>/)?.[1] ?? "";
 assert.doesNotMatch(emptyHero, /gifts\/5000\.webp/, "An empty inventory must not look like it owns a specific gift");
 assert.match(emptyInventoryHtml, /data-inventory-filter="onlyOwned"(?![^>]*checked)/, "An empty inventory must expose all gifts by default");
+assert.match(emptyInventoryHtml, /金色礼物自选盒/);
+assert.match(emptyInventoryHtml, /紫色礼物随机盒/);
+assert.match(emptyInventoryHtml, /金色随机礼物池（等效）/);
+assert.match(emptyInventoryHtml, /inventory-transfer-primary/);
+
+const expandedEmptyInventoryHtml = renderInventoryWorkspace({
+  data: {
+    gifts: [{ id: 5000, name_zh_cn: "测试礼物", name_en: "Test Gift", rarity: "SSR", base_exp: 60 }],
+    giftById: new Map([["5000", { id: 5000, name_zh_cn: "测试礼物", name_en: "Test Gift", rarity: "SSR", base_exp: 60 }]]),
+    giftBoxes: [],
+  },
+  state: {
+    periodDays: 30,
+    students: [],
+    giftBoxes: {},
+    resources: [],
+    inventory: {},
+    giftReservations: {},
+    stockResources: { manufacturing_stone: 0, synthesis_stone_gold: 0, gold_manufacturing_stone: 0 },
+    incomingResources: { stockResources: {}, giftBoxes: {}, equivalentGiftPools: {}, relationshipExp: {} },
+    equivalentGiftPools: {},
+    resourcePostingHistory: [],
+  },
+  locale: "zh_cn",
+  filters: { query: "", rarity: "all", exp: "all", onlyOwned: false },
+});
+assert.doesNotMatch(expandedEmptyInventoryHtml, /礼物数据已经加载/);
+assert.doesNotMatch(expandedEmptyInventoryHtml, /data-inventory-show-all/);
 
 console.log("inventory view tests passed");

@@ -1,5 +1,5 @@
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260814-rebuild-v45";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v45";
+import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260814-rebuild-v47";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v47";
 
 const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold", "gold_manufacturing_stone"];
 const GOLD_RARITY = "SSR";

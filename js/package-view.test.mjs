@@ -42,6 +42,28 @@ assert.match(html, /package-visual-anchors/);
 assert.match(html, /package-visual-items/);
 assert.match(html, /arona-title-new\.webp/);
 
+const groupedHtml = renderPackagesWorkspace({
+  state: {
+    students: [{ id: "student-1", studentId: 1, currentLevel: 1, currentProgress: 0, targetLevel: 2 }],
+    mainTargetStudentId: 1,
+    packagePlans: {},
+    forecastDays: 60,
+  },
+  locale: "zh_cn",
+  data: {
+    packageCatalog: {
+      scope: { as_of: "2026-08-10" },
+      packages: [catalogPackage, { ...catalogPackage, id: "cn-launch-gifts-98", name_zh_cn: "每月礼物礼包", availability_phase: "student_launch" }],
+    },
+    studentById: new Map([["1", { student_id: 1, name_zh_cn: "甲", name_en: "A", gift_values: [] }]]),
+    giftBoxes: [],
+    assetManifest: { entries: {} },
+  },
+});
+assert.equal((groupedHtml.match(/package-group/g) ?? []).length, 2, "当前礼包与学生上线礼包必须分组展示");
+assert.match(groupedHtml, /当前快照/);
+assert.match(groupedHtml, /学生上线时/);
+
 const noTargetHtml = renderPackagesWorkspace({
   state: { students: [], mainTargetStudentId: null, packagePlans: {}, forecastDays: 60 },
   locale: "zh_cn",

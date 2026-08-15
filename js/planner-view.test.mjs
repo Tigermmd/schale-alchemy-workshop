@@ -23,5 +23,7 @@ assert.equal((allMatchingOptions.match(/data-planner-student-option=/g) ?? []).l
 assert.notEqual(text("zh_cn", "giftOnlyChoiceBoxLabel"), "giftOnlyChoiceBoxLabel");
 assert.notEqual(text("en", "giftOnlyChoiceBoxExplanation", "60.00"), "giftOnlyChoiceBoxExplanation");
 assert.notEqual(text("ja", "giftOnlyChoiceBoxPool", 35), "giftOnlyChoiceBoxPool");
+assert.notEqual(text("zh_cn", "planningCurrentGap"), "planningCurrentGap");
+assert.notEqual(text("zh_cn", "planningNonMainNote"), "planningNonMainNote");
 
 console.log("planner view tests passed");

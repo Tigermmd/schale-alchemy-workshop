@@ -50,6 +50,7 @@ const html = renderResourcesWorkspace({
 
 assert.match(html, /免费资源账本/);
 assert.match(html, /制造启动石/);
+assert.match(html, /aria-label="制造启动石 · 数量"/);
 assert.doesNotMatch(html, /每周制造启动石/);
 assert.match(html, />70</);
 assert.doesNotMatch(html, /70\.00/);

@@ -95,6 +95,7 @@ export function createEmptyPlannerState() {
     forecastDays: 60,
     mainTargetStudentId: null,
     students: [],
+    studentDrafts: {},
     inventory: {},
     giftBoxes: {},
     stockResources: {
@@ -183,6 +184,11 @@ export function normalizePlannerState(input) {
   const students = Array.isArray(source.students)
     ? source.students.map(normalizeStudentPlan).filter((student) => student.studentId > 0)
     : [];
+  const studentDrafts = Object.fromEntries(
+    Object.entries(source.studentDrafts && typeof source.studentDrafts === "object" ? source.studentDrafts : {})
+      .map(([studentId, plan]) => [String(studentId), normalizeStudentPlan({ ...plan, studentId })])
+      .filter(([, plan]) => plan.studentId > 0),
+  );
   return {
     ...base,
     periodDays: Math.min(366, Math.max(1, integerOr(source.periodDays, base.periodDays))),
@@ -201,6 +207,7 @@ export function normalizePlannerState(input) {
       }
       : null,
     students,
+    studentDrafts,
     inventory,
     giftBoxes,
     stockResources,
@@ -220,15 +227,26 @@ export function normalizePlannerState(input) {
 
 export function addStudentPlan(state, plan) {
   const normalizedState = normalizePlannerState(state);
-  const nextPlan = normalizeStudentPlan(plan);
+  const studentId = integerOr(plan?.studentId, 0);
+  const draft = studentId ? normalizedState.studentDrafts[String(studentId)] : null;
+  const nextPlan = normalizeStudentPlan({
+    ...draft,
+    ...plan,
+    studentId,
+    currentLevel: plan?.currentLevel ?? draft?.currentLevel,
+    currentProgress: plan?.currentProgress ?? draft?.currentProgress,
+    targetLevel: plan?.targetLevel ?? draft?.targetLevel,
+  });
   if (!nextPlan.studentId) return normalizedState;
   const existingIndex = normalizedState.students.findIndex((student) => student.studentId === nextPlan.studentId);
   const students = [...normalizedState.students];
-  if (existingIndex >= 0) students[existingIndex] = { ...students[existingIndex], ...nextPlan };
+  const mergedPlan = existingIndex >= 0 ? { ...students[existingIndex], ...nextPlan } : nextPlan;
+  if (existingIndex >= 0) students[existingIndex] = mergedPlan;
   else students.push(nextPlan);
   return {
     ...normalizedState,
     students,
+    studentDrafts: { ...normalizedState.studentDrafts, [String(nextPlan.studentId)]: mergedPlan },
     mainTargetStudentId: normalizedState.mainTargetStudentId ?? nextPlan.studentId,
   };
 }
@@ -240,6 +258,9 @@ export function removeStudentPlan(state, planId) {
   return {
     ...normalizedState,
     students,
+    studentDrafts: removed?.studentId
+      ? { ...normalizedState.studentDrafts, [String(removed.studentId)]: removed }
+      : normalizedState.studentDrafts,
     mainTargetStudentId: removed?.studentId === normalizedState.mainTargetStudentId
       ? (students[0]?.studentId ?? null)
       : normalizedState.mainTargetStudentId,

@@ -1,8 +1,8 @@
-import { text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v45";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260814-rebuild-v45";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v45";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260814-rebuild-v45";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260814-rebuild-v45";
+import { text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v47";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260814-rebuild-v47";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v47";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260814-rebuild-v47";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260814-rebuild-v47";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -62,32 +62,31 @@ function periodMultiplier(resource, periodDays) {
   return 0;
 }
 
-function resourceCopyUnit(resource, locale) {
-  return resource.input_kind
-    ? t(locale, "resourceInputLabel", resource.input_kind)
-    : t(locale, "resourceUnit", resource.unit);
-}
-
 function renderResourceInput(resource, state, locale, lead) {
   const isConfigured = resource.amount !== null;
   if (resource.input_kind === "floor") {
+    const resourceLabel = t(locale, "resourceName", resource.id);
+    const floorLabel = `${resourceLabel} · ${t(locale, "resourceFloorSelect")}`;
+    const customFloorLabel = `${resourceLabel} · ${t(locale, "resourceCustomFloor")}`;
     const options = resource.floor_options ?? [];
     const selectedFloor = Number(resource.amount);
     const isStandardFloor = Number.isInteger(selectedFloor) && options.includes(selectedFloor);
     const selectValue = isStandardFloor ? String(selectedFloor) : resource.amount === null ? "" : "custom";
     return `<div class="resource-input resource-floor-input">
       <label>
-        <span class="sr-only">${escapeHtml(t(locale, "resourceFloorSelect"))}</span>
-        <select data-resource-floor="${escapeHtml(resource.id)}" aria-label="${escapeHtml(t(locale, "resourceFloorSelect"))}">
+        <span class="sr-only">${escapeHtml(floorLabel)}</span>
+        <select data-resource-floor="${escapeHtml(resource.id)}" aria-label="${escapeHtml(floorLabel)}">
           <option value="">${escapeHtml(t(locale, "resourceFloorSelect"))}</option>
           ${options.map((floor) => `<option value="${floor}" ${selectValue === String(floor) ? "selected" : ""}>${escapeHtml(t(locale, "resourceFloorSummary", floor))}</option>`).join("")}
           <option value="custom" ${selectValue === "custom" ? "selected" : ""}>${escapeHtml(t(locale, "resourceCustomFloor"))}</option>
         </select>
       </label>
-      ${selectValue === "custom" ? `<label class="resource-custom-floor"><span class="sr-only">${escapeHtml(t(locale, "resourceCustomFloor"))}</span><input type="number" min="1" max="${resource.max_floor ?? 124}" step="1" data-resource-amount="${escapeHtml(resource.id)}" value="${isConfigured ? resource.amount : ""}" placeholder="1–${resource.max_floor ?? 124}" inputmode="numeric" aria-label="${escapeHtml(t(locale, "resourceCustomFloor"))}"></label>` : ""}
+      ${selectValue === "custom" ? `<label class="resource-custom-floor"><span class="sr-only">${escapeHtml(customFloorLabel)}</span><input type="number" min="1" max="${resource.max_floor ?? 124}" step="1" data-resource-amount="${escapeHtml(resource.id)}" value="${isConfigured ? resource.amount : ""}" placeholder="1–${resource.max_floor ?? 124}" inputmode="numeric" aria-label="${escapeHtml(customFloorLabel)}"></label>` : ""}
     </div>`;
   }
-  const inputLabel = resource.input_kind ? t(locale, "resourceInputLabel", resource.input_kind, resource.id) : t(locale, "resourceValue");
+  const inputLabel = resource.input_kind
+    ? t(locale, "resourceInputLabel", resource.input_kind, resource.id)
+    : `${t(locale, "resourceName", resource.id)} · ${t(locale, "resourceValue")}`;
   const inputTitle = resource.value_source === "user"
     ? t(locale, "resourceSourcePlayerOverride")
     : lead?.status === "user_confirmed"
@@ -108,15 +107,14 @@ function renderUnlimitedRewardSummary(summary, locale) {
 }
 
 function renderResourceForecast(resource, forecast, locale) {
-  if (!forecast) return `<strong>${escapeHtml(t(locale, "resourceWaitingInput"))}</strong><small>${escapeHtml(t(locale, "resourceInputLabel", resource.input_kind ?? ""))}</small>`;
+  if (!forecast) return `<strong>${escapeHtml(t(locale, "resourceWaitingInput"))}</strong>`;
   if (forecast.kind === "unlimited_assault") return `${renderUnlimitedRewardSummary(forecast.summary, locale)}<small>${escapeHtml(t(locale, "resourceForecastLabel", resource.input_kind))}</small>`;
   const value = forecast.kind === "relationship_exp" ? formatExp(forecast.value, locale) : formatSmartQuantity(forecast.value, locale);
   return `<strong>${escapeHtml(value)}</strong><small>${escapeHtml(t(locale, "resourceForecastLabel", resource.input_kind))}</small>`;
 }
 
 function resourceMeta(resource, locale) {
-  const cadence = t(locale, "resourceCadence", resource.cadence);
-  return resource.input_kind ? `${cadence} · ${resourceCopyUnit(resource, locale)}` : cadence;
+  return t(locale, "resourceCadence", resource.cadence);
 }
 
 function resourceIcon(resource, data) {
@@ -144,7 +142,7 @@ function renderResourceRow({ resource, state, data, locale, evidenceById, source
     <div class="resource-copy"><strong><span class="resource-name">${escapeHtml(t(locale, "resourceName", resource.id))}</span><em class="resource-status ${isConfigured ? "is-configured" : "is-missing"}">${escapeHtml(t(locale, isConfigured ? "resourceConfigured" : "resourceMissing"))}</em></strong><small>${escapeHtml(resourceMeta(resource, locale))}</small></div>
     ${renderResourceInput(resource, state, locale, lead)}
     <div class="resource-forecast ${resource.input_kind === "floor" ? "is-reward-forecast" : ""}">${renderResourceForecast(resource, forecast, locale)}</div>
-    <details class="resource-row-details"><summary>${escapeHtml(t(locale, "resourceEvidenceDetails"))}</summary><p class="resource-source">${t(locale, "resourceSource")}：${escapeHtml(resourceSourceLabel(resource, lead, locale))}</p>${resource.input_kind ? "" : renderResourceEvidence({ lead, source, sourceById, locale, candidateUnit })}</details>
+    <details class="resource-row-details"><summary aria-label="${escapeHtml(`${t(locale, "resourceName", resource.id)} · ${t(locale, "resourceEvidenceDetails")}`)}">${escapeHtml(t(locale, "resourceName", resource.id))} · ${escapeHtml(t(locale, "resourceEvidenceDetails"))}</summary><p class="resource-source">${t(locale, "resourceSource")}：${escapeHtml(resourceSourceLabel(resource, lead, locale))}</p>${resource.input_kind ? "" : renderResourceEvidence({ lead, source, sourceById, locale, candidateUnit })}</details>
   </article>`;
 }
 
@@ -308,6 +306,7 @@ export function renderResourcesWorkspace({ data = {}, state, locale, evidence })
     favor: assetLocal(data, "ui:kivo-favor", "./assets/ui/kivo-favor.webp"),
     options: assetLocal(data, "ui:kivo-options", "./assets/ui/kivo-options.webp"),
     empty: assetLocal(data, "ui:kivo-empty", "./assets/ui/kivo-empty.webp"),
+    materials: [1, 80, 83, 90].map((id) => assetLocal(data, `item:${id}`, `./assets/items/${id}.webp`)),
     gdd: assetLocal(data, "ui:schaledb-gdd-logo", "./assets/ui/schaledb-gdd-logo.png"),
     logo: assetLocal(data, "ui:kivo-logo", "./assets/ui/kivo-logo.svg"),
     stageThree: assetLocal(data, "ui:stage-mission-3-normal", "./assets/ui/stages/mission_3_0.webp"),
@@ -317,8 +316,8 @@ export function renderResourcesWorkspace({ data = {}, state, locale, evidence })
     events: [812, 824, 834].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`)),
   };
   return `<section class="resource-workspace panel" aria-labelledby="resource-title">
-    <div class="section-heading"><div class="resource-heading-copy"><h1 id="resource-title">${t(locale, "resourcesTitle")}</h1><p class="section-caption">${escapeHtml(t(locale, "resourcesCaption"))}</p></div></div>
-    <div class="resource-art-strip" aria-hidden="true"><div class="resource-art-stage"><img src="${escapeHtml(visualAssets.stageThree)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageThreeAlt)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFive)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFiveAlt)}" alt="" loading="lazy"></div><div class="resource-art-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="resource-art-home"><img src="${escapeHtml(visualAssets.home)}" alt="" loading="lazy"></div><div class="resource-art-icons"><img src="${escapeHtml(visualAssets.favor)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"></div><div class="resource-art-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="resource-art-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="resource-art-kivo" src="${escapeHtml(visualAssets.logo)}" alt="" loading="lazy"></div>
+    <div class="section-heading"><div class="resource-heading-copy"><h2 id="resource-title">${t(locale, "resourcesTitle")}</h2><p class="section-caption">${escapeHtml(t(locale, "resourcesCaption"))}</p></div></div>
+    <div class="resource-art-strip" aria-hidden="true"><div class="resource-art-stage"><img src="${escapeHtml(visualAssets.stageThree)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageThreeAlt)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFive)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFiveAlt)}" alt="" loading="lazy"></div><div class="resource-art-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="resource-art-home"><img src="${escapeHtml(visualAssets.home)}" alt="" loading="lazy"></div><div class="resource-art-icons"><img src="${escapeHtml(visualAssets.favor)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"></div><div class="resource-art-materials">${visualAssets.materials.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="resource-art-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="resource-art-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="resource-art-kivo" src="${escapeHtml(visualAssets.logo)}" alt="" loading="lazy"></div>
     <div class="resource-toolbar"><label><span>${t(locale, "periodDays")}</span><input type="number" min="1" max="366" step="1" data-period-days value="${state.periodDays}"></label><a class="template-link" href="../relationship_data/cn_planner_data_to_fill.md" target="_blank" rel="noreferrer">${t(locale, "fillDataTemplate")}</a></div>
     <div class="resource-kpi-grid"><article><span>${t(locale, "resourceConfigured")}</span><strong>${configured.length}/${state.resources.length}</strong></article><article><span>${t(locale, "effectiveExp")}</span><strong>${formatExp(projected, locale)}</strong></article><article><span>${t(locale, "resourceMissing")}</span><strong>${state.resources.length - configured.length}</strong></article></div>
     ${missing.length ? `<section class="resource-missing-panel" aria-labelledby="resource-missing-title"><div class="resource-missing-heading"><div><span class="resource-missing-kicker">${escapeHtml(t(locale, "resourceMissing"))}</span><h2 id="resource-missing-title">${escapeHtml(t(locale, "resourceMissingTitle"))}</h2></div><span>${missing.length}</span></div><div class="resource-list">${missing.map((resource) => renderResourceRow({ resource, state, data, locale, evidenceById, sourceById })).join("")}</div></section>` : ""}

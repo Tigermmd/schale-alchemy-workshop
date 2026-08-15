@@ -1,10 +1,10 @@
-import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260814-rebuild-v45";
+import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260814-rebuild-v47";
 import {
   localizedName,
   localizedReactionLabel,
   localeTag,
   text as t,
-} from "./i18n.js?v=dashboard-20260814-rebuild-v45";
+} from "./i18n.js?v=dashboard-20260814-rebuild-v47";
 
 const STAGES = ["1", "2", "3"];
 
@@ -171,7 +171,8 @@ function renderProfileGift(value, gift, manifest, locale, localization) {
 function renderProfileGifts(student, giftsById, manifest, locale, localization) {
   const groups = boostedGiftGroups(student);
   if (!groups.length) return "";
-  return `<div class="profile-gifts" aria-labelledby="profile-gifts-title">
+  const giftCount = groups.reduce((sum, group) => sum + group.gifts.length, 0);
+  return `<details class="profile-gifts-details"><summary><span>${escapeHtml(t(locale, "bonusGifts"))}</span><small>${escapeHtml(t(locale, "giftCount", giftCount))}</small></summary><div class="profile-gifts" aria-labelledby="profile-gifts-title">
     <p class="profile-gifts-title" id="profile-gifts-title">${t(locale, "bonusGifts")}</p>
     <ul class="profile-gift-groups">
       ${groups.map((group) => `<li class="profile-gift-row">
@@ -181,7 +182,7 @@ function renderProfileGifts(student, giftsById, manifest, locale, localization) 
         </ul>
       </li>`).join("")}
     </ul>
-  </div>`;
+  </div></details>`;
 }
 
 function renderHero(student, crafting, mechanism, giftsById, manifest, locale, localization) {

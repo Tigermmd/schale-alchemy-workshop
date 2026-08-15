@@ -1,6 +1,6 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260814-rebuild-v45";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v45";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260814-rebuild-v45";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260814-rebuild-v47";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v47";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260814-rebuild-v47";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -116,7 +116,7 @@ function packageRow({ row, item, locale, rank = null, data }) {
       <div><strong>${escapeHtml(packageName(item, locale) || row.name)}</strong><small>${escapeHtml(phaseLabel(row, locale))} · ${escapeHtml(t(locale, "packageCategoryName", item?.category ?? "gifts"))}</small></div>
       <span class="package-efficiency-rate"><b>${escapeHtml(efficiency)}</b><small>${escapeHtml(t(locale, "packageExpPerYuan"))}</small></span>
     </div>
-    <div class="package-efficiency-kpis">
+    <div class="package-efficiency-kpis" aria-label="${escapeHtml(t(locale, "packageDetails"))}">
       <div><span>${escapeHtml(t(locale, "packagePrice"))}</span><b>¥${formatInteger(row.price || 0, locale)}</b></div>
       <div><span>${escapeHtml(t(locale, "packageExpectedExp"))}</span><b>${formatExp(row.expectedExp, locale)}</b></div>
       <div><span>${escapeHtml(t(locale, "packageAvailable"))}</span><b>${formatQuantity(available, locale)} / ${formatQuantity(limit, locale)}</b></div>
@@ -126,6 +126,13 @@ function packageRow({ row, item, locale, rank = null, data }) {
     ${packageNote(item, locale) ? `<p class="package-catalog-note">${escapeHtml(packageNote(item, locale))}</p>` : ""}
     <div class="package-catalog-actions">${item?.source ? `<a href="${escapeHtml(item.source)}" target="_blank" rel="noreferrer">${escapeHtml(t(locale, "packageSource"))} ↗</a>` : ""}<span class="package-snapshot-date">${escapeHtml(t(locale, "packageAsOf", row.asOf ?? "—"))}</span></div></details>
   </article>`;
+}
+
+function renderPackageGroup({ title, rows, catalogItems, locale, data }) {
+  if (!rows.length) return "";
+  const topRows = rows.slice(0, 3);
+  const remainingRows = rows.slice(3);
+  return `<section class="package-efficiency-section package-group" aria-label="${escapeHtml(title)}"><div class="package-section-heading"><h2>${escapeHtml(title)}</h2><span>${escapeHtml(t(locale, "packageTopTitle"))}</span></div><div class="package-efficiency-list">${topRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 1, data })).join("")}</div>${remainingRows.length ? `<details class="package-all-details"><summary>${escapeHtml(t(locale, "packageAllTitle"))} · ${remainingRows.length}</summary><div class="package-efficiency-list">${remainingRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 4, data })).join("")}</div></details>` : ""}</section>`;
 }
 
 export function renderPackagesWorkspace({ data = {}, state = {}, locale, localization, selectedStudentId = null }) {
@@ -146,8 +153,8 @@ export function renderPackagesWorkspace({ data = {}, state = {}, locale, localiz
     : [];
   const catalogItems = new Map((catalog.packages ?? []).map((item) => [String(item.id), item]));
   const rankedRows = [...rows].sort((left, right) => (right.expPerYuan ?? -1) - (left.expPerYuan ?? -1));
-  const topRows = rankedRows.slice(0, 3);
-  const remainingRows = rankedRows.slice(3);
+  const currentRows = rankedRows.filter((row) => row.timelineId !== "mika-launch");
+  const launchRows = rankedRows.filter((row) => row.timelineId === "mika-launch");
   const visualAssets = {
     arona: assetLocal(data, "ui:arona-title-new", "./assets/ui/arona-title-new.webp"),
     options: assetLocal(data, "ui:kivo-options", "./assets/ui/kivo-options.webp"),
@@ -162,11 +169,13 @@ export function renderPackagesWorkspace({ data = {}, state = {}, locale, localiz
   };
   const targetGiftIdList = targetStudent ? targetGiftIds(targetStudent) : [];
   const visualGiftIds = targetGiftIdList.length ? targetGiftIdList : [100008, 100009, 5997];
+  const targetPicker = plannedStudents.length
+    ? `<label class="package-target-picker"><span>${escapeHtml(t(locale, "packageTarget"))}</span><select data-package-target-student aria-label="${escapeHtml(t(locale, "packageTarget"))}">${targetStudentOptions({ students: plannedStudents, selectedId: targetStudent?.student_id, locale, localization })}</select></label>`
+    : "";
   return `<section class="package-workspace panel" aria-labelledby="package-title">
-    <div class="section-heading package-page-heading"><div><h1 id="package-title">${escapeHtml(t(locale, "packagesTitle"))}</h1><label class="package-target-picker"><span>${escapeHtml(t(locale, "packageTarget"))}</span><select data-package-target-student ${plannedStudents.length ? "" : "disabled"} aria-label="${escapeHtml(t(locale, "packageTarget"))}">${plannedStudents.length ? targetStudentOptions({ students: plannedStudents, selectedId: targetStudent?.student_id, locale, localization }) : `<option>${escapeHtml(t(locale, "packageNoTarget"))}</option>`}</select></label></div></div>
+    <div class="section-heading package-page-heading"><div><h2 id="package-title">${escapeHtml(t(locale, "packagesTitle"))}</h2>${targetPicker}</div></div>
     <div class="package-visual-anchors" aria-hidden="true"><div class="package-visual-stage"><img src="${escapeHtml(visualAssets.stage)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageAlt)}" alt="" loading="lazy"></div><div class="package-visual-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="package-visual-items">${visualGiftIds.map((id) => `<span>${contentIcon({ item_id: id }, data)}</span>`).join("")}</div><div class="package-visual-ribbon"><img src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"></div><div class="package-visual-characters">${visualAssets.target ? `<img class="package-visual-target" src="${escapeHtml(visualAssets.target)}" alt="" loading="lazy">` : ""}<img class="package-visual-arona" src="${escapeHtml(visualAssets.arona)}" alt="" loading="lazy"><img class="package-visual-kivo" src="${escapeHtml(visualAssets.kivo)}" alt="" loading="lazy"><img class="package-visual-arona-icon" src="${escapeHtml(visualAssets.aronaIcon)}" alt="" loading="lazy"></div></div>
-    ${!targetStudent ? `<div class="planner-empty" role="status"><strong>${escapeHtml(t(locale, "packageNoTarget"))}</strong><button type="button" class="primary-button" data-go-planner>${escapeHtml(t(locale, "packageGoPlanner"))}</button></div>` : topRows.length ? `<section class="package-efficiency-section package-top-section" aria-labelledby="package-top-title"><div class="package-section-heading"><h2 id="package-top-title">${escapeHtml(t(locale, "packageTopTitle"))}</h2></div><div class="package-efficiency-list">${topRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 1, data })).join("")}</div></section>` : ""}
-    ${targetStudent && remainingRows.length ? `<details class="package-all-details"><summary>${escapeHtml(t(locale, "packageAllTitle"))} · ${remainingRows.length}</summary><div class="package-efficiency-list">${remainingRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 4, data })).join("")}</div></details>` : ""}
+    ${!targetStudent ? `<div class="planner-empty" role="status"><strong>${escapeHtml(t(locale, "packageNoTarget"))}</strong><button type="button" class="primary-button" data-go-planner>${escapeHtml(t(locale, "packageGoPlanner"))}</button></div>` : `${renderPackageGroup({ title: t(locale, "packageCurrentPhase"), rows: currentRows, catalogItems, locale, data })}${renderPackageGroup({ title: t(locale, "packageLaunchPhase"), rows: launchRows, catalogItems, locale, data })}`}
     ${targetStudent && !rows.length ? `<div class="planner-empty" role="status">${escapeHtml(t(locale, "packageNoRows"))}</div>` : ""}
   </section>`;
 }

@@ -3,7 +3,7 @@
   "source": {
     "image_base": "https://schaledb.com",
     "crafting_source": "https://schaledb.com/data/crafting.min.json",
-    "retrieved_at": "2026-08-14T07:15:18+00:00"
+    "retrieved_at": "2026-08-14T08:14:35+00:00"
   },
   "entries": {
     "gift:5000": {
@@ -5382,17 +5382,47 @@
       "downloaded": true,
       "bytes": 11820
     },
+    "item:1": {
+      "local": "./assets/items/1.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_craftitem_0.webp",
+      "downloaded": true,
+      "bytes": 4414
+    },
     "item:3": {
       "local": "./assets/items/3.webp",
       "remote": "https://schaledb.com/images/item/icon/item_icon_craftitem_1.webp",
       "downloaded": true,
       "bytes": 5786
     },
+    "item:80": {
+      "local": "./assets/items/80.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_shiftingcraftitem_0.webp",
+      "downloaded": true,
+      "bytes": 4204
+    },
+    "item:81": {
+      "local": "./assets/items/81.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_shiftingcraftitem_1.webp",
+      "downloaded": true,
+      "bytes": 4754
+    },
     "item:82": {
       "local": "./assets/items/82.webp",
       "remote": "https://schaledb.com/images/item/icon/item_icon_shiftingcraftitem_2.webp",
       "downloaded": true,
       "bytes": 4730
+    },
+    "item:83": {
+      "local": "./assets/items/83.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_shiftingcraftitem_3.webp",
+      "downloaded": true,
+      "bytes": 4972
+    },
+    "item:90": {
+      "local": "./assets/items/90.webp",
+      "remote": "https://schaledb.com/images/item/icon/item_icon_craft_material_0.webp",
+      "downloaded": true,
+      "bytes": 2582
     },
     "item:100000": {
       "local": "./assets/items/100000.webp",
@@ -5422,7 +5452,7 @@
     "reaction_icons": 4,
     "ui_assets": 46,
     "event_art": 12,
-    "item_assets": 5,
-    "downloaded": 901
+    "item_assets": 10,
+    "downloaded": 906
   }
 }

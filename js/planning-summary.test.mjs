@@ -34,6 +34,7 @@ assert.equal(summary.students[0].requiredExp, 100);
 assert.equal(summary.students[0].currentExp, 60 + 60 + 60 + 80 + 20);
 assert.equal(summary.students[0].freeExp, 0);
 assert.equal(summary.students[0].gapWithinPeriod, 0);
+assert.equal(summary.students[0].immediateGap, 0);
 assert.equal(summary.students[0].estimatedDays, 0);
 assert.equal(summary.students[0].sourceBreakdown.current.randomPoolExp, 60);
 

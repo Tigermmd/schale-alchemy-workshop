@@ -315,8 +315,13 @@ ITEM_ASSET_SPECS = [
         f"{BASE_URL}/images/item/icon/{icon}.webp",
     )
     for item_id, icon in (
+        (1, "item_icon_craftitem_0"),
         (3, "item_icon_craftitem_1"),
+        (80, "item_icon_shiftingcraftitem_0"),
+        (81, "item_icon_shiftingcraftitem_1"),
         (82, "item_icon_shiftingcraftitem_2"),
+        (83, "item_icon_shiftingcraftitem_3"),
+        (90, "item_icon_craft_material_0"),
         (100000, "item_icon_favor_random"),
         (100008, "item_icon_favor_selection"),
         (100009, "item_icon_favor_random_lv2"),

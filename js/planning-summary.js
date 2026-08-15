@@ -1,8 +1,8 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v45";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260814-rebuild-v45";
-import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260814-rebuild-v45";
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260814-rebuild-v45";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260814-rebuild-v45";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v47";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260814-rebuild-v47";
+import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260814-rebuild-v47";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260814-rebuild-v47";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260814-rebuild-v47";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -204,6 +204,7 @@ export function calculatePlanningSummary({ state = {}, targets, mainTargetId, fo
       currentExp: current.totalExp,
       freeExp: free.totalExp,
       totalExpectedExp,
+      immediateGap,
       gapWithinPeriod,
       freeExpPerDay,
       estimatedDays,

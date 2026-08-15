@@ -37,11 +37,21 @@ assert.doesNotMatch(agentView, /class="agent-step-title"/, "Agent 设置不应�
 assert.doesNotMatch(agentView, /agent-setup-steps|agent-settings-step|agentSetupStep/, "Agent 不应保留三步引导和旧设置容器");
 assert.doesNotMatch(agentCss, /agent-setup-steps|agent-settings-step/, "Agent CSS 不应保留已删除的三步引导样式");
 assert.doesNotMatch(resourceView, /<details class="resource-details" open>/, "资源输入默认应折叠，首屏先显示汇总");
-assert.match(inventoryView, /function quantityColumns\(value, locale\)/, "库存摘要必须直接使用已经计算好的资源汇总");
+assert.match(inventoryView, /function quantityColumns\(value, locale/, "库存摘要必须直接使用已经计算好的资源汇总");
 assert.doesNotMatch(inventoryView, /function quantityColumns\(summary, locale\)[\s\S]*summaryValue\(summary\)/, "库存摘要不能因错误的二次取值全部显示为 0");
+for (const [name, source] of [["规划", plannerView], ["库存", inventoryView], ["周期资源", resourceView], ["礼包", packageView], ["Agent", agentView]]) {
+  assert.doesNotMatch(source, /<h1\b/, `${name}工作区不应重复渲染页面级 H1`);
+}
+assert.match(plannerView, /data-planner-open-form[^>]*aria-controls="planner-student-form"/, "空规划 CTA 必须声明它控制的表单");
+assert.match(plannerView, /data-planner-open-form[^>]*aria-expanded="false"/, "空规划 CTA 初始必须声明表单收起");
+assert.match(resourceView, /resource-row-details[\s\S]{0,500}resourceName/, "周期资源详情折叠项必须包含资源名称");
 assert.doesNotMatch(agentState, /function buildStudentProjection\(/, "Agent 不应保留未接入的旧学生投影函数");
 assert.doesNotMatch(releaseState, /function applyReleaseChange\(/, "上线状态模块不应保留与提案应用重复的旧修改接口");
 assert.doesNotMatch(i18n, /export function secondaryName\(/, "图鉴不应保留未使用的重复名称接口");
 assert.doesNotMatch(agentView, /formatJson\(\{ disclosure, confirmedFacts:/, "Agent 页面不应直接展示内部上下文 JSON");
+assert.match(plannerView, /planningAddGoal/, "规划表单空状态应使用短 CTA，不重复整句空状态文案");
+assert.match(plannerView, /planner-empty-form/, "空规划状态只保留主 CTA，表单折叠入口不得占用首屏");
+assert.doesNotMatch(plannerView, /<p>\$\{escapeHtml\(t\(locale, "planningAddFirst"\)\)<\/p>/, "规划空状态不应把同一条 CTA 同时渲染为说明段落");
+assert.doesNotMatch(resourceView, /resourceMeta\(resource, locale\).*resourceCopyUnit/, "周期资源行不应在元信息中重复输入字段说明");
 
 console.log("ui simplification tests passed");
