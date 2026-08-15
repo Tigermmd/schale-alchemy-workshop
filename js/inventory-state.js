@@ -1,8 +1,9 @@
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260814-rebuild-v47";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v47";
+import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260815-visual-v50";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260815-visual-v50";
 
 const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold", "gold_manufacturing_stone"];
-const GOLD_RARITY = "SSR";
+// In SchaleDB's gift catalog SR is the gold-gift tier; SSR is purple.
+const GOLD_RARITY = "SR";
 
 function emptyPackageMappedResources() {
   return {
@@ -371,7 +372,8 @@ export function synthesizeGoldGift(state, firstGiftId, secondGiftId, giftById) {
   if (catalog && (!isGoldGift(catalog.get(first)) || !isGoldGift(catalog.get(second)))) {
     return { ok: false, reason: "gold_gifts_only", state: next };
   }
-  if (synthesisStones < 1 || integerOr(next.inventory[first]) < 1 || integerOr(next.inventory[second]) < 1) {
+  const firstRequired = first === second ? 2 : 1;
+  if (synthesisStones < 1 || integerOr(next.inventory[first]) < firstRequired || integerOr(next.inventory[second]) < 1) {
     return { ok: false, reason: "insufficient_materials", state: next };
   }
   const inventory = { ...next.inventory };

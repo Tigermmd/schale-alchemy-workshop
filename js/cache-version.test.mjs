@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const dashboardRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const jsRoot = path.join(dashboardRoot, "js");
-const BUILD_VERSION = "dashboard-20260814-rebuild-v47";
+const BUILD_VERSION = "dashboard-20260815-visual-v50";
 
 function assertVersionedUrl(specifier, sourceFile) {
   const url = new URL(specifier, "https://dashboard.invalid/");
@@ -18,6 +18,7 @@ function assertVersionedUrl(specifier, sourceFile) {
 
 const indexHtml = fs.readFileSync(path.join(dashboardRoot, "index.html"), "utf8");
 assert.match(indexHtml, new RegExp(`styles\\.css\\?v=${BUILD_VERSION}`));
+assert.match(indexHtml, new RegExp(`agent\\.css\\?v=${BUILD_VERSION}`));
 assert.match(indexHtml, new RegExp(`js/app\\.js\\?v=${BUILD_VERSION}`));
 
 for (const fileName of fs.readdirSync(jsRoot).filter((name) => name.endsWith(".js"))) {

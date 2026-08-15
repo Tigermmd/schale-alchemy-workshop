@@ -1,5 +1,5 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260814-rebuild-v47";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v47";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260815-visual-v50";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -14,10 +14,6 @@ function formatJson(value) {
   try { return JSON.stringify(value, null, 2); } catch { return ""; }
 }
 
-function assetLocal(data, key, fallback) {
-  return data?.assetManifest?.entries?.[key]?.local ?? fallback;
-}
-
 function changeLabel(change, data, locale, localization) {
   if (change.kind === "set_student_target") {
     const student = data?.cutoffStudentById?.get(String(change.studentId)) ?? data?.studentById?.get(String(change.studentId));
@@ -28,7 +24,6 @@ function changeLabel(change, data, locale, localization) {
     const student = data?.cutoffStudentById?.get(String(change.studentId)) ?? data?.studentById?.get(String(change.studentId));
     return t(locale, "agentChangeCnCutoff", localizedName(student, "student", locale, localization));
   }
-  if (change.kind === "set_package_plan") return t(locale, "agentChangePackage", change.packageId, change.planned);
   return String(change.kind ?? "");
 }
 
@@ -51,12 +46,6 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
   const messages = Array.isArray(state.messages) ? state.messages : [];
   const proposal = state.proposal;
   const contextStudents = context?.students ?? [];
-  const plannedStudents = context?.plannerState?.students ?? [];
-  const mainTargetId = context?.plannerState?.mainTargetStudentId ?? context?.calculatedResults?.giftPlanning?.mainTargetId ?? null;
-  const plannedTarget = plannedStudents.find((plan) => String(plan.studentId) === String(mainTargetId)) ?? plannedStudents[0] ?? null;
-  const targetContextStudent = plannedTarget
-    ? contextStudents.find((student) => String(student.studentId) === String(plannedTarget.studentId))
-    : null;
   const contextSummary = t(locale, "agentContextSummary", contextStudents.length, Object.keys(context?.plannerState?.inventory ?? {}).length);
   const notice = state.notice ? `<div class="agent-notice" role="status">${escapeHtml(state.notice)}</div>` : "";
   const conversation = messages.length
@@ -71,24 +60,11 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
   const disclosureSummary = `${escapeHtml(t(locale, "agentDisclosureConfirmed"))} · ${escapeHtml(t(locale, "agentDisclosureCalculated", calculatedProjectionCount))}`;
   const settingsForm = `<form class="agent-settings-form" id="agent-settings-form"><label><span>${escapeHtml(t(locale, "agentBaseUrl"))}</span><input name="baseUrl" type="url" value="${escapeHtml(state.baseUrl)}" placeholder="https://api.example.com" autocomplete="url" required></label><label><span>${escapeHtml(t(locale, "agentModel"))}</span><input name="model" value="${escapeHtml(state.model)}" placeholder="model-name" autocomplete="off" required></label><label><span>${escapeHtml(t(locale, "agentApiKey"))}</span><input class="agent-api-key-input" name="apiKey" type="password" value="" placeholder="${escapeHtml(state.configured ? t(locale, "agentApiKeyReusePlaceholder") : t(locale, "agentApiKeyPlaceholder"))}" autocomplete="new-password" autocapitalize="off" spellcheck="false" inputmode="text" ${state.configured ? "" : "required"}></label><button type="button" class="secondary-button" data-agent-test>${escapeHtml(t(locale, "agentTest"))}</button><small>${escapeHtml(apiKeyHint)}</small></form>`;
   const quickQuestions = !messages.length ? `<div class="agent-quick"><strong>${escapeHtml(t(locale, "agentQuickTitle"))}</strong><div>${[1, 2, 3].map((id) => `<button type="button" class="agent-quick-button" data-agent-question="${escapeHtml(t(locale, `agentQuickQuestion${id}`))}">${escapeHtml(t(locale, `agentQuickQuestion${id}`))}</button>`).join("")}</div></div>` : "";
-  const settings = `<details class="agent-settings-details"><summary>${escapeHtml(t(locale, state.configured ? "agentSettingsDetails" : "agentSetupCta"))}</summary>${settingsForm}</details>`;
+  const settings = `<details class="agent-settings-details"${state.configured ? "" : " open"}><summary>${escapeHtml(t(locale, state.configured ? "agentSettingsDetails" : "agentSetupCta"))}</summary>${settingsForm}</details>`;
   const chat = `<div class="agent-chat" aria-live="polite">${conversation}</div><form class="agent-chat-form" id="agent-chat-form"><label><span>${escapeHtml(t(locale, "agentMessage"))}</span><textarea name="message" rows="3" maxlength="20000" placeholder="${escapeHtml(t(locale, "agentMessagePlaceholder"))}" required></textarea></label><div class="agent-chat-actions"><button type="submit" class="primary-button" ${state.busy || !state.configured ? "disabled" : ""}>${escapeHtml(state.busy ? t(locale, "agentThinking") : state.configured ? t(locale, "agentSend") : t(locale, "agentConfigureFirst"))}</button></div></form>${quickQuestions}`;
-  const visualAssets = {
-    momotalk: assetLocal(data, "ui:momotalk", "./assets/ui/momotalk.png"),
-    arona: assetLocal(data, "ui:arona-avatar-1", "./assets/ui/arona-avatar-1.png"),
-    gdd: assetLocal(data, "ui:schaledb-gdd-full", "./assets/ui/schaledb-gdd-full.png"),
-    kivo: assetLocal(data, "ui:kivo-logo", "./assets/ui/kivo-logo.svg"),
-    empty: assetLocal(data, "ui:kivo-empty", "./assets/ui/kivo-empty.webp"),
-    stage: assetLocal(data, "ui:stage-mission-1-normal", "./assets/ui/stages/mission_1_0.webp"),
-    stageAlt: assetLocal(data, "ui:stage-mission-1-alternate", "./assets/ui/stages/mission_1_1.webp"),
-    events: [701, 808, 844].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`)),
-    target: targetContextStudent
-      ? assetLocal(data, `student-portrait:${targetContextStudent.studentId}`, `./assets/students/portrait/${targetContextStudent.studentId}.webp`)
-      : null,
-  };
   if (!state.configured) {
     const planSummary = calculatedProjectionCount ? renderPlanSummary({ context, locale, localization: data.localization }) : "";
-    return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div>${planSummary}<div class="agent-connection-empty" role="status"><span class="agent-connection-mark" aria-hidden="true">✦</span><div><strong>${escapeHtml(t(locale, "agentSetupTitle"))}</strong><p>${escapeHtml(t(locale, "agentSetupPrompt"))}</p></div></div>${settings}${notice}</section>`;
+    return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${planSummary}<div class="agent-connection-empty" role="status"><div class="agent-connection-copy"><span class="agent-connection-mark" aria-hidden="true">✦</span><div><strong>${escapeHtml(t(locale, "agentSetupTitle"))}</strong><p>${escapeHtml(t(locale, "agentSetupPrompt"))}</p></div></div></div>${settings}${notice}</section>`;
   }
-  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div><div class="agent-visual-anchors" aria-hidden="true"><div class="agent-visual-stage"><img src="${escapeHtml(visualAssets.stage)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageAlt)}" alt="" loading="lazy"></div><div class="agent-visual-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div>${visualAssets.target ? `<div class="agent-visual-target"><img src="${escapeHtml(visualAssets.target)}" alt="" loading="lazy"></div>` : ""}<div class="agent-visual-momotalk"><img src="${escapeHtml(visualAssets.momotalk)}" alt="" loading="lazy"></div><div class="agent-visual-arona"><img src="${escapeHtml(visualAssets.arona)}" alt="" loading="lazy"></div><div class="agent-visual-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="agent-visual-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="agent-visual-kivo" src="${escapeHtml(visualAssets.kivo)}" alt="" loading="lazy"></div>${renderPlanSummary({ context, locale, localization: data.localization })}${settings}${chat}${proposalHtml}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p></details></section>`;
+  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${renderPlanSummary({ context, locale, localization: data.localization })}${settings}${chat}${proposalHtml}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p></details></section>`;
 }

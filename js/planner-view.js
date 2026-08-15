@@ -1,9 +1,9 @@
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260814-rebuild-v47";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260814-rebuild-v47";
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260814-rebuild-v47";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v47";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260814-rebuild-v47";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260814-rebuild-v47";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260815-visual-v50";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260815-visual-v50";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260815-visual-v50";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260815-visual-v50";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260815-visual-v50";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -12,10 +12,6 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-function assetLocal(data, key, fallback) {
-  return data?.assetManifest?.entries?.[key]?.local ?? fallback;
 }
 
 function giftImage(gift, manifest, locale, localization) {
@@ -114,16 +110,16 @@ export function prepareAllocation(data, state, thresholds) {
   };
 }
 
-export function renderWorkbenchTabs({ locale, active }) {
+export function renderWorkbenchTabs({ locale, active, data = {} }) {
   const tabs = [
-    ["planner", t(locale, "workbenchPlanner"), "⌂"],
-    ["inventory", t(locale, "workbenchInventory"), "▣"],
-    ["resources", t(locale, "workbenchResources"), "◒"],
-    ["packages", t(locale, "workbenchPackages"), "◇"],
-    ["relationship", t(locale, "workbenchRelationship"), "◈"],
-    ["agent", t(locale, "workbenchAgent"), "✦"],
+    ["planner", t(locale, "workbenchPlanner"), "⌂", "item:100008", "./assets/items/100008.webp"],
+    ["inventory", t(locale, "workbenchInventory"), "▣", "item:3", "./assets/items/3.webp"],
+    ["resources", t(locale, "workbenchResources"), "◒", "ui:schedule-favor", "./assets/ui/schedule-favor.png"],
+    ["packages", t(locale, "workbenchPackages"), "◇", "ui:kivo-favor", "./assets/ui/kivo-favor.webp"],
+    ["relationship", t(locale, "workbenchRelationship"), "◈", "ui:momotalk-compact", "./assets/ui/momotalk-compact.png"],
+    ["agent", t(locale, "workbenchAgent"), "✦", "ui:arona-favicon", "./assets/ui/arona.jpg"],
   ];
-  return `<nav class="workbench-tabs" aria-label="${escapeHtml(t(locale, "workbenchNavigation"))}"><div class="workbench-tab-list">${tabs.map(([id, label, icon]) => `<button type="button" class="workbench-tab ${id === active ? "is-active" : ""}" data-workbench="${id}" data-nav-icon="${escapeHtml(icon)}" aria-current="${id === active ? "page" : "false"}">${escapeHtml(label)}</button>`).join("")}</div><label class="workbench-mobile-picker"><span>${escapeHtml(t(locale, "mobileWorkspaceLabel"))}</span><select data-workbench-select aria-label="${escapeHtml(t(locale, "mobileWorkspaceLabel"))}">${tabs.map(([id, label]) => `<option value="${id}" ${id === active ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></nav>`;
+  return `<nav class="workbench-tabs" aria-label="${escapeHtml(t(locale, "workbenchNavigation"))}"><div class="workbench-tab-list">${tabs.map(([id, label, icon, assetKey, fallback]) => { const source = data?.assetManifest?.entries?.[assetKey]?.local ?? fallback; return `<button type="button" class="workbench-tab ${id === active ? "is-active" : ""}" data-workbench="${id}" data-nav-icon="${escapeHtml(icon)}" aria-current="${id === active ? "page" : "false"}"><span class="workbench-tab-art"><img src="${escapeHtml(source)}" alt="" aria-hidden="true"></span><span>${escapeHtml(label)}</span></button>`; }).join("")}</div><label class="workbench-mobile-picker"><span>${escapeHtml(t(locale, "mobileWorkspaceLabel"))}</span><select data-workbench-select aria-label="${escapeHtml(t(locale, "mobileWorkspaceLabel"))}">${tabs.map(([id, label]) => `<option value="${id}" ${id === active ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></nav>`;
 }
 
 export function renderPlannerWorkspace({ data, state, locale, localization }) {
@@ -135,23 +131,6 @@ export function renderPlannerWorkspace({ data, state, locale, localization }) {
   const summary = calculatePlanningSummary({ state, targets: state.students, mainTargetId: state.mainTargetStudentId, forecastDays: state.forecastDays, data });
   const summaryByStudent = new Map(summary.students.map((item) => [String(item.studentId), item]));
   const orderedPlans = [...state.students].sort((left, right) => Number(left.studentId) === Number(state.mainTargetStudentId) ? -1 : Number(right.studentId) === Number(state.mainTargetStudentId) ? 1 : 0);
-  const visualAssets = {
-    title: assetLocal(data, "ui:arona-title-new", "./assets/ui/arona-title-new.webp"),
-    options: assetLocal(data, "ui:kivo-options", "./assets/ui/kivo-options.webp"),
-    empty: assetLocal(data, "ui:kivo-empty", "./assets/ui/kivo-empty.webp"),
-    favicon: assetLocal(data, "ui:arona-favicon", "./assets/ui/arona.jpg"),
-    stageOne: assetLocal(data, "ui:stage-mission-1-normal", "./assets/ui/stages/mission_1_0.webp"),
-    stageOneAlt: assetLocal(data, "ui:stage-mission-1-alternate", "./assets/ui/stages/mission_1_1.webp"),
-    stageFour: assetLocal(data, "ui:stage-mission-4-normal", "./assets/ui/stages/mission_4_0.webp"),
-    stageFourAlt: assetLocal(data, "ui:stage-mission-4-alternate", "./assets/ui/stages/mission_4_1.webp"),
-    events: [801, 812, 824].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`)),
-    targetPortrait: mainStudent
-      ? assetLocal(data, `student-portrait:${mainStudent.student_id}`, `./assets/students/portrait/${mainStudent.student_id}.webp`)
-      : null,
-    emptyCharacter: assetLocal(data, "ui:kivo-default-half-body", "./assets/ui/kivo-default-half-body.webp"),
-    emptyFavor: assetLocal(data, "ui:schedule-favor", "./assets/ui/schedule-favor.png"),
-    emptyBox: assetLocal(data, "item:100008", "./assets/items/100008.webp"),
-  };
   const plannerForm = `<details class="planner-edit-details ${state.students.length ? "" : "planner-empty-form"}"><summary>${escapeHtml(t(locale, state.students.length ? "planningEdit" : "planningAddGoal"))}</summary><form class="planner-student-form" id="planner-student-form">
       ${studentPicker(data, state, locale, localization, state.students?.[0] ?? null)}
       <label><span>${t(locale, "currentLevel")}</span><input name="currentLevel" type="number" min="1" max="100" step="1" value="${editingPlan?.currentLevel ?? 1}" required></label>
@@ -160,11 +139,8 @@ export function renderPlannerWorkspace({ data, state, locale, localization }) {
       <button class="primary-button" type="submit">${t(locale, "addStudent")}</button>
     </form></details>`;
   return `<section class="planner-workspace panel" aria-labelledby="planner-title">
-    <div class="planner-hero">
-      <div class="planner-hero-copy"><h2 id="planner-title">${t(locale, "plannerTitle")}</h2><p>${escapeHtml(t(locale, "plannerCaption"))}</p>${mainStudent ? `<div class="planner-hero-target">${studentImage(mainStudent, data.assetManifest, locale, localization)}<span><strong>${escapeHtml(localizedName(mainStudent, "student", locale, localization))}</strong><small>${escapeHtml(t(locale, "currentLevel"))} ${formatInteger(mainPlan.currentLevel, locale)} → ${escapeHtml(t(locale, "targetLevel"))} ${formatInteger(mainPlan.targetLevel, locale)}</small></span></div>` : `<div class="planner-hero-empty">${escapeHtml(t(locale, "noPlannedStudents"))}</div>`}</div>
-      <div class="planner-hero-art" aria-hidden="true"><div class="planner-hero-stage-strip"><img src="${escapeHtml(visualAssets.stageOne)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageOneAlt)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFour)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFourAlt)}" alt="" loading="lazy"></div><div class="planner-hero-event-strip">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div>${visualAssets.targetPortrait ? `<img class="planner-hero-target-portrait" src="${escapeHtml(visualAssets.targetPortrait)}" alt="" loading="lazy">` : ""}<div class="planner-hero-art-stack"><img class="planner-hero-art-options" src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"><img class="planner-hero-art-empty" src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><span class="planner-hero-stamp"><img src="${escapeHtml(visualAssets.favicon)}" alt=""></span><img class="planner-hero-art-title" src="${escapeHtml(visualAssets.title)}" alt="" loading="lazy"></div>
-      <label class="planner-forecast-days"><span>${escapeHtml(t(locale, "planningForecastDays"))}</span><input type="number" min="1" max="366" step="1" value="${summary.forecastDays}" data-planner-forecast-days aria-label="${escapeHtml(t(locale, "planningForecastDays"))}"></label>
-    </div>
+    <div class="workspace-intro"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchPlanner"))}</span><h2 id="planner-title">${t(locale, "plannerTitle")}</h2><p>${escapeHtml(t(locale, "plannerCaption"))}</p></div><label class="planner-forecast-days"><span>${escapeHtml(t(locale, "planningForecastDays"))}</span><input type="number" min="1" max="366" step="1" value="${summary.forecastDays}" data-planner-forecast-days aria-label="${escapeHtml(t(locale, "planningForecastDays"))}"></label></div>
+    ${mainStudent ? `<div class="planner-target-strip">${studentImage(mainStudent, data.assetManifest, locale, localization)}<div><strong>${escapeHtml(localizedName(mainStudent, "student", locale, localization))}</strong><span>${escapeHtml(t(locale, "currentLevel"))} ${formatInteger(mainPlan.currentLevel, locale)} → ${escapeHtml(t(locale, "targetLevel"))} ${formatInteger(mainPlan.targetLevel, locale)}</span></div><span class="planner-target-status">${escapeHtml(t(locale, "planningMainTarget"))}</span></div>` : ""}
     <div class="planner-subsection"><div class="section-heading compact"><h2>${t(locale, "plannedStudents")}</h2></div>${state.students.length ? `<div class="planner-result-list">${orderedPlans.map((plan) => {
       const student = data.studentById.get(String(plan.studentId));
       const result = summaryByStudent.get(String(plan.studentId));
@@ -181,7 +157,7 @@ export function renderPlannerWorkspace({ data, state, locale, localization }) {
       const days = result?.estimatedDays === null ? t(locale, "planningDaysUnknown") : `${formatInteger(result?.estimatedDays ?? 0, locale)} ${t(locale, "planningDaysUnit")}`;
       const requiredExp = result?.requiredExp ?? 0;
       return `<article class="planner-result-card ${result?.isMainTarget ? "is-main" : ""}"><div class="planner-result-head"><div class="planner-result-identity">${studentImage(student, data.assetManifest, locale, localization)}<div><strong>${escapeHtml(localizedName(student, "student", locale, localization))}</strong><small>${t(locale, "currentLevel")} ${formatInteger(plan.currentLevel, locale)} → ${t(locale, "targetLevel")} ${formatInteger(plan.targetLevel, locale)}</small>${sourceNote ? `<small class="planner-result-warning">${escapeHtml(sourceNote)}</small>` : ""}</div></div><div class="planner-result-actions">${result?.isMainTarget ? `<span class="planner-main-badge">${escapeHtml(t(locale, "planningMainTarget"))}</span>` : `<button type="button" class="text-button" data-set-main-target="${escapeHtml(plan.studentId)}">${escapeHtml(t(locale, "planningSetMain"))}</button>`}</div></div><div class="planner-result-kpis"><div class="planner-result-gap"><span>${escapeHtml(t(locale, "planningGap"))}</span><strong>${formatExp(result?.gapWithinPeriod ?? 0, locale)}</strong><small>${escapeHtml(t(locale, "planningGapHint", summary.forecastDays))}</small></div><div><span>${escapeHtml(t(locale, "planningEstimatedDays"))}</span><strong>${escapeHtml(days)}</strong><small>${escapeHtml(t(locale, "planningDailyRate", formatExp(daily, locale)))}</small></div><div><span>${escapeHtml(t(locale, "planningCurrentExp"))}</span><strong>${formatExp(result?.currentExp ?? 0, locale)}</strong><small>${escapeHtml(t(locale, "planningFreeExp", formatExp(result?.freeExp ?? 0, locale)))}</small></div></div>${result?.isMainTarget && allocation.assignments.length ? `<button type="button" class="primary-button planner-quick-reserve" data-reserve-allocation>${escapeHtml(t(locale, "reserveAllocation"))}</button>` : ""}<details class="planner-result-details"><summary>${escapeHtml(t(locale, "planningDetails"))}</summary><div class="planner-detail-grid"><span>${escapeHtml(t(locale, "planningCurrentGap"))}<b>${formatExp(result?.immediateGap ?? requiredExp, locale)}</b></span><span>${escapeHtml(t(locale, "planningGapAfterFree", summary.forecastDays))}<b>${formatExp(result?.gapWithinPeriod ?? 0, locale)}</b></span><span>${escapeHtml(t(locale, "planningTotalExp"))}<b>${formatExp(result?.totalExpectedExp ?? 0, locale)}</b></span><span>${escapeHtml(t(locale, "planningMainResource"))}<b>${escapeHtml(resourceSummary)}</b></span></div></details><button type="button" class="text-button planner-remove-button" data-remove-plan="${escapeHtml(plan.id)}">${escapeHtml(t(locale, "remove"))}</button></article>`;
-    }).join("")}</div>` : `<div class="planner-empty planner-empty-guide" role="status"><div class="planner-empty-visual"><img class="planner-empty-character" src="${escapeHtml(visualAssets.emptyCharacter)}" alt="" loading="lazy"><span><img src="${escapeHtml(visualAssets.emptyFavor)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.emptyBox)}" alt="" loading="lazy"></span></div><div class="planner-empty-copy"><strong>${escapeHtml(t(locale, "noPlannedStudents"))}</strong><button type="button" class="primary-button" data-planner-open-form aria-controls="planner-student-form" aria-expanded="false">${escapeHtml(t(locale, "planningAddFirst"))}</button></div></div>`}</div>
+    }).join("")}</div>` : `<div class="planner-empty" role="status"><div class="planner-empty-copy"><strong>${escapeHtml(t(locale, "noPlannedStudents"))}</strong><span>${escapeHtml(t(locale, "plannerStudentSearchHint"))}</span></div><button type="button" class="primary-button" data-planner-open-form aria-controls="planner-student-form" aria-expanded="false">${escapeHtml(t(locale, "planningAddFirst"))}</button></div>`}</div>
     ${allocation.assignments.length ? `<details class="planner-section planner-allocation-details"><summary>${escapeHtml(t(locale, "planningAllocationDetails"))}</summary><div class="planner-allocation-list">${allocation.students.map((student) => `<article class="planner-allocation-row"><div><strong>${escapeHtml(student.name)}</strong><small>${t(locale, "allocated")} ${formatExp(student.effectiveExp, locale)} · ${t(locale, "unmetExp")} ${formatExp(student.unmetExp, locale)}</small></div><div class="planner-assignment-tags">${student.assignments.map((assignment) => { const gift = data.giftById.get(String(assignment.giftId)); return `<span class="planner-assignment-tag">${giftImage(gift, data.assetManifest, locale, localization)} ${escapeHtml(localizedName(gift, "gift", locale, localization))} ×${assignment.quantity}</span>`; }).join("")}</div></article>`).join("")}</div><div class="planner-allocation-actions"><button type="button" class="primary-button" data-reserve-allocation>${t(locale, "reserveAllocation")}</button></div></details>` : ""}
     ${plannerForm}
   </section>`;

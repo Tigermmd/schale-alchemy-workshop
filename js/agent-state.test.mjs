@@ -134,16 +134,16 @@ assert.equal(directRequestContext.confirmedFacts.plannedStudents[0].plan.targetL
 const proposal = { type: "planning_proposal", summary: "目标", changes: [
   { kind: "set_student_target", studentId: 10122, targetLevel: 100 },
   { kind: "set_forecast_days", value: 60 },
-  { kind: "set_package_plan", packageId: "p-1", planned: 2 },
 ] };
 assert.equal(validatePlanningProposal(proposal, { state, data }).ok, true);
 const applied = applyPlanningProposal(state, proposal, { data });
 assert.equal(applied.ok, true);
 assert.equal(applied.state.students[0].studentId, 10122);
 assert.equal(applied.state.students[0].targetLevel, 100);
-assert.equal(applied.state.packagePlans["p-1"].planned, 2);
+assert.deepEqual(applied.state.packagePlans, state.packagePlans);
 assert.equal(applied.state.inventory["5000"], undefined);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_inventory", giftId: 5000, count: 999 }] }, { state, data }).ok, false);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_forecast_days", value: 60, inventory: {} }] }, { state, data }).ok, false);
+assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_package_plan", packageId: "p-1", planned: 1 }] }, { state, data }).ok, false);
 
 console.log("agent state tests passed");

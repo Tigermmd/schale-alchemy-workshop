@@ -40,8 +40,8 @@ assert.ok(legacy.equivalentGiftPools["random-gold"] === 0);
 let state = setStockResourceCount(empty, "synthesis_stone_gold", 1);
 state = setStockResourceCount(state, "manufacturing_stone", 2);
 state = setEquivalentGiftPoolCount(state, "random-gold", 4);
-state = setInventoryCount(state, "5100", 3);
-state = setInventoryCount(state, "5101", 1);
+state = setInventoryCount(state, "5000", 3);
+state = setInventoryCount(state, "5001", 1);
 
 const posted = postPeriodicResource(state, "weekly-manufacturing-stones", { periodDays: 30, timestamp: "2026-08-10T00:00:00Z" });
 assert.equal(posted.incomingResources.stockResources.manufacturing_stone, 17 * 30 / 7);
@@ -56,37 +56,58 @@ assert.equal(undone.incomingResources.stockResources.manufacturing_stone, 0);
 assert.equal(undone.resourcePostingHistory.find((item) => item.resourceId === "weekly-manufacturing-stones").active, false);
 
 const summaryBefore = calculateInventorySummary(postedGiftBoxes);
-assert.deepEqual(summaryBefore.gifts["5100"], { current: 3, incoming: 0, reserved: 0, remaining: 3 });
+assert.deepEqual(summaryBefore.gifts["5000"], { current: 3, incoming: 0, reserved: 0, remaining: 3 });
 assert.deepEqual(summaryBefore.stocks.synthesis_stone_gold, { current: 1, incoming: 0, reserved: 0, remaining: 1 });
 assert.deepEqual(summaryBefore.equivalentGiftPools["random-gold"], { current: 4, incoming: 0, reserved: 0, remaining: 4 });
 
 const reserved = reserveGiftAllocation(postedGiftBoxes, [
-  { giftId: "5100", quantity: 2 },
-  { giftId: "5101", quantity: 1 },
+  { giftId: "5000", quantity: 2 },
+  { giftId: "5001", quantity: 1 },
 ]);
-assert.deepEqual(calculateInventorySummary(reserved).gifts["5100"], { current: 3, incoming: 0, reserved: 2, remaining: 1 });
-assert.deepEqual(calculateInventorySummary(reserved).gifts["5101"], { current: 1, incoming: 0, reserved: 1, remaining: 0 });
+assert.deepEqual(calculateInventorySummary(reserved).gifts["5000"], { current: 3, incoming: 0, reserved: 2, remaining: 1 });
+assert.deepEqual(calculateInventorySummary(reserved).gifts["5001"], { current: 1, incoming: 0, reserved: 1, remaining: 0 });
 const released = releaseGiftReservations(reserved);
 assert.deepEqual(released.giftReservations, {});
 const confirmed = confirmGiftReservations(reserved);
-assert.equal(confirmed.inventory["5100"], 1);
-assert.equal(confirmed.inventory["5101"], 0);
+assert.equal(confirmed.inventory["5000"], 1);
+assert.equal(confirmed.inventory["5001"], 0);
 assert.deepEqual(confirmed.giftReservations, {});
 
 const synthesized = synthesizeGoldGift(
-  setStockResourceCount(setInventoryCount(setInventoryCount(empty, "5100", 1), "5101", 1), "synthesis_stone_gold", 1),
-  "5100",
-  "5101",
+  setStockResourceCount(setInventoryCount(setInventoryCount(empty, "5000", 1), "5001", 1), "synthesis_stone_gold", 1),
+  "5000",
+  "5001",
 );
 assert.equal(synthesized.ok, true);
-assert.equal(synthesized.state.inventory["5100"], 0);
-assert.equal(synthesized.state.inventory["5101"], 0);
+assert.equal(synthesized.state.inventory["5000"], 0);
+assert.equal(synthesized.state.inventory["5001"], 0);
 assert.equal(synthesized.state.stockResources.synthesis_stone_gold, 0);
 assert.equal(synthesized.state.giftBoxes["100008"], 1);
 
 const insufficient = synthesizeGoldGift(empty, "5100", "5101");
 assert.equal(insufficient.ok, false);
 assert.equal(insufficient.reason, "insufficient_materials");
+
+const sameGiftNeedsTwo = synthesizeGoldGift(
+  setStockResourceCount(setInventoryCount(empty, "5000", 1), "synthesis_stone_gold", 1),
+  "5000",
+  "5000",
+);
+assert.equal(sameGiftNeedsTwo.ok, false);
+assert.equal(sameGiftNeedsTwo.reason, "insufficient_materials");
+
+const purpleCannotSynthesize = synthesizeGoldGift(
+  setStockResourceCount(setInventoryCount(setInventoryCount(empty, "5100", 1), "5001", 1), "synthesis_stone_gold", 1),
+  "5100",
+  "5001",
+  new Map([
+    ["5000", { id: 5000, rarity: "SR" }],
+    ["5001", { id: 5001, rarity: "SR" }],
+    ["5100", { id: 5100, rarity: "SSR" }],
+  ]),
+);
+assert.equal(purpleCannotSynthesize.ok, false);
+assert.equal(purpleCannotSynthesize.reason, "gold_gifts_only");
 
 const giftPackage = {
   id: "gifts",

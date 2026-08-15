@@ -1,6 +1,6 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260814-rebuild-v47";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v47";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260814-rebuild-v47";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260815-visual-v50";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260815-visual-v50";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -9,10 +9,6 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-function assetLocal(data, key, fallback) {
-  return data?.assetManifest?.entries?.[key]?.local ?? fallback;
 }
 
 function packageName(item, locale) {
@@ -74,14 +70,6 @@ function contentIcon(content, data) {
     return source ? `<img src="${escapeHtml(source.local)}" alt="" loading="lazy">` : `<span class="package-content-glyph" aria-hidden="true">♡</span>`;
   }
   return `<span class="package-content-glyph" aria-hidden="true">▧</span>`;
-}
-
-function targetGiftIds(student) {
-  return (student?.gift_values ?? [])
-    .slice()
-    .sort((left, right) => Number(right.relationship_exp ?? 0) - Number(left.relationship_exp ?? 0))
-    .slice(0, 3)
-    .map((item) => item.gift_id);
 }
 
 function contentsHtml(item, locale, data) {
@@ -155,27 +143,12 @@ export function renderPackagesWorkspace({ data = {}, state = {}, locale, localiz
   const rankedRows = [...rows].sort((left, right) => (right.expPerYuan ?? -1) - (left.expPerYuan ?? -1));
   const currentRows = rankedRows.filter((row) => row.timelineId !== "mika-launch");
   const launchRows = rankedRows.filter((row) => row.timelineId === "mika-launch");
-  const visualAssets = {
-    arona: assetLocal(data, "ui:arona-title-new", "./assets/ui/arona-title-new.webp"),
-    options: assetLocal(data, "ui:kivo-options", "./assets/ui/kivo-options.webp"),
-    kivo: assetLocal(data, "ui:kivo-logo", "./assets/ui/kivo-logo.svg"),
-    aronaIcon: assetLocal(data, "ui:arona-favicon", "./assets/ui/arona.jpg"),
-    target: targetStudent
-      ? assetLocal(data, `student-collection:${targetStudent.student_id}`, `./assets/students/collection/${targetStudent.student_id}.webp`)
-      : null,
-    stage: assetLocal(data, "ui:stage-mission-6-normal", "./assets/ui/stages/mission_6_0.webp"),
-    stageAlt: assetLocal(data, "ui:stage-mission-6-alternate", "./assets/ui/stages/mission_6_1.webp"),
-    events: [801, 818, 839].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`)),
-  };
-  const targetGiftIdList = targetStudent ? targetGiftIds(targetStudent) : [];
-  const visualGiftIds = targetGiftIdList.length ? targetGiftIdList : [100008, 100009, 5997];
   const targetPicker = plannedStudents.length
     ? `<label class="package-target-picker"><span>${escapeHtml(t(locale, "packageTarget"))}</span><select data-package-target-student aria-label="${escapeHtml(t(locale, "packageTarget"))}">${targetStudentOptions({ students: plannedStudents, selectedId: targetStudent?.student_id, locale, localization })}</select></label>`
     : "";
   return `<section class="package-workspace panel" aria-labelledby="package-title">
     <div class="section-heading package-page-heading"><div><h2 id="package-title">${escapeHtml(t(locale, "packagesTitle"))}</h2>${targetPicker}</div></div>
-    <div class="package-visual-anchors" aria-hidden="true"><div class="package-visual-stage"><img src="${escapeHtml(visualAssets.stage)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageAlt)}" alt="" loading="lazy"></div><div class="package-visual-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="package-visual-items">${visualGiftIds.map((id) => `<span>${contentIcon({ item_id: id }, data)}</span>`).join("")}</div><div class="package-visual-ribbon"><img src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"></div><div class="package-visual-characters">${visualAssets.target ? `<img class="package-visual-target" src="${escapeHtml(visualAssets.target)}" alt="" loading="lazy">` : ""}<img class="package-visual-arona" src="${escapeHtml(visualAssets.arona)}" alt="" loading="lazy"><img class="package-visual-kivo" src="${escapeHtml(visualAssets.kivo)}" alt="" loading="lazy"><img class="package-visual-arona-icon" src="${escapeHtml(visualAssets.aronaIcon)}" alt="" loading="lazy"></div></div>
-    ${!targetStudent ? `<div class="planner-empty" role="status"><strong>${escapeHtml(t(locale, "packageNoTarget"))}</strong><button type="button" class="primary-button" data-go-planner>${escapeHtml(t(locale, "packageGoPlanner"))}</button></div>` : `${renderPackageGroup({ title: t(locale, "packageCurrentPhase"), rows: currentRows, catalogItems, locale, data })}${renderPackageGroup({ title: t(locale, "packageLaunchPhase"), rows: launchRows, catalogItems, locale, data })}`}
+    ${!targetStudent ? `<div class="planner-empty" role="status"><div class="planner-empty-copy"><strong>${escapeHtml(t(locale, "packageNoTarget"))}</strong></div><button type="button" class="primary-button" data-go-planner>${escapeHtml(t(locale, "packageGoPlanner"))}</button></div>` : `${renderPackageGroup({ title: t(locale, "packageCurrentPhase"), rows: currentRows, catalogItems, locale, data })}${renderPackageGroup({ title: t(locale, "packageLaunchPhase"), rows: launchRows, catalogItems, locale, data })}`}
     ${targetStudent && !rows.length ? `<div class="planner-empty" role="status">${escapeHtml(t(locale, "packageNoRows"))}</div>` : ""}
   </section>`;
 }

@@ -1,14 +1,14 @@
-import { addStudentPlan, normalizePlannerState, setPackagePlan } from "./planner-state.js?v=dashboard-20260814-rebuild-v47";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260814-rebuild-v47";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260814-rebuild-v47";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260814-rebuild-v47";
+import { addStudentPlan, normalizePlannerState } from "./planner-state.js?v=dashboard-20260815-visual-v50";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260815-visual-v50";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260815-visual-v50";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260815-visual-v50";
+import { text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
 
-const ALLOWED_CHANGE_KINDS = new Set(["set_student_target", "set_forecast_days", "set_cn_cutoff_student", "set_package_plan"]);
+const ALLOWED_CHANGE_KINDS = new Set(["set_student_target", "set_forecast_days", "set_cn_cutoff_student"]);
 const ALLOWED_CHANGE_FIELDS = Object.freeze({
   set_student_target: new Set(["kind", "studentId", "currentLevel", "currentProgress", "targetLevel"]),
   set_forecast_days: new Set(["kind", "value"]),
   set_cn_cutoff_student: new Set(["kind", "studentId"]),
-  set_package_plan: new Set(["kind", "packageId", "planned"]),
 });
 
 function numberOr(value, fallback = 0) {
@@ -235,7 +235,7 @@ export function calculatePackageNeed({ projection } = {}) {
   return safeJson(projection?.twoMonthWithPaid?.packageRecommendation ?? null);
 }
 
-export function buildAgentContext(state, calculatedResults, data, { message = "", conversation = [] } = {}) {
+export function buildAgentContext(state, calculatedResults, data, { message = "", conversation = [], locale = "zh_cn" } = {}) {
   const facts = extractConversationFacts([...(Array.isArray(conversation) ? conversation : []), ...(message ? [{ role: "user", content: message }] : [])]);
   const requestText = [message, conversationText(conversation)].filter(Boolean).join("\n");
   const requestedStudentIds = findRequestedStudentIds(requestText, data);
@@ -261,7 +261,7 @@ export function buildAgentContext(state, calculatedResults, data, { message = ""
     if (schedule && (schedule.amount === null || schedule.amount === undefined || schedule.amount === "")) {
       missingUserInputs.push({
         id: "daily-schedule-count",
-        question: "请补充：国服已实装目标学生每天可进行多少次日程摸头？请填写次数，例如 1。",
+        question: t(locale, "agentMissingScheduleQuestion"),
         answerPatterns: ["日程.{0,12}\\d+", "schedule.{0,12}\\d+"],
       });
     }
@@ -269,7 +269,7 @@ export function buildAgentContext(state, calculatedResults, data, { message = ""
     if (cafe && (cafe.amount === null || cafe.amount === undefined || cafe.amount === "")) {
       missingUserInputs.push({
         id: "daily-cafe-count",
-        question: "请补充：每天咖啡厅摸头次数是多少？请填写次数，例如 8。",
+        question: t(locale, "agentMissingCafeQuestion"),
         answerPatterns: ["咖啡厅.{0,12}\\d+", "咖啡.{0,12}\\d+", "cafe.{0,12}\\d+"],
       });
     }
@@ -278,7 +278,7 @@ export function buildAgentContext(state, calculatedResults, data, { message = ""
   if (tower && (tower.amount === null || tower.amount === undefined || tower.amount === "")) {
     missingUserInputs.push({
       id: "unlimited-assault-floor",
-      question: "请补充：制约解除作战按玩家能打到多少层计算？请填写层数，例如 99。",
+      question: t(locale, "agentMissingTowerQuestion"),
       answerPatterns: ["\\d+\\s*层", "floor.{0,8}\\d+"],
     });
   }
@@ -374,7 +374,6 @@ export function validatePlanningProposal(proposal, { state, data } = {}) {
   const students = data?.plannerStudents ?? data?.students ?? [];
   const studentIds = new Set(students.map((student) => Number(student.student_id)));
   const cutoffStudentIds = new Set((data?.releaseTimeline ?? []).map((entry) => Number(entry.studentId)));
-  const packageIds = new Set((data?.snapshots?.packages?.packages ?? []).map((item) => String(item.id)));
   const errors = [];
   proposal.changes.forEach((change, index) => {
     if (!change || typeof change !== "object" || !ALLOWED_CHANGE_KINDS.has(change.kind)) {
@@ -393,7 +392,6 @@ export function validatePlanningProposal(proposal, { state, data } = {}) {
     }
     if (change.kind === "set_forecast_days" && (integerOr(change.value, 0) < 1 || integerOr(change.value, 0) > 366)) errors.push(`changes[${index}].value must be 1–366`);
     if (change.kind === "set_cn_cutoff_student" && !cutoffStudentIds.has(Number(change.studentId))) errors.push(`changes[${index}] references an unknown cutoff student`);
-    if (change.kind === "set_package_plan" && (!packageIds.has(String(change.packageId)) || integerOr(change.planned, -1) < 0)) errors.push(`changes[${index}] has an invalid package plan`);
   });
   return errors.length ? { ok: false, errors } : { ok: true, proposal };
 }
@@ -404,7 +402,6 @@ export function applyPlanningProposal(state, proposal, { data } = {}) {
   let next = normalizePlannerState(state);
   const timeline = data?.releaseTimeline ?? [];
   const students = data?.plannerStudents ?? data?.students ?? [];
-  const packages = data?.snapshots?.packages?.packages ?? [];
   for (const change of proposal.changes) {
     if (change.kind === "set_student_target") {
       const existing = next.students.find((plan) => Number(plan.studentId) === Number(change.studentId));
@@ -419,9 +416,6 @@ export function applyPlanningProposal(state, proposal, { data } = {}) {
     } else if (change.kind === "set_cn_cutoff_student") {
       const entry = timeline.find((candidate) => Number(candidate.studentId) === Number(change.studentId));
       if (entry) next = { ...next, cnProgress: normalizeCnProgress({ cutoffStudentId: entry.studentId, cutoffRank: entry.jpRank }, timeline, students) };
-    } else if (change.kind === "set_package_plan") {
-      const item = packages.find((candidate) => String(candidate.id) === String(change.packageId));
-      if (item) next = setPackagePlan(next, item.id, "planned", change.planned);
     }
   }
   return { ok: true, state: next };

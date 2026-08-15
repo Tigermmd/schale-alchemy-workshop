@@ -45,7 +45,18 @@ const html = renderResourcesWorkspace({
     }],
   },
   locale: "zh",
-  evidence: { rows: [], sources: [] },
+  evidence: {
+    rows: [{
+      resource_id: "monthly-total-assault-gift-boxes",
+      status: "user_confirmed",
+      candidate_value: 3,
+      candidate_unit_zh_cn: "个/月",
+      candidate_text_zh_cn: "每月约 3 个金色礼物自选盒（100008）。",
+      candidate_note_zh_cn: "随机盒 100000 与紫色随机盒 100009 不应在普通界面展示。",
+      official_source_ids: [],
+    }],
+    sources: [],
+  },
 });
 
 assert.match(html, /免费资源账本/);
@@ -59,8 +70,9 @@ assert.doesNotMatch(html, /3\.00/);
 assert.match(html, /待填写/);
 assert.match(html, /日程：每天摸头次数/);
 assert.match(html, /咖啡厅：每天摸头次数/);
-assert.match(html, /resource-art-strip/);
-assert.match(html, /kivo-favor\.webp/);
-assert.match(html, /schaledb-gdd-logo\.png/);
+assert.doesNotMatch(html, /resource-art-strip/);
+assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
+assert.match(html, /resource-toolbar/);
+assert.doesNotMatch(html, /100000|100008|100009/);
 
 console.log("resource view tests passed");

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { filterPlannerStudents, plannerStudentLabel, renderPlannerStudentOptions, renderWorkbenchTabs } from "./planner-view.js";
+import { filterPlannerStudents, plannerStudentLabel, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs } from "./planner-view.js";
 import { text } from "./i18n.js";
 
 const students = [
@@ -25,5 +25,32 @@ assert.notEqual(text("en", "giftOnlyChoiceBoxExplanation", "60.00"), "giftOnlyCh
 assert.notEqual(text("ja", "giftOnlyChoiceBoxPool", 35), "giftOnlyChoiceBoxPool");
 assert.notEqual(text("zh_cn", "planningCurrentGap"), "planningCurrentGap");
 assert.notEqual(text("zh_cn", "planningNonMainNote"), "planningNonMainNote");
+
+const emptyPlannerHtml = renderPlannerWorkspace({
+  data: {
+    snapshots: { thresholds: [] },
+    studentById: new Map(),
+    plannerStudents: [],
+    students: [],
+    gifts: [],
+    giftById: new Map(),
+    releaseTimeline: [],
+  },
+  state: {
+    students: [],
+    mainTargetStudentId: null,
+    forecastDays: 60,
+    inventory: {},
+    giftReservations: {},
+    giftBoxes: {},
+    stockResources: {},
+    incomingResources: {},
+    equivalentGiftPools: {},
+  },
+  locale: "zh_cn",
+  localization: {},
+});
+assert.match(emptyPlannerHtml, /class="planner-empty-copy"/, "Empty planner state should separate copy from its action");
+assert.match(emptyPlannerHtml, /data-planner-open-form/, "Empty planner state should keep one clear add-goal action");
 
 console.log("planner view tests passed");

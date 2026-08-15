@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260814-rebuild-v47";
-import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260814-rebuild-v47";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260814-rebuild-v47";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setPackagePlan, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260814-rebuild-v47";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260814-rebuild-v47";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260814-rebuild-v47";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260814-rebuild-v47";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260814-rebuild-v47";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260814-rebuild-v47";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260814-rebuild-v47";
-import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260814-rebuild-v47";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260814-rebuild-v47";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260814-rebuild-v47";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260814-rebuild-v47";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260814-rebuild-v47";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260815-visual-v50";
+import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260815-visual-v50";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260815-visual-v50";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260815-visual-v50";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260815-visual-v50";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260815-visual-v50";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260815-visual-v50";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260815-visual-v50";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260815-visual-v50";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260815-visual-v50";
+import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260815-visual-v50";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260815-visual-v50";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260815-visual-v50";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260815-visual-v50";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260815-visual-v50";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -157,7 +157,7 @@ function renderActiveWorkbench({ resetScroll = false } = {}) {
   elements.dashboard.classList.toggle("directory-hidden", !chrome.showStudentDirectory);
   elements.directoryPanel?.setAttribute("aria-hidden", String(!chrome.showStudentDirectory));
   elements.pageTitle.textContent = t(state.locale, chrome.titleKey);
-  elements.workbenchNav.innerHTML = renderWorkbenchTabs({ locale: state.locale, active: state.workbench });
+  elements.workbenchNav.innerHTML = renderWorkbenchTabs({ locale: state.locale, active: state.workbench, data });
   scrollActiveWorkbenchIntoView();
   updateWorkbenchNavigationCue();
   if (resetScroll) {
@@ -190,6 +190,7 @@ function renderActiveWorkbench({ resetScroll = false } = {}) {
       data: { ...data, unlimitedAssaultRewards: data.snapshots.unlimitedAssaultRewards },
       state: state.planner,
       locale: state.locale,
+      localization: data.localization,
       evidence: data.snapshots.resourceEvidence,
     });
     return;
@@ -197,6 +198,7 @@ function renderActiveWorkbench({ resetScroll = false } = {}) {
   if (state.workbench === "agent") {
     const context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
       conversation: state.agent.messages,
+      locale: state.locale,
     });
     elements.detail.innerHTML = renderAgentWorkspace({ data, state: state.agent, locale: state.locale, context });
     return;
@@ -274,6 +276,7 @@ async function sendAgentMessage(form) {
   const context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
     message,
     conversation: state.agent.messages,
+    locale: state.locale,
   });
   state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, messages: nextMessages, busy: true, notice: "" };
   renderActiveWorkbench();
@@ -626,14 +629,6 @@ elements.detail.addEventListener("input", (event) => {
   const resourceInput = event.target.closest("[data-resource-amount]");
   if (resourceInput) {
     state.planner = writePlannerState(window.localStorage, setResourceAmount(state.planner, resourceInput.dataset.resourceAmount, resourceInput.value));
-    return;
-  }
-  const packagePlanInput = event.target.closest("[data-package-plan]");
-  if (packagePlanInput) {
-    state.planner = writePlannerState(window.localStorage, syncPurchasedPackagesToInventory(
-      setPackagePlan(state.planner, packagePlanInput.dataset.packagePlan, packagePlanInput.dataset.packagePlanField, packagePlanInput.value),
-      data.snapshots.packages?.packages ?? [],
-    ));
     return;
   }
   const plannerInventory = event.target.closest("[data-planner-inventory]");

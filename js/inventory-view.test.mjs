@@ -72,7 +72,10 @@ const emptyInventoryHtml = renderInventoryWorkspace({
   data: {
     gifts: [{ id: 5000, name_zh_cn: "测试礼物", name_en: "Test Gift", rarity: "SSR", base_exp: 60 }],
     giftById: new Map([["5000", { id: 5000, name_zh_cn: "测试礼物", name_en: "Test Gift", rarity: "SSR", base_exp: 60 }]]),
-    giftBoxes: [],
+    giftBoxes: [
+      { id: "100008", name_zh_cn: "金色礼物自选盒", name_en: "Gold Gift Choice Box", name_ja: "金色の贈り物選択ボックス", pool: "choice", rarity: "SSR" },
+      { id: "100009", name_zh_cn: "紫色礼物随机盒", name_en: "Purple Gift Random Box", name_ja: "紫色の贈り物ランダムボックス", pool: "random", rarity: "SR" },
+    ],
   },
   state: {
     periodDays: 30,
@@ -90,13 +93,16 @@ const emptyInventoryHtml = renderInventoryWorkspace({
   filters: { query: "", rarity: "all", exp: "all", onlyOwned: true },
   evidence: { rows: [], sources: [] },
 });
-const emptyHero = emptyInventoryHtml.match(/<div class="inventory-hero-gifts">([\s\S]*?)<\/div>/)?.[1] ?? "";
-assert.doesNotMatch(emptyHero, /gifts\/5000\.webp/, "An empty inventory must not look like it owns a specific gift");
+assert.doesNotMatch(emptyInventoryHtml, /inventory-page-hero|inventory-hero-art/, "Inventory must not render a decorative hero");
 assert.match(emptyInventoryHtml, /data-inventory-filter="onlyOwned"(?![^>]*checked)/, "An empty inventory must expose all gifts by default");
 assert.match(emptyInventoryHtml, /金色礼物自选盒/);
 assert.match(emptyInventoryHtml, /紫色礼物随机盒/);
 assert.match(emptyInventoryHtml, /金色随机礼物池（等效）/);
-assert.match(emptyInventoryHtml, /inventory-transfer-primary/);
+assert.match(emptyInventoryHtml, /inventory-heading-actions/);
+assert.equal((emptyInventoryHtml.match(/class="inventory-overview"/g) ?? []).length, 1);
+const overviewHtml = emptyInventoryHtml.slice(emptyInventoryHtml.indexOf("class=\"inventory-overview\""), emptyInventoryHtml.indexOf("class=\"inventory-section\""));
+assert.equal((overviewHtml.match(/<article/g) ?? []).length, 2, "Inventory overview should keep only current and remaining totals");
+assert.doesNotMatch(overviewHtml, /金色礼物自选盒|紫色礼物随机盒|金色随机礼物池/);
 
 const expandedEmptyInventoryHtml = renderInventoryWorkspace({
   data: {

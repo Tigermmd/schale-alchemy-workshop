@@ -1,4 +1,4 @@
-import { createInventoryState } from "./inventory-state.js?v=dashboard-20260814-rebuild-v47";
+import { createInventoryState } from "./inventory-state.js?v=dashboard-20260815-visual-v50";
 
 export const INVENTORY_TRANSFER_FORMAT = "schale-relationship-inventory";
 export const INVENTORY_TRANSFER_SCHEMA_VERSION = 1;

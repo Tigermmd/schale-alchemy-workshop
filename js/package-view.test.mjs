@@ -38,9 +38,9 @@ assert.match(html, /好感 \/ 元/);
 assert.match(html, /¥78/);
 assert.doesNotMatch(html, /甲 · #1/);
 assert.match(html, /data-package-target-student/);
-assert.match(html, /package-visual-anchors/);
-assert.match(html, /package-visual-items/);
-assert.match(html, /arona-title-new\.webp/);
+assert.doesNotMatch(html, /package-visual-anchors/);
+assert.doesNotMatch(html, /package-visual-items|arona-title-new\.webp|kivo-options\.webp/);
+assert.match(html, /package-details/);
 
 const groupedHtml = renderPackagesWorkspace({
   state: {

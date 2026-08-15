@@ -1,8 +1,8 @@
-import { text as t } from "./i18n.js?v=dashboard-20260814-rebuild-v47";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260814-rebuild-v47";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260814-rebuild-v47";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260814-rebuild-v47";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260814-rebuild-v47";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260815-visual-v50";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260815-visual-v50";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260815-visual-v50";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260815-visual-v50";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -13,25 +13,28 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function assetLocal(data, key, fallback) {
-  return data?.assetManifest?.entries?.[key]?.local ?? fallback;
-}
-
 function localizedEvidenceField(lead, field, locale) {
   const suffix = locale === "en" ? "en" : locale === "ja" ? "ja" : "zh_cn";
   return lead?.[`${field}_${suffix}`] ?? lead?.[`${field}_zh_cn`] ?? "";
+}
+
+function publicEvidenceText(value, locale) {
+  return String(value ?? "")
+    .replaceAll("100000", t(locale, "inventoryBoxName", "100000"))
+    .replaceAll("100008", t(locale, "inventoryBoxName", "100008"))
+    .replaceAll("100009", t(locale, "inventoryBoxName", "100009"));
 }
 
 function renderResourceEvidence({ lead, source, sourceById, locale, candidateUnit }) {
   if (!["lead", "user_confirmed"].includes(lead?.status)) {
     return '<div class="resource-evidence is-empty"><strong>' + escapeHtml(t(locale, "resourceEvidenceMissing")) + '</strong></div>';
   }
-  const candidateText = localizedEvidenceField(lead, "candidate_text", locale);
+  const candidateText = publicEvidenceText(localizedEvidenceField(lead, "candidate_text", locale), locale);
   const candidateValue = lead.candidate_value !== null && lead.candidate_value !== undefined && Number.isFinite(Number(lead.candidate_value))
     ? `${formatSmartQuantity(lead.candidate_value, locale)} ${candidateUnit || ""}`.trim()
     : candidateText;
-  const candidateNote = localizedEvidenceField(lead, "candidate_note", locale);
-  const officialScope = localizedEvidenceField(lead, "official_scope", locale);
+  const candidateNote = publicEvidenceText(localizedEvidenceField(lead, "candidate_note", locale), locale);
+  const officialScope = publicEvidenceText(localizedEvidenceField(lead, "official_scope", locale), locale);
   const officialSources = (lead.official_source_ids ?? []).map((id) => sourceById?.get(id)).filter(Boolean);
   const evidenceLabel = lead.status === "user_confirmed" ? t(locale, "resourceEvidenceConfirmed") : t(locale, "resourceEvidenceLead");
   const sourceLink = source?.url
@@ -146,7 +149,7 @@ function renderResourceRow({ resource, state, data, locale, evidenceById, source
   </article>`;
 }
 
-function renderManufacturingProjection({ data, state, locale }) {
+function renderManufacturingProjection({ data, state, locale, localization }) {
   const stoneResource = state.resources.find((resource) => resource.id === "weekly-manufacturing-stones");
   const projectedStones = stoneResource?.amount === null || stoneResource?.amount === undefined
     ? null
@@ -160,8 +163,9 @@ function renderManufacturingProjection({ data, state, locale }) {
       const hasPerStone = Number.isFinite(perStone) && perStone >= 0;
       const expected = projectedStones !== null && hasPerStone ? projectedStones * perStone : null;
       const stages = ["1", "2", "3"].map((stage) => Number(crafting?.stage_expected_relationship_exp?.[stage])).filter((value) => Number.isFinite(value));
+      const studentName = student ? localizedName(student, "student", locale, localization) : t(locale, "unknown");
       return `<article class="manufacturing-resource-card">
-        <div class="manufacturing-resource-head"><strong>${escapeHtml(student?.name_zh_cn ?? student?.name_en ?? t(locale, "unknown"))}</strong><span>${escapeHtml(t(locale, "manufacturingExpected"))}：${expected === null ? escapeHtml(t(locale, "unknown")) : formatExp(expected, locale)}</span></div>
+        <div class="manufacturing-resource-head"><strong>${escapeHtml(studentName)}</strong><span>${escapeHtml(t(locale, "manufacturingExpected"))}：${expected === null ? escapeHtml(t(locale, "unknown")) : formatExp(expected, locale)}</span></div>
         <div class="manufacturing-resource-meta"><span>${escapeHtml(t(locale, "manufacturingStonesPeriod"))}：${projectedStones === null ? escapeHtml(t(locale, "unknown")) : formatSmartQuantity(projectedStones, locale)}</span><span>${escapeHtml(t(locale, "manufacturingPerStone"))}：${hasPerStone ? formatExp(perStone, locale) : escapeHtml(t(locale, "unknown"))}</span></div>
         <small>${stages.length === 3 ? `${escapeHtml(t(locale, "manufacturingStages"))}：${stages.map((value) => formatExp(value, locale)).join(" / ")}` : escapeHtml(t(locale, "manufacturingDataMissing"))}</small>
       </article>`;
@@ -174,7 +178,7 @@ function renderManufacturingProjection({ data, state, locale }) {
   </section>`;
 }
 
-function renderRelationshipSourceProjection({ data, state, locale }) {
+function renderRelationshipSourceProjection({ data, state, locale, localization }) {
   const plans = Array.isArray(state.students) ? state.students : [];
   if (!plans.length) return "";
   const rows = plans.map((plan) => {
@@ -186,7 +190,7 @@ function renderRelationshipSourceProjection({ data, state, locale }) {
       timeline: data.releaseTimeline ?? [],
       periodDays: state.forecastDays,
     });
-    const label = student?.name_zh_cn ?? student?.name_en ?? t(locale, "unknown");
+    const label = student ? localizedName(student, "student", locale, localization) : t(locale, "unknown");
     const value = forecast.giftOnly
       ? t(locale, "relationshipSourcesGiftOnly")
       : t(locale, "relationshipSourcesIncluded", formatExp(forecast.totalExp, locale));
@@ -207,53 +211,7 @@ function giftBoxPoolLabel(box, locale) {
   return box?.pool_label_zh_cn ?? box?.pool_label_en ?? "";
 }
 
-function giftBoxStatusText(result, locale) {
-  const status = result?.status;
-  const labels = {
-    zh_cn: {
-      ready: "已确认",
-      user_confirmed: "按用户确认（等概率模型）",
-      missing_probability: "国服礼物盒概率未确认",
-      missing_selection_pool: "国服礼物盒自选范围未确认",
-      missing_selection_policy: "缺少自选策略",
-      invalid_probability: "概率格式无效",
-      invalid_probability_total: "概率合计不是 100%",
-      missing_gift_values: "缺少礼物好感值",
-      missing_box_definition: "缺少礼物盒定义",
-      missing_box_type: "缺少礼物盒类型",
-      no_box_quantity: "尚未输入礼物盒数量",
-    },
-    en: {
-      ready: "Verified",
-      user_confirmed: "User-confirmed equal-probability model",
-      missing_probability: "CN gift-box probabilities are unverified",
-      missing_selection_pool: "CN gift-box selection pool is unverified",
-      missing_selection_policy: "Selection policy is missing",
-      invalid_probability: "Invalid probability format",
-      invalid_probability_total: "Probabilities do not total 100%",
-      missing_gift_values: "Gift relationship values are missing",
-      missing_box_definition: "Gift-box definition is missing",
-      missing_box_type: "Gift-box type is missing",
-      no_box_quantity: "No gift-box quantity entered",
-    },
-    ja: {
-      ready: "確認済み",
-      user_confirmed: "ユーザー確認（等確率モデル）",
-      missing_probability: "中国版ギフトボックスの確率は未確認です",
-      missing_selection_pool: "中国版ギフトボックスの選択範囲は未確認です",
-      missing_selection_policy: "選択方針がありません",
-      invalid_probability: "確率の形式が不正です",
-      invalid_probability_total: "確率の合計が100%ではありません",
-      missing_gift_values: "贈り物の絆EXPが不足しています",
-      missing_box_definition: "ギフトボックス定義がありません",
-      missing_box_type: "ギフトボックス種別がありません",
-      no_box_quantity: "ギフトボックス数が未入力です",
-    },
-  };
-  return labels[locale]?.[status] ?? labels.zh_cn[status] ?? status ?? "未知";
-}
-
-function renderGiftBoxWorkspace({ data, state, locale }) {
+function renderGiftBoxWorkspace({ data, state, locale, localization }) {
   const boxes = Array.isArray(data?.giftBoxes) ? data.giftBoxes : [];
   const plans = Array.isArray(state.students) ? state.students : [];
   const entries = boxes
@@ -276,22 +234,23 @@ function renderGiftBoxWorkspace({ data, state, locale }) {
         if (!(quantity > 0)) return null;
         return { box, quantity, result: calculateGiftBoxExpectedExp(box, giftValues, { policy: "best_for_student" }) };
       }).filter(Boolean);
+      const studentName = student ? localizedName(student, "student", locale, localization) : t(locale, "unknown");
       return `<article class="gift-box-student-card">
-        <div class="gift-box-student-head"><strong>${escapeHtml(student?.name_zh_cn ?? student?.name_en ?? t(locale, "unknown"))}</strong><span>${escapeHtml(t(locale, "giftBoxExpectedTotal"))}：${total.status === "ready" ? formatExp(total.expectedExp, locale) : "—"}</span></div>
-        <div class="gift-box-results">${perBox.length ? perBox.map(({ box, quantity, result }) => `<div class="gift-box-result"><span>${escapeHtml(giftBoxName(box, locale))} ×${formatSmartQuantity(quantity, locale)}</span><span>${result.status === "ready" ? `${escapeHtml(t(locale, "giftBoxPerBox"))} ${formatExp(result.expectedExp, locale)} · ${formatExp(result.expectedExp * quantity, locale)}` : escapeHtml(giftBoxStatusText(result, locale))}</span></div>`).join("") : `<p class="gift-box-muted">${escapeHtml(t(locale, "giftBoxNoQuantity"))}</p>`}</div>
+        <div class="gift-box-student-head"><strong>${escapeHtml(studentName)}</strong><span>${escapeHtml(t(locale, "giftBoxExpectedTotal"))}：${total.status === "ready" ? formatExp(total.expectedExp, locale) : "—"}</span></div>
+        <div class="gift-box-results">${perBox.length ? perBox.map(({ box, quantity, result }) => `<div class="gift-box-result"><span>${escapeHtml(giftBoxName(box, locale))} ×${formatSmartQuantity(quantity, locale)}</span><span>${result.status === "ready" ? `${escapeHtml(t(locale, "giftBoxPerBox"))} ${formatExp(result.expectedExp, locale)} · ${formatExp(result.expectedExp * quantity, locale)}` : escapeHtml(t(locale, "giftBoxStatus", result.status))}</span></div>`).join("") : `<p class="gift-box-muted">${escapeHtml(t(locale, "giftBoxNoQuantity"))}</p>`}</div>
       </article>`;
     }).join("")
     : `<p class="gift-box-muted" role="status">${escapeHtml(t(locale, "giftBoxNoStudents"))}</p>`;
 
   return `<section class="gift-box-workspace" aria-labelledby="gift-box-title">
     <div class="section-heading compact"><h2 id="gift-box-title">${escapeHtml(t(locale, "giftBoxTitle"))}</h2></div>
-    <div class="gift-box-inventory">${boxes.length ? boxes.map((box) => `<label class="gift-box-input"><span>${escapeHtml(giftBoxName(box, locale))}<small>${escapeHtml(giftBoxStatusText({ status: box.status }, locale))}${giftBoxPoolLabel(box, locale) ? ` · ${escapeHtml(giftBoxPoolLabel(box, locale))}` : ""}</small></span><input type="number" min="0" step="1" inputmode="numeric" data-gift-box-count="${escapeHtml(box.id)}" value="${Number(state.giftBoxes?.[String(box.id)] ?? 0) || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "giftBoxInput")} ${giftBoxName(box, locale)}`)}"></label>`).join("") : `<p class="gift-box-muted">${escapeHtml(t(locale, "giftBoxNoDefinitions"))}</p>`}</div>
+    <div class="gift-box-inventory">${boxes.length ? boxes.map((box) => `<label class="gift-box-input"><span>${escapeHtml(giftBoxName(box, locale))}<small>${escapeHtml(t(locale, "giftBoxStatus", box.status))}${giftBoxPoolLabel(box, locale) ? ` · ${escapeHtml(giftBoxPoolLabel(box, locale))}` : ""}</small></span><input type="number" min="0" step="1" inputmode="numeric" data-gift-box-count="${escapeHtml(box.id)}" value="${Number(state.giftBoxes?.[String(box.id)] ?? 0) || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "giftBoxInput")} ${giftBoxName(box, locale)}`)}"></label>`).join("") : `<p class="gift-box-muted">${escapeHtml(t(locale, "giftBoxNoDefinitions"))}</p>`}</div>
     <p class="gift-box-note">${escapeHtml(t(locale, "giftBoxUnknownNote"))}</p>
     <div class="gift-box-student-list">${studentCards}</div>
   </section>`;
 }
 
-export function renderResourcesWorkspace({ data = {}, state, locale, evidence }) {
+export function renderResourcesWorkspace({ data = {}, state, locale, localization, evidence }) {
   const evidenceById = new Map((evidence?.rows ?? []).map((row) => [row.resource_id, row]));
   const sourceById = new Map((evidence?.sources ?? []).map((source) => [source.id, source]));
   const configured = state.resources.filter((resource) => resource.amount !== null);
@@ -301,27 +260,12 @@ export function renderResourcesWorkspace({ data = {}, state, locale, evidence })
     if (forecast?.kind !== "relationship_exp") return sum;
     return sum + forecast.value;
   }, 0);
-  const visualAssets = {
-    home: assetLocal(data, "ui:kivo-home-button", "./assets/ui/kivo-home-button.webp"),
-    favor: assetLocal(data, "ui:kivo-favor", "./assets/ui/kivo-favor.webp"),
-    options: assetLocal(data, "ui:kivo-options", "./assets/ui/kivo-options.webp"),
-    empty: assetLocal(data, "ui:kivo-empty", "./assets/ui/kivo-empty.webp"),
-    materials: [1, 80, 83, 90].map((id) => assetLocal(data, `item:${id}`, `./assets/items/${id}.webp`)),
-    gdd: assetLocal(data, "ui:schaledb-gdd-logo", "./assets/ui/schaledb-gdd-logo.png"),
-    logo: assetLocal(data, "ui:kivo-logo", "./assets/ui/kivo-logo.svg"),
-    stageThree: assetLocal(data, "ui:stage-mission-3-normal", "./assets/ui/stages/mission_3_0.webp"),
-    stageThreeAlt: assetLocal(data, "ui:stage-mission-3-alternate", "./assets/ui/stages/mission_3_1.webp"),
-    stageFive: assetLocal(data, "ui:stage-mission-5-normal", "./assets/ui/stages/mission_5_0.webp"),
-    stageFiveAlt: assetLocal(data, "ui:stage-mission-5-alternate", "./assets/ui/stages/mission_5_1.webp"),
-    events: [812, 824, 834].map((id) => assetLocal(data, `ui:event-scene-${id}`, `./assets/ui/events/event_${id}.webp`)),
-  };
   return `<section class="resource-workspace panel" aria-labelledby="resource-title">
     <div class="section-heading"><div class="resource-heading-copy"><h2 id="resource-title">${t(locale, "resourcesTitle")}</h2><p class="section-caption">${escapeHtml(t(locale, "resourcesCaption"))}</p></div></div>
-    <div class="resource-art-strip" aria-hidden="true"><div class="resource-art-stage"><img src="${escapeHtml(visualAssets.stageThree)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageThreeAlt)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFive)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.stageFiveAlt)}" alt="" loading="lazy"></div><div class="resource-art-events">${visualAssets.events.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="resource-art-home"><img src="${escapeHtml(visualAssets.home)}" alt="" loading="lazy"></div><div class="resource-art-icons"><img src="${escapeHtml(visualAssets.favor)}" alt="" loading="lazy"><img src="${escapeHtml(visualAssets.options)}" alt="" loading="lazy"></div><div class="resource-art-materials">${visualAssets.materials.map((source) => `<img src="${escapeHtml(source)}" alt="" loading="lazy">`).join("")}</div><div class="resource-art-empty"><img src="${escapeHtml(visualAssets.empty)}" alt="" loading="lazy"></div><img class="resource-art-gdd" src="${escapeHtml(visualAssets.gdd)}" alt="" loading="lazy"><img class="resource-art-kivo" src="${escapeHtml(visualAssets.logo)}" alt="" loading="lazy"></div>
     <div class="resource-toolbar"><label><span>${t(locale, "periodDays")}</span><input type="number" min="1" max="366" step="1" data-period-days value="${state.periodDays}"></label><a class="template-link" href="../relationship_data/cn_planner_data_to_fill.md" target="_blank" rel="noreferrer">${t(locale, "fillDataTemplate")}</a></div>
     <div class="resource-kpi-grid"><article><span>${t(locale, "resourceConfigured")}</span><strong>${configured.length}/${state.resources.length}</strong></article><article><span>${t(locale, "effectiveExp")}</span><strong>${formatExp(projected, locale)}</strong></article><article><span>${t(locale, "resourceMissing")}</span><strong>${state.resources.length - configured.length}</strong></article></div>
     ${missing.length ? `<section class="resource-missing-panel" aria-labelledby="resource-missing-title"><div class="resource-missing-heading"><div><span class="resource-missing-kicker">${escapeHtml(t(locale, "resourceMissing"))}</span><h2 id="resource-missing-title">${escapeHtml(t(locale, "resourceMissingTitle"))}</h2></div><span>${missing.length}</span></div><div class="resource-list">${missing.map((resource) => renderResourceRow({ resource, state, data, locale, evidenceById, sourceById })).join("")}</div></section>` : ""}
     ${configured.length ? `<details class="resource-details"><summary>${escapeHtml(t(locale, "resourceInputDetails"))} · ${configured.length}</summary><div class="resource-list">${configured.map((resource) => renderResourceRow({ resource, state, data, locale, evidenceById, sourceById })).join("")}</div></details>` : ""}
-    <details class="resource-details"><summary>${escapeHtml(t(locale, "resourceProjectionDetails"))}</summary>${renderManufacturingProjection({ data, state, locale })}${renderRelationshipSourceProjection({ data, state, locale })}${renderGiftBoxWorkspace({ data, state, locale })}</details>
+    <details class="resource-details"><summary>${escapeHtml(t(locale, "resourceProjectionDetails"))}</summary>${renderManufacturingProjection({ data, state, locale, localization })}${renderRelationshipSourceProjection({ data, state, locale, localization })}${renderGiftBoxWorkspace({ data, state, locale, localization })}</details>
   </section>`;
 }
