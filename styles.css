@@ -2840,6 +2840,10 @@ details > summary { color: #21679f; font-weight: 800; }
 }
 .inventory-resource-icon .inventory-resource-glyph { color: #21679f; }
 
+/* v55: hide inventory gift fallback letters until both image sources fail. */
+.inventory-gift-image > span[aria-hidden="true"] { display: none; }
+.inventory-gift-image.is-broken > span[aria-hidden="true"] { display: block; }
+
 @media (max-width: 1180px) {
   .dashboard { grid-template-columns: 80px minmax(0, 1fr); }
   .app-rail { width: 80px; }

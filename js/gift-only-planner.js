@@ -1,6 +1,6 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v54";
-import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260817-gift-clean-v54";
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-gift-clean-v54";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v55";
+import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260817-gift-clean-v55";
+import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-gift-clean-v55";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
