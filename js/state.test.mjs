@@ -107,7 +107,7 @@ const resourceHtml = renderResourcesWorkspace({
 assert.match(resourceHtml, /未确认 · 不计入/);
 assert.match(resourceHtml, /17 拱心石\/周/);
 assert.match(resourceHtml, /每次活动最多 2 个金色礼物自选/);
-assert.match(resourceHtml, /每月活动次数仍待确认/);
+assert.doesNotMatch(resourceHtml, /每月活动次数仍待确认/);
 assert.match(resourceHtml, /官方/);
 assert.match(resourceHtml, /<strong>0\.00<\/strong>/);
 

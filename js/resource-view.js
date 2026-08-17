@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v58";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v58";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v58";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v58";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v58";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v59";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v59";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v59";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v59";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v59";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -33,7 +33,6 @@ function renderResourceEvidence({ lead, source, sourceById, locale, candidateUni
   const candidateValue = lead.candidate_value !== null && lead.candidate_value !== undefined && Number.isFinite(Number(lead.candidate_value))
     ? `${formatSmartQuantity(lead.candidate_value, locale)} ${candidateUnit || ""}`.trim()
     : candidateText;
-  const candidateNote = publicEvidenceText(localizedEvidenceField(lead, "candidate_note", locale), locale);
   const officialScope = publicEvidenceText(localizedEvidenceField(lead, "official_scope", locale), locale);
   const officialSources = (lead.official_source_ids ?? []).map((id) => sourceById?.get(id)).filter(Boolean);
   const evidenceLabel = lead.status === "user_confirmed" ? t(locale, "resourceEvidenceConfirmed") : t(locale, "resourceEvidenceLead");
@@ -45,7 +44,6 @@ function renderResourceEvidence({ lead, source, sourceById, locale, candidateUni
     '</strong><span>' +
     escapeHtml(candidateValue || t(locale, "resourceEvidenceMissing")) +
     '</span>' + (candidateText && candidateValue !== candidateText ? '<small>' + escapeHtml(candidateText) + '</small>' : '') +
-    (candidateNote ? '<small>' + escapeHtml(candidateNote) + '</small>' : '') +
     (officialScope ? '<small class="resource-evidence-official"><b>' + escapeHtml(t(locale, "resourceEvidenceOfficial")) + '</b> ' + escapeHtml(officialScope) + (officialSources.length ? ' ' + officialSources.map((officialSource) => '<a href="' + escapeHtml(officialSource.url) + '" target="_blank" rel="noreferrer">' + escapeHtml(t(locale, "resourceEvidenceOfficialSource")) + ' ↗</a>').join(" ") : '') + '</small>' : '') +
     sourceLink + '</div>';
 }

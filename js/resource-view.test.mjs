@@ -70,6 +70,7 @@ assert.doesNotMatch(html, /3\.00/);
 assert.match(html, /待填写/);
 assert.match(html, /日程：每天次数/);
 assert.match(html, /咖啡厅：每天次数/);
+assert.doesNotMatch(html, /随机盒 100000 与紫色随机盒 100009/);
 assert.doesNotMatch(html, /resource-art-strip/);
 assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
 assert.match(html, /resource-toolbar/);
