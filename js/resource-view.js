@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260815-visual-v50";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260815-visual-v50";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260815-visual-v50";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260815-visual-v50";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-nav-v51";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-nav-v51";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-nav-v51";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-nav-v51";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-nav-v51";
 
 function escapeHtml(value) {
   return String(value ?? "")

@@ -11,7 +11,11 @@ assert.deepEqual(filterPlannerStudents(students, "mika", {}), [students[0]]);
 assert.deepEqual(filterPlannerStudents(students, "コユキ", {}), [students[1]]);
 assert.deepEqual(filterPlannerStudents(students, "10063", {}), [students[1]]);
 assert.equal(plannerStudentLabel(students[0], "zh_cn", {}), "未花（泳装）");
-assert.match(renderWorkbenchTabs({ locale: "zh_cn", active: "agent" }), /aria-label="工作区导航"/);
+const workbenchTabs = renderWorkbenchTabs({ locale: "zh_cn", active: "agent" });
+assert.match(workbenchTabs, /aria-label="工作区导航"/);
+assert.equal((workbenchTabs.match(/class="workbench-tab-icon"/g) ?? []).length, 6, "Every workspace tab should have one unified vector icon");
+assert.equal((workbenchTabs.match(/<img /g) ?? []).length, 0, "Navigation must not use cropped content artwork as icons");
+assert.match(workbenchTabs, /data-workbench="packages"[\s\S]*礼包性价比/);
 
 const options = renderPlannerStudentOptions({ students, query: "mika", locale: "zh_cn", localization: {} });
 assert.match(options, /data-planner-student-option="10122"/);

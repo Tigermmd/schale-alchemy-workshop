@@ -2675,11 +2675,14 @@ body::after,
 .workbench-tab-list { gap: 4px; }
 .workbench-tab { min-height: 60px; padding: 6px 3px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: rgba(255, 255, 255, .66); font-size: .58rem; box-shadow: none; }
 .workbench-tab::before { display: none; }
-.workbench-tab-art { width: 28px; height: 28px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 6px; background: rgba(255, 255, 255, .08); }
+.workbench-tab-art { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 6px; background: rgba(255, 255, 255, .08); color: rgba(255, 255, 255, .88); }
+.workbench-tab-icon { display: block; width: 20px; height: 20px; }
 .workbench-tab:hover { background: rgba(255, 255, 255, .08); }
 .workbench-tab.is-active { border-color: rgba(76, 199, 209, .7); background: #4cc7d1; color: #102641; box-shadow: none; }
 .workbench-tab.is-active .workbench-tab-art,
 .workbench-tab:hover .workbench-tab-art { border-color: transparent; background: #fff; }
+.workbench-tab.is-active .workbench-tab-art { color: #102641; box-shadow: 0 1px 0 rgba(16, 38, 65, .08); }
+.workbench-tab:focus-visible { outline: 2px solid #f3d47a; outline-offset: 2px; }
 .dashboard-header { min-height: 72px; padding: 12px clamp(20px, 3vw, 40px); border-bottom: 1px solid #d6e2ea; background: #fff; box-shadow: none; backdrop-filter: none; }
 .dashboard-header::after { display: none; }
 .topbar-kicker,

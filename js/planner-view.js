@@ -1,9 +1,9 @@
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260815-visual-v50";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260815-visual-v50";
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260815-visual-v50";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260815-visual-v50";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260815-visual-v50";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-nav-v51";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-nav-v51";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-nav-v51";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-nav-v51";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-nav-v51";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-nav-v51";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -110,16 +110,28 @@ export function prepareAllocation(data, state, thresholds) {
   };
 }
 
+function workbenchIcon(id) {
+  const icons = {
+    planner: '<path d="M6.5 8.5h11a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z"/><path d="M8 8.5V7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5M12 12v5M9.5 14.5h5"/>',
+    inventory: '<path d="m4 8 8-4 8 4-8 4-8-4Z"/><path d="m4 8 8 4 8-4v8l-8 4-8-4V8Z"/><path d="M12 12v8M8 6l8 4"/>',
+    resources: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 9h16M9 13.5a2.8 2.8 0 1 1 5.6 0c0 1.7-2.8 3.3-2.8 3.3s-2.8-1.6-2.8-3.3Z"/>',
+    packages: '<path d="M5 8.5h14l-1 11H6l-1-11Z"/><path d="M8 8.5V6a4 4 0 0 1 8 0v2.5M12 12.2l.55 1.1 1.2.17-.87.85.2 1.2-1.08-.57-1.08.57.2-1.2-.87-.85 1.2-.17.55-1.1Z"/>',
+    relationship: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20M8 7h8M8 10h6"/>',
+    agent: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 3v-3H6.5A2.5 2.5 0 0 1 4 12.5v-7Z"/><path d="m12 6.2.55 1.45 1.55.1-1.2.98.4 1.5-1.3-.8-1.3.8.4-1.5-1.2-.98 1.55-.1L12 6.2Z"/>',
+  };
+  return `<svg class="workbench-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[id] ?? icons.planner}</svg>`;
+}
+
 export function renderWorkbenchTabs({ locale, active, data = {} }) {
   const tabs = [
-    ["planner", t(locale, "workbenchPlanner"), "⌂", "item:100008", "./assets/items/100008.webp"],
-    ["inventory", t(locale, "workbenchInventory"), "▣", "item:3", "./assets/items/3.webp"],
-    ["resources", t(locale, "workbenchResources"), "◒", "ui:schedule-favor", "./assets/ui/schedule-favor.png"],
-    ["packages", t(locale, "workbenchPackages"), "◇", "ui:kivo-favor", "./assets/ui/kivo-favor.webp"],
-    ["relationship", t(locale, "workbenchRelationship"), "◈", "ui:momotalk-compact", "./assets/ui/momotalk-compact.png"],
-    ["agent", t(locale, "workbenchAgent"), "✦", "ui:arona-favicon", "./assets/ui/arona.jpg"],
+    ["planner", t(locale, "workbenchPlanner")],
+    ["inventory", t(locale, "workbenchInventory")],
+    ["resources", t(locale, "workbenchResources")],
+    ["packages", t(locale, "workbenchPackages")],
+    ["relationship", t(locale, "workbenchRelationship")],
+    ["agent", t(locale, "workbenchAgent")],
   ];
-  return `<nav class="workbench-tabs" aria-label="${escapeHtml(t(locale, "workbenchNavigation"))}"><div class="workbench-tab-list">${tabs.map(([id, label, icon, assetKey, fallback]) => { const source = data?.assetManifest?.entries?.[assetKey]?.local ?? fallback; return `<button type="button" class="workbench-tab ${id === active ? "is-active" : ""}" data-workbench="${id}" data-nav-icon="${escapeHtml(icon)}" aria-current="${id === active ? "page" : "false"}"><span class="workbench-tab-art"><img src="${escapeHtml(source)}" alt="" aria-hidden="true"></span><span>${escapeHtml(label)}</span></button>`; }).join("")}</div><label class="workbench-mobile-picker"><span>${escapeHtml(t(locale, "mobileWorkspaceLabel"))}</span><select data-workbench-select aria-label="${escapeHtml(t(locale, "mobileWorkspaceLabel"))}">${tabs.map(([id, label]) => `<option value="${id}" ${id === active ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></nav>`;
+  return `<nav class="workbench-tabs" aria-label="${escapeHtml(t(locale, "workbenchNavigation"))}"><div class="workbench-tab-list">${tabs.map(([id, label]) => `<button type="button" class="workbench-tab ${id === active ? "is-active" : ""}" data-workbench="${id}" aria-current="${id === active ? "page" : "false"}"><span class="workbench-tab-art">${workbenchIcon(id)}</span><span>${escapeHtml(label)}</span></button>`).join("")}</div><label class="workbench-mobile-picker"><span>${escapeHtml(t(locale, "mobileWorkspaceLabel"))}</span><select data-workbench-select aria-label="${escapeHtml(t(locale, "mobileWorkspaceLabel"))}">${tabs.map(([id, label]) => `<option value="${id}" ${id === active ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></nav>`;
 }
 
 export function renderPlannerWorkspace({ data, state, locale, localization }) {

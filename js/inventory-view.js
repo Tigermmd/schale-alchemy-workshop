@@ -1,7 +1,7 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260815-visual-v50";
-import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260815-visual-v50";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260815-visual-v50";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260815-visual-v50";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-nav-v51";
+import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-nav-v51";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-nav-v51";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-nav-v51";
 
 function escapeHtml(value) {
   return String(value ?? "")

@@ -1,5 +1,5 @@
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260815-visual-v50";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260815-visual-v50";
+import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-nav-v51";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-nav-v51";
 
 const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold", "gold_manufacturing_stone"];
 // In SchaleDB's gift catalog SR is the gold-gift tier; SSR is purple.

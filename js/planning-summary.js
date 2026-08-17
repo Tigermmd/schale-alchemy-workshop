@@ -1,8 +1,8 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260815-visual-v50";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260815-visual-v50";
-import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260815-visual-v50";
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260815-visual-v50";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260815-visual-v50";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-nav-v51";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-nav-v51";
+import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260817-nav-v51";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-nav-v51";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-nav-v51";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
