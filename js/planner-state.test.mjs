@@ -26,7 +26,7 @@ assert.equal(parseStudentIdInput("Koyuki / 小雪 #10063"), 10063);
 assert.equal(parseStudentIdInput("not a student"), 0);
 
 const empty = createEmptyPlannerState();
-assert.equal(empty.version, 4);
+assert.equal(empty.version, 5);
 assert.equal(empty.students.length, 0);
 assert.ok(empty.resources.some((resource) => resource.id === "weekly-manufacturing-stones"));
 assert.equal(empty.resources.find((resource) => resource.id === "weekly-manufacturing-stones").value_source, "default");
@@ -35,7 +35,9 @@ assert.ok(empty.resources.some((resource) => resource.id === "monthly-event-shop
 assert.equal(empty.resources.find((resource) => resource.id === "weekly-manufacturing-stones").amount, 17);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-synthesis-stones").amount, 70);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-total-assault-gift-boxes").amount, 3);
-assert.equal(empty.resources.find((resource) => resource.id === "monthly-grand-assault-gift-boxes").amount, 6);
+assert.equal(empty.resources.find((resource) => resource.id === "monthly-grand-assault-gold-gift-boxes").amount, 4.5);
+assert.equal(empty.resources.find((resource) => resource.id === "monthly-grand-assault-purple-gift-boxes").amount, 1.5);
+assert.equal(empty.resources.find((resource) => resource.id === "monthly-grand-assault-gift-boxes"), undefined);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-event-shop-gold-gift-boxes").amount, 80);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-event-shop-purple-gift-boxes").amount, 4);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes").amount, 99);
@@ -46,6 +48,13 @@ assert.deepEqual(empty.packagePlans["cn-third-anniversary-gifts-98"], { purchase
 assert.deepEqual(empty.packagePlans["cn-third-anniversary-manufacturing-156"], { purchased: 1, inInventory: 0, planned: 0 });
 assert.equal(empty.stockResources.manufacturing_stone, 50);
 assert.equal(empty.stockResources.synthesis_stone_gold, 100);
+
+const migratedGrandAssault = normalizePlannerState({
+  version: 4,
+  resources: [{ id: "monthly-grand-assault-gift-boxes", amount: 6, value_source: "default" }],
+});
+assert.equal(migratedGrandAssault.resources.find((resource) => resource.id === "monthly-grand-assault-gold-gift-boxes").amount, 4.5);
+assert.equal(migratedGrandAssault.resources.find((resource) => resource.id === "monthly-grand-assault-purple-gift-boxes").amount, 1.5);
 
 const withStudent = addStudentPlan(empty, { studentId: 10063, currentLevel: 2, currentProgress: 5, targetLevel: 4 });
 assert.equal(withStudent.students.length, 1);
@@ -83,7 +92,7 @@ const presetFloor = setResourceAmount(enteredCustomFloor, "monthly-unlimited-ass
 assert.equal(presetFloor.resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes").floor_mode, null, "choosing a preset floor must leave custom mode");
 
 const normalized = normalizePlannerState({ version: 999, inventory: { "5001": 2 }, students: [{ studentId: 10001 }] });
-assert.equal(normalized.version, 4);
+assert.equal(normalized.version, 5);
 assert.equal(normalized.inventory["5001"], 2);
 assert.equal(normalized.students[0].currentLevel, 1);
 assert.equal(normalized.students[0].targetLevel, 1);

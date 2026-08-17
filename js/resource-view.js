@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v62";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v62";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v62";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v62";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v62";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v63";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v63";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v63";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v63";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v63";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -130,7 +130,8 @@ function resourceIcon(resource, data) {
     "weekly-manufacturing-stones": "item:3",
     "monthly-synthesis-stones": "item:82",
     "monthly-total-assault-gift-boxes": "item:100008",
-    "monthly-grand-assault-gift-boxes": "item:100009",
+    "monthly-grand-assault-gold-gift-boxes": "item:100008",
+    "monthly-grand-assault-purple-gift-boxes": "item:100009",
     "monthly-unlimited-assault-gift-boxes": "item:100000",
     "daily-schedule-exp": "ui:schedule-favor",
     "daily-cafe-exp": "ui:kivo-favor",

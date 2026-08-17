@@ -33,6 +33,18 @@ const html = renderResourcesWorkspace({
       gift_box_id: "100008",
       amount: 3,
     }, {
+      id: "monthly-grand-assault-gold-gift-boxes",
+      cadence: "monthly",
+      unit: "gift_box",
+      gift_box_id: "100008",
+      amount: 4.5,
+    }, {
+      id: "monthly-grand-assault-purple-gift-boxes",
+      cadence: "monthly",
+      unit: "gift_box",
+      gift_box_id: "100009",
+      amount: 1.5,
+    }, {
       id: "daily-schedule-exp",
       cadence: "daily",
       unit: "relationship_exp",
@@ -82,6 +94,13 @@ assert.doesNotMatch(html, /100000|100008|100009/);
 assert.match(html, /class="icon-frame resource-icon"/);
 assert.match(html, /data-resource-icon="schedule"/);
 assert.match(html, /data-resource-icon="cafe"/);
+assert.match(html, /大决战金色礼物自选盒/);
+assert.match(html, /大决战紫色礼物随机盒/);
+assert.match(html, /data-resource-amount="monthly-grand-assault-gold-gift-boxes" value="4\.5"/);
+assert.match(html, /data-resource-amount="monthly-grand-assault-purple-gift-boxes" value="1\.5"/);
+assert.doesNotMatch(html, /大决战礼物/);
+assert.doesNotMatch(html, /大决战.*(?:共|合计|总计).*6/);
+assert.doesNotMatch(html, /monthly-grand-assault-gift-boxes/);
 assert.match(styles, /\.resource-icon img\[data-resource-icon="cafe"\][\s\S]*?width:\s*1\.6rem[\s\S]*?height:\s*1\.6rem/);
 assert.doesNotMatch(html, /已确认|用户确认/);
 

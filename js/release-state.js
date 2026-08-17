@@ -1,4 +1,4 @@
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v62";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v63";
 
 export const CN_PROGRESS_VERSION = 1;
 

@@ -56,8 +56,12 @@ assert.equal(postPeriodicResource(posted, "weekly-manufacturing-stones", { perio
 
 const postedGiftBoxes = postPeriodicResource(posted, "monthly-total-assault-gift-boxes", { periodDays: 30 });
 assert.equal(postedGiftBoxes.incomingResources.giftBoxes["100008"], 3);
-assert.equal(postedGiftBoxes.resourcePostingHistory.length, 2);
-const undone = undoPeriodicResource(postedGiftBoxes, postedGiftBoxes.resourcePostingHistory[0].id);
+const postedGrandGold = postPeriodicResource(postedGiftBoxes, "monthly-grand-assault-gold-gift-boxes", { periodDays: 30 });
+const postedGrandPurple = postPeriodicResource(postedGrandGold, "monthly-grand-assault-purple-gift-boxes", { periodDays: 30 });
+assert.equal(postedGrandPurple.incomingResources.giftBoxes["100008"], 7.5);
+assert.equal(postedGrandPurple.incomingResources.giftBoxes["100009"], 1.5);
+assert.equal(postedGrandPurple.resourcePostingHistory.length, 4);
+const undone = undoPeriodicResource(postedGrandPurple, postedGrandPurple.resourcePostingHistory[0].id);
 assert.equal(undone.incomingResources.stockResources.manufacturing_stone, 0);
 assert.equal(undone.resourcePostingHistory.find((item) => item.resourceId === "weekly-manufacturing-stones").active, false);
 

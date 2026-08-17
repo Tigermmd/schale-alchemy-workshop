@@ -1,11 +1,12 @@
 export const PLANNER_STORAGE_KEY = "schale-relationship-planner-v1";
-export const PLANNER_STATE_VERSION = 4;
+export const PLANNER_STATE_VERSION = 5;
 
 export const RESOURCE_DEFINITIONS = Object.freeze([
   { id: "weekly-manufacturing-stones", cadence: "weekly", category: "free", unit: "manufacturing_stone", default_amount: 17 },
   { id: "monthly-synthesis-stones", cadence: "monthly", category: "free", unit: "synthesis_stone_gold", default_amount: 70 },
   { id: "monthly-total-assault-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 3, gift_box_id: "100008" },
-  { id: "monthly-grand-assault-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 6, gift_box_breakdown: [{ gift_box_id: "100008", amount: 4.5 }, { gift_box_id: "100009", amount: 1.5 }] },
+  { id: "monthly-grand-assault-gold-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 4.5, gift_box_id: "100008" },
+  { id: "monthly-grand-assault-purple-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 1.5, gift_box_id: "100009" },
   { id: "monthly-event-shop-gold-gift-boxes", cadence: "monthly", category: "free", unit: "gift_equivalent", default_amount: 80, equivalent_box_id: "100000" },
   { id: "monthly-event-shop-purple-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 4, gift_box_id: "100009" },
   { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", input_kind: "floor", default_amount: 99, floor_options: [24, 49, 74, 99, 106, 124], max_floor: 124 },
@@ -38,6 +39,25 @@ function normalizeNumberMap(value, fallback = {}, integer = false) {
       integer ? integerOr(item, 0) : numberOr(item, 0),
     ]),
   );
+}
+
+function migrateLegacyGrandAssaultResources(resourcesById) {
+  const legacy = resourcesById.get("monthly-grand-assault-gift-boxes");
+  if (!legacy) return new Map();
+  const legacyAmount = legacy.amount === null || legacy.amount === undefined ? null : numberOr(legacy.amount, 0);
+  const valueSource = legacy.value_source === "default" ? "default" : "user";
+  return new Map([
+    ["monthly-grand-assault-gold-gift-boxes", {
+      amount: legacyAmount === null ? null : legacyAmount * 0.75,
+      value_source: valueSource,
+      enabled: legacy.enabled !== false,
+    }],
+    ["monthly-grand-assault-purple-gift-boxes", {
+      amount: legacyAmount === null ? null : legacyAmount * 0.25,
+      value_source: valueSource,
+      enabled: legacy.enabled !== false,
+    }],
+  ]);
 }
 
 function normalizeStockResources(value, fallback = { manufacturing_stone: 0, synthesis_stone_gold: 0 }) {
@@ -135,8 +155,9 @@ export function normalizePlannerState(input) {
   const base = createEmptyPlannerState();
   const source = input && typeof input === "object" ? input : {};
   const resourcesById = new Map((Array.isArray(source.resources) ? source.resources : []).map((item) => [item.id, item]));
+  const migratedLegacyGrandAssault = migrateLegacyGrandAssaultResources(resourcesById);
   const resources = base.resources.map((resource) => {
-    const saved = resourcesById.get(resource.id);
+    const saved = resourcesById.get(resource.id) ?? migratedLegacyGrandAssault.get(resource.id);
     const restoreDefaultTower = resource.id === "monthly-unlimited-assault-gift-boxes"
       && Number(source.version ?? 0) < PLANNER_STATE_VERSION
       && (saved?.amount === null || saved?.amount === undefined);

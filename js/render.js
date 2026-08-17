@@ -1,10 +1,10 @@
-import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v62";
+import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v63";
 import {
   localizedName,
   localizedReactionLabel,
   localeTag,
   text as t,
-} from "./i18n.js?v=dashboard-20260817-gift-clean-v62";
+} from "./i18n.js?v=dashboard-20260817-gift-clean-v63";
 
 const STAGES = ["1", "2", "3"];
 

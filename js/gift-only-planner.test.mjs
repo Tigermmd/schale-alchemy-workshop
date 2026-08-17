@@ -35,7 +35,8 @@ assert.deepEqual(towerForecast, {
 const twoMonthForecast = calculateGiftOnlyForecast({
   resources: [
     { id: "monthly-total", cadence: "monthly", amount: 3, unit: "gift_box", gift_box_id: "100008" },
-    { id: "monthly-grand", cadence: "monthly", amount: 6, unit: "gift_box", gift_box_breakdown: [{ gift_box_id: "100008", amount: 4.5 }, { gift_box_id: "100009", amount: 1.5 }] },
+    { id: "monthly-grand-gold", cadence: "monthly", amount: 4.5, unit: "gift_box", gift_box_id: "100008" },
+    { id: "monthly-grand-purple", cadence: "monthly", amount: 1.5, unit: "gift_box", gift_box_id: "100009" },
     { id: "monthly-event-gold", cadence: "monthly", amount: 80, unit: "gift_equivalent", equivalent_box_id: "100000" },
     { id: "monthly-event-purple", cadence: "monthly", amount: 4, unit: "gift_box", gift_box_id: "100009" },
   ],
