@@ -2967,7 +2967,6 @@ details > summary { color: #21679f; font-weight: 800; }
 
 .resource-icon.icon-frame img,
 .inventory-resource-icon .icon-frame img { width: 2.1rem; height: 2.1rem; }
-.resource-icon img[data-resource-icon="cafe"] { width: 1.6rem; height: 1.6rem; }
 .inventory-resource-icon .inventory-resource-glyph { color: var(--blue-deep); }
 
 .planner-gift-image > span[aria-hidden="true"],
