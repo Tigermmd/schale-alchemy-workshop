@@ -22,13 +22,19 @@ const empty = createInventoryState();
 assert.deepEqual(empty.stockResources, {
   manufacturing_stone: 50,
   synthesis_stone_gold: 100,
-  gold_manufacturing_stone: 0,
 });
 assert.deepEqual(empty.incomingResources.stockResources, {
   manufacturing_stone: 0,
   synthesis_stone_gold: 0,
-  gold_manufacturing_stone: 0,
 });
+assert.deepEqual(createInventoryState({ stockResources: { gold_manufacturing_stone: 99 } }).stockResources, {
+  manufacturing_stone: 50,
+  synthesis_stone_gold: 100,
+}, "Unused gold manufacturing stones must be discarded from inventory state");
+assert.deepEqual(createInventoryState({ incomingResources: { stockResources: { gold_manufacturing_stone: 99 } } }).incomingResources.stockResources, {
+  manufacturing_stone: 0,
+  synthesis_stone_gold: 0,
+}, "Unused gold manufacturing stones must not enter periodic inventory");
 assert.deepEqual(empty.giftReservations, {});
 assert.deepEqual(empty.resourcePostingHistory, []);
 

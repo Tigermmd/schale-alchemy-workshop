@@ -21,7 +21,6 @@ export function summarizeUnlimitedAssaultRewards(snapshot, floor) {
     floor: selectedFloor,
     goldSelectableGifts: 0,
     purpleRandomGifts: 0,
-    goldManufacturingStones: 0,
   };
   for (const reward of snapshot?.floor_rewards ?? []) {
     const rewardFloor = Number(reward?.[0]);
@@ -30,7 +29,6 @@ export function summarizeUnlimitedAssaultRewards(snapshot, floor) {
       const amount = asNumber(quantity);
       if (name === "金色礼物自选") summary.goldSelectableGifts += amount;
       if (name === "紫色礼物随机") summary.purpleRandomGifts += amount;
-      if (name === "金色制造石") summary.goldManufacturingStones += amount;
     }
   }
   return summary;

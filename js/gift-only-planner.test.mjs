@@ -30,7 +30,6 @@ assert.deepEqual(towerForecast, {
   randomPurpleBoxes: 6,
   manufacturingStones: 0,
   synthesisStones: 0,
-  goldManufacturingStones: 40,
 });
 
 const twoMonthForecast = calculateGiftOnlyForecast({
@@ -48,7 +47,6 @@ assert.deepEqual(twoMonthForecast, {
   randomPurpleBoxes: 11,
   manufacturingStones: 0,
   synthesisStones: 0,
-  goldManufacturingStones: 0,
 });
 
 const specialPackage = {

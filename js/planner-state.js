@@ -40,14 +40,18 @@ function normalizeNumberMap(value, fallback = {}, integer = false) {
   );
 }
 
+function normalizeStockResources(value, fallback = { manufacturing_stone: 0, synthesis_stone_gold: 0 }) {
+  const normalized = normalizeNumberMap(value, fallback);
+  return {
+    manufacturing_stone: normalized.manufacturing_stone,
+    synthesis_stone_gold: normalized.synthesis_stone_gold,
+  };
+}
+
 function normalizeIncomingResources(value) {
   const source = value && typeof value === "object" ? value : {};
   return {
-    stockResources: normalizeNumberMap(source.stockResources, {
-      manufacturing_stone: 0,
-      synthesis_stone_gold: 0,
-      gold_manufacturing_stone: 0,
-    }),
+    stockResources: normalizeStockResources(source.stockResources),
     giftBoxes: normalizeNumberMap(source.giftBoxes),
     equivalentGiftPools: normalizeNumberMap(source.equivalentGiftPools),
     relationshipExp: normalizeNumberMap(source.relationshipExp),
@@ -101,13 +105,11 @@ export function createEmptyPlannerState() {
     stockResources: {
       manufacturing_stone: 50,
       synthesis_stone_gold: 100,
-      gold_manufacturing_stone: 0,
     },
     incomingResources: {
       stockResources: {
         manufacturing_stone: 0,
         synthesis_stone_gold: 0,
-        gold_manufacturing_stone: 0,
       },
       giftBoxes: {},
       equivalentGiftPools: {},
@@ -164,7 +166,7 @@ export function normalizePlannerState(input) {
     && (!sourceStock || Object.values(sourceStock).every((value) => Number(value) === 0));
   const stockResources = legacyStockWasUnset
     ? { ...base.stockResources }
-    : normalizeNumberMap(sourceStock, base.stockResources);
+    : normalizeStockResources(sourceStock, base.stockResources);
   const incomingResources = normalizeIncomingResources(source.incomingResources);
   const equivalentGiftPools = normalizeNumberMap(source.equivalentGiftPools, base.equivalentGiftPools);
   const giftReservations = normalizeNumberMap(source.giftReservations, {}, true);

@@ -8,19 +8,16 @@ assert.deepEqual(summarizeUnlimitedAssaultRewards(snapshot, 24), {
   floor: 24,
   goldSelectableGifts: 2,
   purpleRandomGifts: 0,
-  goldManufacturingStones: 0,
 });
 assert.deepEqual(summarizeUnlimitedAssaultRewards(snapshot, 99), {
   floor: 99,
   goldSelectableGifts: 6,
   purpleRandomGifts: 3,
-  goldManufacturingStones: 20,
 });
 assert.deepEqual(summarizeUnlimitedAssaultRewards(snapshot, 124), {
   floor: 124,
   goldSelectableGifts: 14,
   purpleRandomGifts: 7,
-  goldManufacturingStones: 20,
 });
 assert.equal(summarizeUnlimitedAssaultRewards(snapshot, null), null);
 assert.equal(calculateResourceForecast({ input_kind: "daily_count", cadence: "daily", expected_per_count: 31.25 }, 1, 30).value, 937.5);
@@ -29,7 +26,6 @@ assert.deepEqual(calculateResourceForecast({ input_kind: "floor", cadence: "mont
   floor: 99,
   goldSelectableGifts: 6,
   purpleRandomGifts: 3,
-  goldManufacturingStones: 20,
 });
 
 console.log("resource model tests passed");

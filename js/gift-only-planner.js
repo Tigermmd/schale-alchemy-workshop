@@ -1,6 +1,6 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-nav-v51";
-import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260817-nav-v51";
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-nav-v51";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-inventory-v52";
+import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260817-inventory-v52";
+import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-inventory-v52";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -75,7 +75,6 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
     randomPurpleBoxes: 0,
     manufacturingStones: 0,
     synthesisStones: 0,
-    goldManufacturingStones: 0,
   };
   for (const resource of state?.resources ?? []) {
     if (resource?.amount === null || resource?.amount === undefined || resource?.amount === "") continue;
@@ -87,7 +86,6 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
       if (!summary) continue;
       forecast.choiceBoxes += numberOr(summary.goldSelectableGifts) * multiplier;
       forecast.randomPurpleBoxes += numberOr(summary.purpleRandomGifts) * multiplier;
-      forecast.goldManufacturingStones += numberOr(summary.goldManufacturingStones) * multiplier;
       continue;
     }
     if (resource.unit === "gift_equivalent") {
@@ -122,7 +120,6 @@ function sourceSummary({
   randomPurpleBoxes,
   manufacturingStones,
   synthesisStones,
-  goldManufacturingStones = 0,
   choiceBoxExp,
   randomGoldExp,
   randomPurpleExp,
@@ -140,7 +137,6 @@ function sourceSummary({
     randomPurpleBoxes,
     manufacturingStones: numberOr(manufacturingStones),
     synthesisStones: numberOr(synthesisStones),
-    goldManufacturingStones: numberOr(goldManufacturingStones),
     choiceBoxExp,
     randomGoldExpectedExp,
     randomPurpleExpectedExp,
@@ -506,7 +502,6 @@ export function calculateGiftOnlyProjection({
     randomPurpleBoxes: numberOr(forecast.randomPurpleBoxes) + currentIncomingRandomPurpleBoxes,
     manufacturingStones: numberOr(forecast.manufacturingStones),
     synthesisStones: numberOr(forecast.synthesisStones),
-    goldManufacturingStones: numberOr(forecast.goldManufacturingStones),
     choiceBoxExp,
     randomGoldExp: randomGoldBoxExp,
     randomPurpleExp: randomPurpleBoxExp,

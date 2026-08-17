@@ -2794,6 +2794,36 @@ details > summary { color: #21679f; font-weight: 800; }
 .agent-connection-empty { min-height: 0; padding: 14px; border: 1px solid #b9dfe2; border-radius: 8px; background: #e8f8f8; }
 .agent-proposal { background: #fff8e8; }
 
+/* v51: inventory resource rows keep one fixed icon column at every width. */
+.inventory-resource-card {
+  grid-template-columns: 2.75rem minmax(0, 1fr) minmax(7rem, 9rem) minmax(9rem, 12rem);
+  align-items: center;
+}
+.inventory-resource-icon {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.inventory-resource-icon .inventory-item-image,
+.inventory-resource-icon .inventory-resource-glyph {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+}
+.inventory-resource-icon .inventory-item-image img {
+  display: block;
+  width: 2.1rem;
+  height: 2.1rem;
+  object-fit: contain;
+}
+.inventory-resource-icon .inventory-resource-glyph { color: #fff; font-size: 1.15rem; }
+.inventory-resource-copy,
+.inventory-current-input,
+.inventory-quantity-details { align-self: center; }
+
 @media (max-width: 1180px) {
   .dashboard { grid-template-columns: 80px minmax(0, 1fr); }
   .app-rail { width: 80px; }
@@ -2833,10 +2863,12 @@ details > summary { color: #21679f; font-weight: 800; }
   .inventory-transfer-actions { width: 100%; }
   .inventory-transfer-actions button { flex: 1 1 0; }
   .inventory-gifts-main .inventory-filters { grid-template-columns: 1fr; }
-  .inventory-resource-card,
+  .inventory-resource-card { grid-template-columns: 2.75rem minmax(0, 1fr); align-items: start; column-gap: .75rem; }
+  .inventory-resource-card .inventory-resource-icon { display: grid; grid-row: 1 / span 3; }
+  .inventory-resource-card .inventory-current-input,
+  .inventory-resource-card .inventory-quantity-details { grid-column: 2; }
   .inventory-gift-row,
   .resource-row { grid-template-columns: 1fr; }
-  .inventory-resource-icon,
   .resource-icon { display: none; }
   .resource-row { gap: 8px; }
   .resource-input,

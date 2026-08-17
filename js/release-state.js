@@ -1,4 +1,4 @@
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-nav-v51";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-inventory-v52";
 
 export const CN_PROGRESS_VERSION = 1;
 

@@ -1,7 +1,7 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-nav-v51";
-import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-nav-v51";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-nav-v51";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-nav-v51";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-inventory-v52";
+import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-inventory-v52";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-inventory-v52";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-inventory-v52";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -68,7 +68,7 @@ function quantityColumns(value, locale, label = "") {
 }
 
 function renderStockResources({ data, state, summary, locale }) {
-  const ids = ["manufacturing_stone", "synthesis_stone_gold", "gold_manufacturing_stone"];
+  const ids = ["manufacturing_stone", "synthesis_stone_gold"];
   const itemIds = { manufacturing_stone: 3, synthesis_stone_gold: 82 };
   return `<section class="inventory-section" aria-labelledby="inventory-stock-title"><div class="section-heading compact"><h2 id="inventory-stock-title">${escapeHtml(t(locale, "inventoryStockTitle"))}</h2></div><div class="inventory-resource-list">${ids.map((id) => {
     const value = summary.stocks[id];

@@ -218,7 +218,7 @@ const TEXT = {
     giftOnlyChoiceBoxExplanation: (exp) => `这里的 ${exp} EXP 是当前学生在真实可选池中的期望值，不是盒子固定提供 240 EXP。`,
     giftOnlyTwoMonthTitle: (days) => `未来 ${days} 天礼物来源`,
     giftOnlyTwoMonthDetail: (choice, gold, purple, exp, minimum, additional) => `已确认周期资源：选择盒 ${choice}、随机金盒 ${gold}、随机紫盒 ${purple}；期望增加 ${exp} EXP。若不动用现有选择盒，需 ${minimum} 个选择盒；计入现有选择盒后还需 ${additional} 个。`,
-    giftOnlyTwoMonthResourceDetail: (manufacturing, synthesis, goldManufacturing) => `来源明细：拱心石 ${manufacturing} 个、金色合成石 ${synthesis} 个；99 层制约解除奖励另含金色制造石 ${goldManufacturing} 个。99 层奖励中的合成石已包含在每月 70 个金色合成石口径内，不重复计入。`,
+    giftOnlyTwoMonthResourceDetail: (manufacturing, synthesis) => `来源明细：拱心石 ${manufacturing} 个、金色合成石 ${synthesis} 个；99 层奖励中的合成石已包含在每月 70 个金色合成石口径内，不重复计入。`,
     giftOnlyPaidRecommendation: "氪金建议",
     giftOnlyNoPaidNeeded: "按当前库存与两个月已确认礼物来源，不需要购买礼包；日程、咖啡厅和未填写的制约解除决战不计入。",
     giftOnlyPaidGap: (gap, exp, cost, remaining) => `当前仍有 ${gap} EXP 缺口；按最低总价建议购买礼包，预计增加 ${exp} EXP，计划支出 ¥${cost}，购买后仍差 ${remaining} EXP。`,
@@ -258,7 +258,7 @@ const TEXT = {
     inventoryRemaining: "规划后剩余",
     inventoryStockTitle: "制造资源",
     inventoryStockCaption: "石头库存由你手动维护；周期资源必须点击计入本期才会进入本期资源。",
-    inventoryStockName: (id) => ({ manufacturing_stone: "制造启动石", synthesis_stone_gold: "金色合成石", gold_manufacturing_stone: "金色制造石" }[id] ?? id),
+    inventoryStockName: (id) => ({ manufacturing_stone: "制造启动石", synthesis_stone_gold: "金色合成石" }[id] ?? id),
     inventoryManualHint: "仅手动编辑当前持有数量",
     inventoryPeriodicTitle: "周期资源入库",
     inventoryPeriodicPeriod: (days) => `本期按 ${days} 天`,
@@ -343,7 +343,6 @@ const TEXT = {
     resourceFloorSummary: (floor) => `通关至 ${floor} 层`,
     resourceGoldSelectableGifts: (count) => `金色礼物自选 ×${count}`,
     resourcePurpleRandomGifts: (count) => `紫色礼物随机 ×${count}`,
-    resourceGoldManufacturingStones: (count) => `金色制造石 ×${count}`,
     resourceSourceFloor: "用户已确认：填写通关层数，按 1–124 层奖励表自动汇总",
     resourceSourceDailyCount: (id, perCount) => id === "daily-schedule-exp"
       ? `用户已确认：日程每次期望 31.25 好感，填写每天摸头次数`
@@ -659,7 +658,7 @@ const TEXT = {
     giftOnlyChoiceBoxExplanation: (exp) => `${exp} EXP is this student's expectation from the actual selectable pool, not a fixed 240 EXP per box.`,
     giftOnlyTwoMonthTitle: (days) => `Gift sources in the next ${days} days`,
     giftOnlyTwoMonthDetail: (choice, gold, purple, exp, minimum, additional) => `Confirmed periodic sources: ${choice} choice boxes, ${gold} random-gold boxes, ${purple} random-purple boxes; ${exp} EXP expected. Without current choice boxes: ${minimum} boxes needed; after current boxes: ${additional} additional boxes needed.`,
-    giftOnlyTwoMonthResourceDetail: (manufacturing, synthesis, goldManufacturing) => `Source detail: ${manufacturing} keystones and ${synthesis} gold synthesis stones; the 99F Unlimited Assault reward also gives ${goldManufacturing} gold manufacturing stones. The tower synthesis stones are already included in the monthly 70-stone total and are not counted twice.`,
+    giftOnlyTwoMonthResourceDetail: (manufacturing, synthesis) => `Source detail: ${manufacturing} keystones and ${synthesis} gold synthesis stones. Tower synthesis stones are already included in the monthly 70-stone total and are not counted twice.`,
     giftOnlyPaidRecommendation: "Paid-package recommendation",
     giftOnlyNoPaidNeeded: "With current stock and confirmed two-month gift sources, no package is needed. Schedule, Cafe, and unfilled Unlimited Assault rewards are excluded.",
     giftOnlyPaidGap: (gap, exp, cost, remaining) => `${gap} EXP is still missing; the lowest-cost package plan adds ${exp} EXP for ¥${cost}, leaving ${remaining} EXP missing.`,
@@ -699,7 +698,7 @@ const TEXT = {
     inventoryRemaining: "Remaining",
     inventoryStockTitle: "Manufacturing resources",
     inventoryStockCaption: "Edit owned stones manually; periodic resources enter only after you post them for this period.",
-    inventoryStockName: (id) => ({ manufacturing_stone: "Manufacturing stones", synthesis_stone_gold: "Gold synthesis stones", gold_manufacturing_stone: "Gold manufacturing stones" }[id] ?? id),
+    inventoryStockName: (id) => ({ manufacturing_stone: "Manufacturing stones", synthesis_stone_gold: "Gold synthesis stones" }[id] ?? id),
     inventoryManualHint: "Manual current-stock entry",
     inventoryPeriodicTitle: "Post periodic resources",
     inventoryPeriodicPeriod: (days) => `${days}-day period`,
@@ -784,7 +783,6 @@ const TEXT = {
     resourceFloorSummary: (floor) => `Cleared through floor ${floor}`,
     resourceGoldSelectableGifts: (count) => `Gold selectable gifts ×${count}`,
     resourcePurpleRandomGifts: (count) => `Random purple gifts ×${count}`,
-    resourceGoldManufacturingStones: (count) => `Gold manufacturing stones ×${count}`,
     resourceSourceFloor: "User-confirmed: enter the cleared floor; rewards are summed from the 1–124 floor table",
     resourceSourceDailyCount: (id, perCount) => id === "daily-schedule-exp"
       ? "User-confirmed: Schedule yields 31.25 expected EXP per count; enter daily headpats"
@@ -1100,7 +1098,7 @@ const TEXT = {
     giftOnlyChoiceBoxExplanation: (exp) => `${exp} EXPは対象生徒が実際の選択範囲から選んだ期待値であり、1箱固定240 EXPではありません。`,
     giftOnlyTwoMonthTitle: (days) => `今後${days}日の贈り物入手分`,
     giftOnlyTwoMonthDetail: (choice, gold, purple, exp, minimum, additional) => `確認済み周期資源：選択${choice}個、金ランダム${gold}個、紫ランダム${purple}個、期待${exp} EXP。現在の選択分を使わない場合${minimum}個、現在分を含めると追加${additional}個が必要です。`,
-    giftOnlyTwoMonthResourceDetail: (manufacturing, synthesis, goldManufacturing) => `内訳：拱心石${manufacturing}個、金色合成石${synthesis}個。99階の制約解除報酬には金色製造石${goldManufacturing}個も含まれます。99階報酬の合成石は月70個の内訳に含まれるため二重計上しません。`,
+    giftOnlyTwoMonthResourceDetail: (manufacturing, synthesis) => `内訳：拱心石${manufacturing}個、金色合成石${synthesis}個。99階報酬の合成石は月70個の内訳に含まれるため二重計上しません。`,
     giftOnlyPaidRecommendation: "課金提案",
     giftOnlyNoPaidNeeded: "現在の所持数と確認済み2か月分だけで足ります。スケジュール・カフェ・未入力の制約解除報酬は除外しています。",
     giftOnlyPaidGap: (gap, exp, cost, remaining) => `まだ${gap} EXP不足しています。最低価格の購入案は${exp} EXPを追加、¥${cost}で、購入後も${remaining} EXP不足します。`,
@@ -1140,7 +1138,7 @@ const TEXT = {
     inventoryRemaining: "残り",
     inventoryStockTitle: "製造資源",
     inventoryStockCaption: "所持する石は手動で入力します。周期資源は今期加算を押すまで所持数に入りません。",
-    inventoryStockName: (id) => ({ manufacturing_stone: "製造開始石", synthesis_stone_gold: "金色合成石", gold_manufacturing_stone: "金色製造石" }[id] ?? id),
+    inventoryStockName: (id) => ({ manufacturing_stone: "製造開始石", synthesis_stone_gold: "金色合成石" }[id] ?? id),
     inventoryManualHint: "現在の所持数を手動入力",
     inventoryPeriodicTitle: "周期資源の加算",
     inventoryPeriodicPeriod: (days) => `今期・${days}日間`,
@@ -1225,7 +1223,6 @@ const TEXT = {
     resourceFloorSummary: (floor) => `${floor}階までクリア`,
     resourceGoldSelectableGifts: (count) => `金色選択贈り物 ×${count}`,
     resourcePurpleRandomGifts: (count) => `紫色ランダム贈り物 ×${count}`,
-    resourceGoldManufacturingStones: (count) => `金色製造石 ×${count}`,
     resourceSourceFloor: "ユーザー確認：到達階層を入力すると1～124階報酬表から自動集計します",
     resourceSourceDailyCount: (id, perCount) => id === "daily-schedule-exp"
       ? "ユーザー確認：スケジュールは1回あたり期待31.25絆EXP。1日の回数を入力"

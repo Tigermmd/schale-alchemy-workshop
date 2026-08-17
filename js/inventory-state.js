@@ -1,7 +1,7 @@
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-nav-v51";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-nav-v51";
+import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-inventory-v52";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-inventory-v52";
 
-const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold", "gold_manufacturing_stone"];
+const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold"];
 // In SchaleDB's gift catalog SR is the gold-gift tier; SSR is purple.
 const GOLD_RARITY = "SR";
 
@@ -106,7 +106,6 @@ export function mapPeriodicResource(resource, { periodDays = 30, rewardSnapshot 
     if (!summary) return null;
     mapped.giftBoxes["100008"] = summary.goldSelectableGifts * multiplier;
     mapped.giftBoxes["100009"] = summary.purpleRandomGifts * multiplier;
-    mapped.stockResources.gold_manufacturing_stone = summary.goldManufacturingStones * multiplier;
     return mapped;
   }
 

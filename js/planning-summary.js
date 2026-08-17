@@ -1,8 +1,8 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-nav-v51";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-nav-v51";
-import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260817-nav-v51";
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-nav-v51";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-nav-v51";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-inventory-v52";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-inventory-v52";
+import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260817-inventory-v52";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-inventory-v52";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-inventory-v52";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -117,7 +117,6 @@ function mergeIncomingForecast(state, forecast, periodDays) {
   next.randomPurpleBoxes = numberOr(next.randomPurpleBoxes) + numberOr(incomingBoxes["100009"]);
   next.manufacturingStones = numberOr(next.manufacturingStones) + numberOr(incomingStocks.manufacturing_stone);
   next.synthesisStones = numberOr(next.synthesisStones) + numberOr(incomingStocks.synthesis_stone_gold);
-  next.goldManufacturingStones = numberOr(next.goldManufacturingStones) + numberOr(incomingStocks.gold_manufacturing_stone);
   return next;
 }
 
@@ -170,7 +169,6 @@ function freeContribution({ state, student, studentId, isMain, periodDays, data,
       randomPurpleBoxExp,
       manufacturingExp,
       synthesisExp,
-      goldManufacturingStones: numberOr(forecast.goldManufacturingStones),
       daily,
     },
     daily,

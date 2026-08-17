@@ -1,8 +1,8 @@
-import { addStudentPlan, normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-nav-v51";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260817-nav-v51";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260817-nav-v51";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-nav-v51";
-import { text as t } from "./i18n.js?v=dashboard-20260817-nav-v51";
+import { addStudentPlan, normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-inventory-v52";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260817-inventory-v52";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260817-inventory-v52";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-inventory-v52";
+import { text as t } from "./i18n.js?v=dashboard-20260817-inventory-v52";
 
 const ALLOWED_CHANGE_KINDS = new Set(["set_student_target", "set_forecast_days", "set_cn_cutoff_student"]);
 const ALLOWED_CHANGE_FIELDS = Object.freeze({

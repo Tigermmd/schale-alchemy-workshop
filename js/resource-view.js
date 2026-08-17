@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-nav-v51";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-nav-v51";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-nav-v51";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-nav-v51";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-nav-v51";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-inventory-v52";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-inventory-v52";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-inventory-v52";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-inventory-v52";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-inventory-v52";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -105,7 +105,6 @@ function renderUnlimitedRewardSummary(summary, locale) {
     t(locale, "resourceGoldSelectableGifts", formatInteger(summary.goldSelectableGifts, locale)),
     t(locale, "resourcePurpleRandomGifts", formatInteger(summary.purpleRandomGifts, locale)),
   ];
-  if (summary.goldManufacturingStones > 0) rewards.push(t(locale, "resourceGoldManufacturingStones", formatInteger(summary.goldManufacturingStones, locale)));
   return `<div class="resource-reward-summary"><strong>${escapeHtml(t(locale, "resourceFloorSummary", summary.floor))}</strong>${rewards.map((reward) => `<span>${escapeHtml(reward)}</span>`).join("")}</div>`;
 }
 
