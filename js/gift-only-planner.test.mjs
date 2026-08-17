@@ -4,14 +4,14 @@ import { FUTURE_STUDENTS } from "./future-students.js";
 import { calculateGiftOnlyForecast, calculateGiftOnlyProjection, calculatePaidGiftPackageExp, filterGiftPackagesForStudent, partitionGiftPackagesForTimeline, recommendGiftPackagePurchases } from "./gift-only-planner.js";
 import { calculateGiftBoxExpectedExp } from "./gift-box-state.js";
 
-const gifts = JSON.parse(fs.readFileSync(new URL("../../relationship_data/gifts.json", import.meta.url), "utf8")).gifts;
-const thresholds = JSON.parse(fs.readFileSync(new URL("../../relationship_data/relationship_thresholds.json", import.meta.url), "utf8"));
-const boxes = JSON.parse(fs.readFileSync(new URL("../../relationship_data/gift_boxes_cn.json", import.meta.url), "utf8")).boxes;
-const paidPackagesCatalog = JSON.parse(fs.readFileSync(new URL("../../relationship_data/paid_packages_cn.json", import.meta.url), "utf8")).packages;
+const gifts = JSON.parse(fs.readFileSync(new URL("../relationship_data/gifts.json", import.meta.url), "utf8")).gifts;
+const thresholds = JSON.parse(fs.readFileSync(new URL("../relationship_data/relationship_thresholds.json", import.meta.url), "utf8"));
+const boxes = JSON.parse(fs.readFileSync(new URL("../relationship_data/gift_boxes_cn.json", import.meta.url), "utf8")).boxes;
+const paidPackagesCatalog = JSON.parse(fs.readFileSync(new URL("../relationship_data/paid_packages_cn.json", import.meta.url), "utf8")).packages;
 const giftById = new Map(gifts.map((gift) => [String(gift.id), gift]));
 const boxById = new Map(boxes.map((box) => [String(box.id), box]));
 const student = FUTURE_STUDENTS.find((item) => item.student_id === 10122);
-const craftingSnapshot = JSON.parse(fs.readFileSync(new URL("../../relationship_data/crafting_expected_relationship.json", import.meta.url), "utf8"));
+const craftingSnapshot = JSON.parse(fs.readFileSync(new URL("../relationship_data/crafting_expected_relationship.json", import.meta.url), "utf8"));
 const baseMikaCrafting = craftingSnapshot.students.find((item) => item.student_id === 10059);
 
 const towerForecast = calculateGiftOnlyForecast({
@@ -23,7 +23,7 @@ const towerForecast = calculateGiftOnlyForecast({
     input_kind: "floor",
   }],
   resourcePostingHistory: [],
-}, { periodDays: 60, rewardSnapshot: JSON.parse(fs.readFileSync(new URL("../../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8")) });
+}, { periodDays: 60, rewardSnapshot: JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8")) });
 assert.deepEqual(towerForecast, {
   choiceBoxes: 12,
   randomGoldBoxes: 0,

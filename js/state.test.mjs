@@ -146,7 +146,7 @@ assert.match(eventShopResourceHtml, /80 个等效随机金色礼物\/月/);
 assert.match(eventShopResourceHtml, /实际为4种金礼物各10个/);
 assert.match(eventShopResourceHtml, /4 个随机紫色礼物盒\/月/);
 
-const unlimitedRewards = JSON.parse(fs.readFileSync(new URL("../../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8"));
+const unlimitedRewards = JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8"));
 const configuredResourceState = setResourceAmount(createEmptyPlannerState(), "monthly-unlimited-assault-gift-boxes", 99);
 const configuredResourceHtml = renderResourcesWorkspace({
   data: { unlimitedAssaultRewards: unlimitedRewards, giftBoxes: [] },

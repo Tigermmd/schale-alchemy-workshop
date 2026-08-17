@@ -58,7 +58,7 @@ assert.deepEqual(calculateGiftBoxExpectedExp({ ...randomBox, outcomes: [{ gift_i
   missingGiftIds: ["5099"],
 });
 
-const snapshot = JSON.parse(fs.readFileSync(new URL("../../relationship_data/gift_boxes_cn.json", import.meta.url), "utf8"));
+const snapshot = JSON.parse(fs.readFileSync(new URL("../relationship_data/gift_boxes_cn.json", import.meta.url), "utf8"));
 const snapshotBoxes = Object.fromEntries(snapshot.boxes.map((box) => [box.id, box]));
 const goldIds = Array.from({ length: 35 }, (_, index) => 5000 + index);
 const purpleIds = Array.from({ length: 13 }, (_, index) => 5100 + index);

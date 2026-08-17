@@ -3,3 +3,13 @@ __pycache__/
 .DS_Store
 *.pyc
 
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Optional JavaScript tooling/build output
+node_modules/
+dist/

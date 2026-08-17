@@ -1,0 +1,679 @@
+{
+  "schema_version": 2,
+  "scope": {
+    "server": "cn",
+    "language": "bilingual",
+    "languages": {
+      "en": "en",
+      "zh_cn": "cn"
+    }
+  },
+  "source": {
+    "retrieved_at": "2026-08-10T05:52:14+00:00",
+    "schaledb_build": 1786184496,
+    "items_source": "https://schaledb.com/data/en/items.min.json",
+    "students_source": "https://schaledb.com/data/en/students.min.json",
+    "items_source_en": "https://schaledb.com/data/en/items.min.json",
+    "students_source_en": "https://schaledb.com/data/en/students.min.json",
+    "items_source_zh_cn": "https://schaledb.com/data/cn/items.min.json",
+    "students_source_zh_cn": "https://schaledb.com/data/cn/students.min.json",
+    "translation_source": "SchaleDB data/cn (CN region data)",
+    "config_source": "https://schaledb.com/data/config.min.json",
+    "matching_rule_source": "https://schaledb.com/assets/StudentGifts-8fad62db.js",
+    "relationship_table_source": "https://bluearchive.wikiru.jp/?SandBox/%E7%B5%86%E3%83%A9%E3%83%B3%E3%82%AF"
+  },
+  "relationship_level_cap": 100,
+  "stat_bonus_level_cap": 50,
+  "gift_exp": {
+    "normal": {
+      "小": 20,
+      "中": 40,
+      "大": 60,
+      "特大": 80
+    },
+    "premium": {
+      "小": null,
+      "中": 120,
+      "大": 180,
+      "特大": 240
+    }
+  },
+  "gift_exp_bilingual": {
+    "en": {
+      "normal": {
+        "Small": 20,
+        "Medium": 40,
+        "Large": 60,
+        "Huge": 80
+      },
+      "premium": {
+        "Small": null,
+        "Medium": 120,
+        "Large": 180,
+        "Huge": 240
+      }
+    },
+    "zh_cn": {
+      "normal": {
+        "小": 20,
+        "中": 40,
+        "大": 60,
+        "特大": 80
+      },
+      "premium": {
+        "小": null,
+        "中": 120,
+        "大": 180,
+        "特大": 240
+      }
+    }
+  },
+  "other_exp": {
+    "cafe_touch": 15,
+    "schedule_min": 15,
+    "schedule_max": 25,
+    "schedule_bonus_multiplier": 2
+  },
+  "levels": [
+    {
+      "level": 1,
+      "next_level_exp": 15,
+      "cumulative_exp_to_reach_level": 0,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 2,
+      "next_level_exp": 30,
+      "cumulative_exp_to_reach_level": 15,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 3,
+      "next_level_exp": 30,
+      "cumulative_exp_to_reach_level": 45,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 4,
+      "next_level_exp": 35,
+      "cumulative_exp_to_reach_level": 75,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 5,
+      "next_level_exp": 35,
+      "cumulative_exp_to_reach_level": 110,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 6,
+      "next_level_exp": 35,
+      "cumulative_exp_to_reach_level": 145,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 7,
+      "next_level_exp": 40,
+      "cumulative_exp_to_reach_level": 180,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 8,
+      "next_level_exp": 40,
+      "cumulative_exp_to_reach_level": 220,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 9,
+      "next_level_exp": 40,
+      "cumulative_exp_to_reach_level": 260,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 10,
+      "next_level_exp": 60,
+      "cumulative_exp_to_reach_level": 300,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 11,
+      "next_level_exp": 90,
+      "cumulative_exp_to_reach_level": 360,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 12,
+      "next_level_exp": 105,
+      "cumulative_exp_to_reach_level": 450,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 13,
+      "next_level_exp": 120,
+      "cumulative_exp_to_reach_level": 555,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 14,
+      "next_level_exp": 140,
+      "cumulative_exp_to_reach_level": 675,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 15,
+      "next_level_exp": 160,
+      "cumulative_exp_to_reach_level": 815,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 16,
+      "next_level_exp": 180,
+      "cumulative_exp_to_reach_level": 975,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 17,
+      "next_level_exp": 205,
+      "cumulative_exp_to_reach_level": 1155,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 18,
+      "next_level_exp": 230,
+      "cumulative_exp_to_reach_level": 1360,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 19,
+      "next_level_exp": 255,
+      "cumulative_exp_to_reach_level": 1590,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 20,
+      "next_level_exp": 285,
+      "cumulative_exp_to_reach_level": 1845,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 21,
+      "next_level_exp": 315,
+      "cumulative_exp_to_reach_level": 2130,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 22,
+      "next_level_exp": 345,
+      "cumulative_exp_to_reach_level": 2445,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 23,
+      "next_level_exp": 375,
+      "cumulative_exp_to_reach_level": 2790,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 24,
+      "next_level_exp": 410,
+      "cumulative_exp_to_reach_level": 3165,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 25,
+      "next_level_exp": 445,
+      "cumulative_exp_to_reach_level": 3575,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 26,
+      "next_level_exp": 480,
+      "cumulative_exp_to_reach_level": 4020,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 27,
+      "next_level_exp": 520,
+      "cumulative_exp_to_reach_level": 4500,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 28,
+      "next_level_exp": 560,
+      "cumulative_exp_to_reach_level": 5020,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 29,
+      "next_level_exp": 600,
+      "cumulative_exp_to_reach_level": 5580,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 30,
+      "next_level_exp": 645,
+      "cumulative_exp_to_reach_level": 6180,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 31,
+      "next_level_exp": 690,
+      "cumulative_exp_to_reach_level": 6825,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 32,
+      "next_level_exp": 735,
+      "cumulative_exp_to_reach_level": 7515,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 33,
+      "next_level_exp": 780,
+      "cumulative_exp_to_reach_level": 8250,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 34,
+      "next_level_exp": 830,
+      "cumulative_exp_to_reach_level": 9030,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 35,
+      "next_level_exp": 880,
+      "cumulative_exp_to_reach_level": 9860,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 36,
+      "next_level_exp": 930,
+      "cumulative_exp_to_reach_level": 10740,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 37,
+      "next_level_exp": 985,
+      "cumulative_exp_to_reach_level": 11670,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 38,
+      "next_level_exp": 1040,
+      "cumulative_exp_to_reach_level": 12655,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 39,
+      "next_level_exp": 1095,
+      "cumulative_exp_to_reach_level": 13695,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 40,
+      "next_level_exp": 1155,
+      "cumulative_exp_to_reach_level": 14790,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 41,
+      "next_level_exp": 1215,
+      "cumulative_exp_to_reach_level": 15945,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 42,
+      "next_level_exp": 1275,
+      "cumulative_exp_to_reach_level": 17160,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 43,
+      "next_level_exp": 1335,
+      "cumulative_exp_to_reach_level": 18435,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 44,
+      "next_level_exp": 1400,
+      "cumulative_exp_to_reach_level": 19770,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 45,
+      "next_level_exp": 1465,
+      "cumulative_exp_to_reach_level": 21170,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 46,
+      "next_level_exp": 1530,
+      "cumulative_exp_to_reach_level": 22635,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 47,
+      "next_level_exp": 1600,
+      "cumulative_exp_to_reach_level": 24165,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 48,
+      "next_level_exp": 1670,
+      "cumulative_exp_to_reach_level": 25765,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 49,
+      "next_level_exp": 1740,
+      "cumulative_exp_to_reach_level": 27435,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 50,
+      "next_level_exp": 1815,
+      "cumulative_exp_to_reach_level": 29175,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 51,
+      "next_level_exp": 1890,
+      "cumulative_exp_to_reach_level": 30990,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 52,
+      "next_level_exp": 1965,
+      "cumulative_exp_to_reach_level": 32880,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 53,
+      "next_level_exp": 2040,
+      "cumulative_exp_to_reach_level": 34845,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 54,
+      "next_level_exp": 2120,
+      "cumulative_exp_to_reach_level": 36885,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 55,
+      "next_level_exp": 2200,
+      "cumulative_exp_to_reach_level": 39005,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 56,
+      "next_level_exp": 2280,
+      "cumulative_exp_to_reach_level": 41205,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 57,
+      "next_level_exp": 2365,
+      "cumulative_exp_to_reach_level": 43485,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 58,
+      "next_level_exp": 2450,
+      "cumulative_exp_to_reach_level": 45850,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 59,
+      "next_level_exp": 2535,
+      "cumulative_exp_to_reach_level": 48300,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 60,
+      "next_level_exp": 2625,
+      "cumulative_exp_to_reach_level": 50835,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 61,
+      "next_level_exp": 2715,
+      "cumulative_exp_to_reach_level": 53460,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 62,
+      "next_level_exp": 2805,
+      "cumulative_exp_to_reach_level": 56175,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 63,
+      "next_level_exp": 2895,
+      "cumulative_exp_to_reach_level": 58980,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 64,
+      "next_level_exp": 2990,
+      "cumulative_exp_to_reach_level": 61875,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 65,
+      "next_level_exp": 3085,
+      "cumulative_exp_to_reach_level": 64865,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 66,
+      "next_level_exp": 3180,
+      "cumulative_exp_to_reach_level": 67950,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 67,
+      "next_level_exp": 3280,
+      "cumulative_exp_to_reach_level": 71130,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 68,
+      "next_level_exp": 3380,
+      "cumulative_exp_to_reach_level": 74410,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 69,
+      "next_level_exp": 3480,
+      "cumulative_exp_to_reach_level": 77790,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 70,
+      "next_level_exp": 3585,
+      "cumulative_exp_to_reach_level": 81270,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 71,
+      "next_level_exp": 3690,
+      "cumulative_exp_to_reach_level": 84855,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 72,
+      "next_level_exp": 3795,
+      "cumulative_exp_to_reach_level": 88545,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 73,
+      "next_level_exp": 3900,
+      "cumulative_exp_to_reach_level": 92340,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 74,
+      "next_level_exp": 4010,
+      "cumulative_exp_to_reach_level": 96240,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 75,
+      "next_level_exp": 4120,
+      "cumulative_exp_to_reach_level": 100250,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 76,
+      "next_level_exp": 4230,
+      "cumulative_exp_to_reach_level": 104370,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 77,
+      "next_level_exp": 4345,
+      "cumulative_exp_to_reach_level": 108600,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 78,
+      "next_level_exp": 4460,
+      "cumulative_exp_to_reach_level": 112945,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 79,
+      "next_level_exp": 4575,
+      "cumulative_exp_to_reach_level": 117405,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 80,
+      "next_level_exp": 4695,
+      "cumulative_exp_to_reach_level": 121980,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 81,
+      "next_level_exp": 4815,
+      "cumulative_exp_to_reach_level": 126675,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 82,
+      "next_level_exp": 4935,
+      "cumulative_exp_to_reach_level": 131490,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 83,
+      "next_level_exp": 5055,
+      "cumulative_exp_to_reach_level": 136425,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 84,
+      "next_level_exp": 5180,
+      "cumulative_exp_to_reach_level": 141480,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 85,
+      "next_level_exp": 5305,
+      "cumulative_exp_to_reach_level": 146660,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 86,
+      "next_level_exp": 5430,
+      "cumulative_exp_to_reach_level": 151965,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 87,
+      "next_level_exp": 5560,
+      "cumulative_exp_to_reach_level": 157395,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 88,
+      "next_level_exp": 5690,
+      "cumulative_exp_to_reach_level": 162955,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 89,
+      "next_level_exp": 5820,
+      "cumulative_exp_to_reach_level": 168645,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 90,
+      "next_level_exp": 5955,
+      "cumulative_exp_to_reach_level": 174465,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 91,
+      "next_level_exp": 6090,
+      "cumulative_exp_to_reach_level": 180420,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 92,
+      "next_level_exp": 6225,
+      "cumulative_exp_to_reach_level": 186510,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 93,
+      "next_level_exp": 6360,
+      "cumulative_exp_to_reach_level": 192735,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 94,
+      "next_level_exp": 6500,
+      "cumulative_exp_to_reach_level": 199095,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 95,
+      "next_level_exp": 6640,
+      "cumulative_exp_to_reach_level": 205595,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 96,
+      "next_level_exp": 6780,
+      "cumulative_exp_to_reach_level": 212235,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 97,
+      "next_level_exp": 6925,
+      "cumulative_exp_to_reach_level": 219015,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 98,
+      "next_level_exp": 7070,
+      "cumulative_exp_to_reach_level": 225940,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 99,
+      "next_level_exp": 7215,
+      "cumulative_exp_to_reach_level": 233010,
+      "can_advance_in_simulator": true
+    },
+    {
+      "level": 100,
+      "next_level_exp": 7365,
+      "cumulative_exp_to_reach_level": 240225,
+      "can_advance_in_simulator": false
+    }
+  ]
+}

@@ -483,7 +483,7 @@ def build_manifest(data_dir: Path, output_dir: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-dir", type=Path, default=Path(__file__).parent.parent / "relationship_data")
+    parser.add_argument("--data-dir", type=Path, default=Path(__file__).parent / "relationship_data")
     parser.add_argument("--output-dir", type=Path, default=Path(__file__).parent)
     args = parser.parse_args()
     manifest = build_manifest(args.data_dir, args.output_dir)

@@ -13,12 +13,12 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parent
 HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 MAX_BODY_BYTES = 2 * 1024 * 1024
 CONFIG = {"base_url": "", "model": "", "api_key": ""}
-DASHBOARD_PATH = "/blue_archive_gacha/relationship_dashboard/index.html?view=planner"
+DASHBOARD_PATH = "/index.html?view=planner"
 
 
 def json_bytes(value: object) -> bytes:
@@ -347,7 +347,7 @@ class HarnessHandler(SimpleHTTPRequestHandler):
 def main() -> None:
     port = int(os.environ.get("SCHALE_HARNESS_PORT", str(DEFAULT_PORT)))
     server = ThreadingHTTPServer((HOST, port), HarnessHandler)
-    print(f"Schale dashboard: http://{HOST}:{port}/blue_archive_gacha/relationship_dashboard/", flush=True)
+    print(f"Schale dashboard: http://{HOST}:{port}{DASHBOARD_PATH}", flush=True)
     print(f"Harness API: http://{HOST}:{port}/api/health", flush=True)
     try:
         server.serve_forever()

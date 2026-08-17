@@ -1,0 +1,780 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "server": "cn",
+    "as_of": "2026-08-10",
+    "currency": "CNY",
+    "note": "国服礼包目录以官方公告为基础，并叠加用户确认的礼物养成规划口径；礼物盒内部期望使用 gift_boxes_cn.json 的用户确认等概率模型。",
+    "normalization_note_zh_cn": "用户所说的‘金制造石’按当前数据中的物品 ID 82 归一为‘金色合成石’；如果这里实际指另一种道具，请补充游戏内物品 ID。",
+    "weekly_paid_packages": "none_confirmed",
+    "student_package_rule": {
+      "applies_to": ["limited", "fes"],
+      "repeat_rule": "one_per_limited_or_fes_student",
+      "note_zh_cn": "每次上线限定或 FES 学生时各预留一份专属礼物礼包，用于国服千里眼规划。"
+    },
+    "user_confirmed_rules": {
+      "monthly_manufacturing_98": "98 元，每月限购 1 次：10 个拱心石 + 15 个金色合成石。",
+      "monthly_gifts_78": "78 元，每月限购 1 次：10 个随机金礼物 + 5 个金礼物自选 + 1 个随机紫礼物。",
+      "limited_selection_gifts_98": "98 元，限购 3 次：5 个金礼物自选 + 5 个美丽花束。",
+      "limited_student_favorites_98": "98 元，限购 3 次：指定学生最喜欢紫礼物 6 个 + 指定学生最喜欢金礼物 10 个 + 2 个美丽花束。",
+      "limited_manufacturing_156": "156 元，当前规划口径：20 个拱心石 + 25 个金色合成石。",
+      "weekly_paid_packages": "国服当前没有需要纳入规划的每周制造、礼物或好感礼包。",
+      "limited_or_fes_student_package_rule": "每次上线限定或 FES 学生时，按该学生预留一份专属礼物礼包，用于国服千里眼规划。"
+    }
+  },
+  "sources": [
+    "https://bluearchive-cn.com/news/578",
+    "https://bluearchive-cn.com/news/591",
+    "https://bluearchive-cn.com/news/829",
+    "https://bluearchive-cn.com/news/849",
+    "https://bluearchive-cn.com/news/953",
+    "https://bluearchive-cn.com/news/1088",
+    "https://bluearchive-cn.com/news/1115",
+    "https://bluearchive-cn.com/news/1186",
+    "https://bluearchive-cn.com/news/1294",
+    "https://bluearchive-cn.com/news/1389",
+    "https://bluearchive-cn.com/news/1500",
+    "https://bluearchive-cn.com/news/1557",
+    "https://bluearchive-cn.com/news/1606",
+    "https://bluearchive-cn.com/news/1672",
+    "https://bluearchive-cn.com/news/1735",
+    "https://bluearchive-cn.com/news/1767",
+    "https://bluearchive-cn.com/news/1803",
+    "https://bluearchive-cn.com/news/1872"
+  ],
+  "packages": [
+    {
+      "id": "cn-monthly-manufacturing-98",
+      "name_zh_cn": "每月制造礼包",
+      "name_en": "Monthly Manufacturing Package",
+      "name_ja": "毎月製造パック",
+      "category": "manufacturing",
+      "cadence": "monthly",
+      "price_cny": 98,
+      "purchase_limit": 1,
+      "status": "permanent",
+      "available_from": "2024-02-29",
+      "contents": [
+        { "kind": "item", "item_id": 3, "name_zh_cn": "拱心石", "name_en": "Keystone", "quantity": 10 },
+        { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 15 }
+      ],
+      "source": "https://bluearchive-cn.com/news/578"
+    },
+    {
+      "id": "cn-monthly-gifts-78",
+      "name_zh_cn": "每月礼物礼包",
+      "name_en": "Monthly Gift Package",
+      "name_ja": "毎月贈り物パック",
+      "category": "gifts",
+      "cadence": "monthly",
+      "price_cny": 78,
+      "purchase_limit": 1,
+      "status": "permanent",
+      "available_from": "2024-06-13",
+      "contents": [
+        { "kind": "item", "item_id": 100000, "name_zh_cn": "随机金色礼物盒", "name_en": "Random Gold Gift Box", "quantity": 10 },
+        { "kind": "item", "item_id": 100008, "name_zh_cn": "礼物选择盒", "name_en": "Gift Selection Box", "quantity": 5 },
+        { "kind": "item", "item_id": 100009, "name_zh_cn": "随机紫色礼物盒", "name_en": "Random Purple Gift Box", "quantity": 1 }
+      ],
+      "source": "https://bluearchive-cn.com/news/829"
+    },
+    {
+      "id": "cn-limited-fes-student-favorite-98-template",
+      "name_zh_cn": "限定/FES学生专属礼物礼包（规划模板）",
+      "name_en": "Limited/FES Student Favorite Gift Package (Planning Template)",
+      "name_ja": "限定/FES生徒専用贈り物パック（計画テンプレート）",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "template",
+      "available_from": null,
+      "available_to": null,
+      "contents": [
+        { "kind": "student_favorite_gift", "gift_color": "purple", "name_zh_cn": "指定学生的最喜欢紫礼物", "name_en": "Target student's favorite purple gift", "name_ja": "指定生徒の最も好きな紫色の贈り物", "quantity": 6 },
+        { "kind": "student_favorite_gift", "gift_color": "gold", "name_zh_cn": "指定学生的最喜欢金礼物", "name_en": "Target student's favorite gold gift", "name_ja": "指定生徒の最も好きな金色の贈り物", "quantity": 10 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "name_ja": "美しい花束", "quantity": 2 }
+      ],
+      "gift_binding": {
+        "type": "student_specific_favorites",
+        "repeat_rule": "one_per_limited_or_fes_student",
+        "note_zh_cn": "每次上线限定/FES学生时各预留一份；具体学生和礼物 ID 按当期卡池补入。",
+        "note_en": "Reserve one package whenever a limited/FES student launches; fill in the student and gift IDs from the relevant banner.",
+        "note_ja": "限定/FES生徒の実装ごとに1パックを確保し、対象生徒と贈り物IDは該当ガチャに合わせて入力します。"
+      },
+      "source": null
+    },
+    {
+      "id": "cn-summer-2024-gift-lucky-bag-156",
+      "name_zh_cn": "福袋礼包（2024年6月）",
+      "name_en": "Lucky Bag Package (June 2024)",
+      "name_ja": "福袋パック（2024年6月）",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 156,
+      "purchase_limit": 1,
+      "status": "expired",
+      "available_from": "2024-06-13",
+      "available_to": "2024-07-18T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "3★成员必得招募券",
+          "name_en": "Guaranteed 3★ Student Recruitment Ticket",
+          "quantity": 1
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "信用积分",
+          "name_en": "Credits",
+          "quantity": 5000000
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "高级强化珠",
+          "name_en": "Superior Enhancement Stone",
+          "quantity": 150
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "高级活动报告书",
+          "name_en": "Superior Activity Report",
+          "quantity": 150
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 15
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/829"
+    },
+    {
+      "id": "cn-anniversary-1-gifts-98",
+      "name_zh_cn": "1周年纪念礼物礼包",
+      "name_en": "1st Anniversary Gift Package",
+      "name_ja": "1周年記念贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2024-08-01",
+      "available_to": "2024-09-05T13:59:00+08:00",
+      "contents": [
+        { "kind": "item", "item_id": 100008, "name_zh_cn": "礼物选择盒", "name_en": "Gift Selection Box", "quantity": 5 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 5 }
+      ],
+      "source": "https://bluearchive-cn.com/news/953"
+    },
+    {
+      "id": "cn-midnight-party-gifts-98",
+      "name_zh_cn": "午夜派对特别礼物礼包",
+      "name_en": "Midnight Party Special Gift Package",
+      "name_ja": "ミッドナイトパーティー特別贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2026-04-30",
+      "available_to": "2026-05-28T13:59:00+08:00",
+      "contents": [
+        { "kind": "text", "name_zh_cn": "付费青辉石", "name_en": "Paid Pyroxenes", "quantity": 800 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 2 },
+        { "kind": "item", "item_id": 5100, "name_zh_cn": "蕾丝枕头", "name_en": "Lace Pillow", "quantity": 6 },
+        { "kind": "item", "item_id": 5007, "name_zh_cn": "迷彩伪装用粉底液3件套", "name_en": "Camouflage Makeup Set", "quantity": 10 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1767"
+    },
+    {
+      "id": "cn-code-box-gift-i-iv-98",
+      "name_zh_cn": "Code: BOX特别礼物礼包 I–IV",
+      "name_en": "Code: BOX Special Gift Packages I–IV",
+      "name_ja": "Code: BOX特別贈り物パック I–IV",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2026-05-28",
+      "available_to": "2026-07-02T13:59:00+08:00",
+      "contents": [
+        { "kind": "text", "name_zh_cn": "付费青辉石", "name_en": "Paid Pyroxenes", "quantity": 800 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 2 },
+        { "kind": "text", "name_zh_cn": "四种特别礼物组合之一", "name_en": "One of four special gift combinations", "quantity": 1 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1803",
+      "note": "四个组合分别包含桌游《人生》/装扮用圈圈眼镜、A-Book Rare/天体望远镜、街头混混系列第1本/古典诗集、莎姆艾菈【Beyond】/樱桃唇彩。"
+    },
+    {
+      "id": "cn-code-box-commemorative-98",
+      "name_zh_cn": "Code: BOX纪念礼物礼包",
+      "name_en": "Code: BOX Commemorative Gift Package",
+      "name_ja": "Code: BOX記念贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2026-05-28",
+      "available_to": "2026-07-02T13:59:00+08:00",
+      "contents": [
+        { "kind": "text", "name_zh_cn": "付费青辉石", "name_en": "Paid Pyroxenes", "quantity": 800 },
+        { "kind": "item", "item_id": 100008, "name_zh_cn": "礼物选择盒", "name_en": "Gift Selection Box", "quantity": 5 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 5 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1803"
+    },
+    {
+      "id": "cn-third-anniversary-gifts-98",
+      "name_zh_cn": "三周年纪念礼物礼包",
+      "name_en": "3rd Anniversary Gift Package",
+      "name_ja": "3周年記念贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "active",
+      "current_banner_for_planning": true,
+      "launch_reoffer": true,
+      "available_from": "2026-07-30",
+      "available_to": "2026-09-03T13:59:00+08:00",
+      "contents": [
+        { "kind": "item", "item_id": 100008, "name_zh_cn": "礼物选择盒", "name_en": "Gift Selection Box", "quantity": 5 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 5 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1872"
+    },
+    {
+      "id": "cn-third-anniversary-special-i-98",
+      "name_zh_cn": "三周年特别礼物礼包 I",
+      "name_en": "3rd Anniversary Special Gift Package I",
+      "name_ja": "3周年特別贈り物パック I",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "active",
+      "availability_phase": "student_launch",
+      "launch_student_ids": [10122],
+      "available_from": "2026-07-30",
+      "available_to": "2026-09-03T13:59:00+08:00",
+      "contents": [
+        { "kind": "student_favorite_gift", "item_id": 5104, "gift_color": "purple", "name_zh_cn": "千层酥咖啡厅的正宗芭菲", "name_en": "Mille-Feuille Traditional Parfait", "name_ja": "ミレニアムカフェの正統派パフェ", "quantity": 6 },
+        { "kind": "student_favorite_gift", "item_id": 5008, "gift_color": "gold", "name_zh_cn": "高级曲奇礼盒套装", "name_en": "Fine Cookie Set", "name_ja": "高級クッキーセット", "quantity": 10 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 2 }
+      ],
+      "gift_binding": { "type": "student_specific_favorites", "target_student_ids": [10122], "target_student_id": 10122, "repeat_rule": "one_per_limited_or_fes_student", "note_zh_cn": "当前礼包对应未花（泳装）；金、紫礼物按规划器最低反应计算，美丽花束单独计算。" },
+      "source": "https://bluearchive-cn.com/news/1872"
+    },
+    {
+      "id": "cn-third-anniversary-special-ii-98",
+      "name_zh_cn": "三周年特别礼物礼包 II",
+      "name_en": "3rd Anniversary Special Gift Package II",
+      "name_ja": "3周年特別贈り物パック II",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "active",
+      "current_banner_for_planning": true,
+      "available_from": "2026-07-30",
+      "available_to": "2026-09-03T13:59:00+08:00",
+      "contents": [
+        { "kind": "student_favorite_gift", "item_id": 5112, "gift_color": "purple", "name_zh_cn": "桌游《人生》", "name_en": "Board Game \"The Life\"", "name_ja": "ボードゲーム「人生」", "quantity": 6 },
+        { "kind": "student_favorite_gift", "item_id": 5018, "gift_color": "gold", "name_zh_cn": "装扮用圈圈眼镜", "name_en": "Cosplayer Coke-Bottle Glasses", "name_ja": "コスプレ用ぐるぐるメガネ", "quantity": 10 },
+        { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 2 }
+      ],
+      "gift_binding": { "type": "student_specific_favorites", "target_student_ids": [10063], "target_student_id": 10063, "repeat_rule": "one_per_limited_or_fes_student", "note_zh_cn": "当前礼包对应小雪；金、紫礼物按规划器最低反应计算，美丽花束单独计算。" },
+      "source": "https://bluearchive-cn.com/news/1872"
+    },
+    {
+      "id": "cn-code-box-manufacturing-156",
+      "name_zh_cn": "Code: BOX制造礼包",
+      "name_en": "Code: BOX Manufacturing Package",
+      "name_ja": "Code: BOX製造パック",
+      "category": "manufacturing",
+      "cadence": "limited",
+      "price_cny": 156,
+      "purchase_limit": 2,
+      "status": "expired",
+      "available_from": "2026-05-28",
+      "available_to": "2026-07-02T13:59:00+08:00",
+      "contents": [
+        { "kind": "item", "item_id": 3, "name_zh_cn": "拱心石", "name_en": "Keystone", "quantity": 20 },
+        { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1803",
+      "note": "用户确认的规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+    },
+    {
+      "id": "cn-third-anniversary-manufacturing-156",
+      "name_zh_cn": "三周年制造礼包",
+      "name_en": "3rd Anniversary Manufacturing Package",
+      "name_ja": "3周年製造パック",
+      "category": "manufacturing",
+      "cadence": "limited",
+      "price_cny": 156,
+      "purchase_limit": 2,
+      "status": "active",
+      "launch_reoffer": true,
+      "available_from": "2026-07-30",
+      "available_to": "2026-09-03T13:59:00+08:00",
+      "contents": [
+        { "kind": "item", "item_id": 3, "name_zh_cn": "拱心石", "name_en": "Keystone", "quantity": 20 },
+        { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1872",
+      "note": "用户确认的规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+    },
+    {
+      "id": "cn-2024-autumn-lucky-bag-156",
+      "name_zh_cn": "福袋礼包（2024年秋）",
+      "name_en": "Lucky Bag Package (Autumn 2024)",
+      "name_ja": "福袋パック（2024年秋）",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 156,
+      "purchase_limit": 1,
+      "status": "expired",
+      "available_from": "2024-09-26",
+      "available_to": "2024-10-31T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "3★成员必得招募券",
+          "name_en": "Guaranteed 3★ Student Recruitment Ticket",
+          "quantity": 1
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "高级强化珠",
+          "name_en": "Superior Enhancement Stone",
+          "quantity": 150
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "高级活动报告书",
+          "name_en": "Superior Activity Report",
+          "quantity": 150
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 15
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "信用积分",
+          "name_en": "Credits",
+          "quantity": 5000000
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1088"
+    },
+    {
+      "id": "cn-first-time-welcome-gift-3",
+      "name_zh_cn": "初次限定欢迎礼包",
+      "name_en": "First-time Welcome Gift Package",
+      "name_ja": "初回限定ウェルカムギフトパック",
+      "category": "gifts",
+      "cadence": "permanent",
+      "price_cny": 3,
+      "purchase_limit": 1,
+      "status": "permanent",
+      "available_from": "2024-11-07",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "免费青辉石",
+          "name_en": "Free Pyroxenes",
+          "quantity": 120
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 1
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "初级活动报告书",
+          "name_en": "Lesser Activity Report",
+          "quantity": 250
+        },
+        {
+          "kind": "text",
+          "name_zh_cn": "信用积分",
+          "name_en": "Credits",
+          "quantity": 200000
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1186"
+    },
+    {
+      "id": "cn-hidden-legacy-gifts-98",
+      "name_zh_cn": "隐藏的遗产纪念礼物礼包",
+      "name_en": "Hidden Legacy Commemorative Gift Package",
+      "name_ja": "隠された遺産記念贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2025-04-24",
+      "available_to": "2025-05-24T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 5
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 5
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1389"
+    },
+    {
+      "id": "cn-gehenna-party-gifts-98",
+      "name_zh_cn": "歌赫娜派对纪念礼物礼包",
+      "name_en": "Gehenna Party Commemorative Gift Package",
+      "name_ja": "ゲヘナパーティー記念贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2025-07-31T14:00:00+08:00",
+      "available_to": "2025-08-28T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 5
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 5
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1500"
+    },
+    {
+      "id": "cn-gehenna-party-manufacturing-156",
+      "name_zh_cn": "歌赫娜派对制造礼包",
+      "name_en": "Gehenna Party Manufacturing Package",
+      "name_ja": "ゲヘナパーティー製造パック",
+      "category": "manufacturing",
+      "cadence": "limited",
+      "price_cny": 156,
+      "purchase_limit": 2,
+      "status": "expired",
+      "available_from": "2025-07-31T14:00:00+08:00",
+      "available_to": "2025-08-28T13:59:00+08:00",
+      "contents": [
+        { "kind": "item", "item_id": 3, "name_zh_cn": "拱心石", "name_en": "Keystone", "quantity": 20 },
+        { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1500",
+      "note": "用户确认的规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+    },
+    {
+      "id": "cn-alive-commemorative-gifts-98",
+      "name_zh_cn": "aLIVE纪念礼物礼包",
+      "name_en": "aLIVE Commemorative Gift Package",
+      "name_ja": "aLIVE記念贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2025-10-02",
+      "available_to": "2025-11-06T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 5
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 5
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1557"
+    },
+    {
+      "id": "cn-2025-commemorative-gifts-98",
+      "name_zh_cn": "纪念礼物礼包（2025年1月）",
+      "name_en": "Commemorative Gift Package (January 2025)",
+      "name_ja": "記念贈り物パック（2025年1月）",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2025-01-23",
+      "available_to": "2025-02-20T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 5
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 5
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1294"
+    },
+    {
+      "id": "cn-2025-11-commemorative-gifts-98",
+      "name_zh_cn": "纪念礼物礼包（2025年11月）",
+      "name_en": "Commemorative Gift Package (November 2025)",
+      "name_ja": "記念贈り物パック（2025年11月）",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2025-11-20",
+      "available_to": "2025-12-18T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 5
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 5
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1606"
+    },
+    {
+      "id": "cn-sheside-gift-i-98",
+      "name_zh_cn": "Sheside Outside特别礼物礼包 I",
+      "name_en": "Sheside Outside Special Gift Package I",
+      "name_ja": "Sheside Outside特別贈り物パック I",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2026-01-29",
+      "available_to": "2026-02-28T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 2
+        },
+        {
+          "kind": "item",
+          "item_id": 5100,
+          "name_zh_cn": "蕾丝枕头",
+          "name_en": "Lace Pillow",
+          "quantity": 6
+        },
+        {
+          "kind": "item",
+          "item_id": 5007,
+          "name_zh_cn": "迷彩伪装用粉底液3件套",
+          "name_en": "Camouflage Makeup Set",
+          "quantity": 10
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1672"
+    },
+    {
+      "id": "cn-sheside-gift-ii-98",
+      "name_zh_cn": "Sheside Outside特别礼物礼包 II",
+      "name_en": "Sheside Outside Special Gift Package II",
+      "name_ja": "Sheside Outside特別贈り物パック II",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2026-01-29",
+      "available_to": "2026-02-28T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 2
+        },
+        {
+          "kind": "item",
+          "item_id": 5111,
+          "name_zh_cn": "一天三次哑铃套装",
+          "name_en": "Three Times a Day Dumbbell Set",
+          "quantity": 6
+        },
+        {
+          "kind": "item",
+          "item_id": 5001,
+          "name_zh_cn": "佩洛洛健腹轮",
+          "name_en": "Peroro Wheel",
+          "quantity": 10
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1672"
+    },
+    {
+      "id": "cn-sheside-commemorative-gifts-98",
+      "name_zh_cn": "Sheside Outside纪念礼物礼包",
+      "name_en": "Sheside Outside Commemorative Gift Package",
+      "name_ja": "Sheside Outside記念贈り物パック",
+      "category": "gifts",
+      "cadence": "limited",
+      "price_cny": 98,
+      "purchase_limit": 3,
+      "status": "expired",
+      "available_from": "2026-01-29",
+      "available_to": "2026-02-28T13:59:00+08:00",
+      "contents": [
+        {
+          "kind": "text",
+          "name_zh_cn": "付费青辉石",
+          "name_en": "Paid Pyroxenes",
+          "quantity": 800
+        },
+        {
+          "kind": "item",
+          "item_id": 100008,
+          "name_zh_cn": "礼物选择盒",
+          "name_en": "Gift Selection Box",
+          "quantity": 5
+        },
+        {
+          "kind": "item",
+          "item_id": 5997,
+          "name_zh_cn": "美丽花束",
+          "name_en": "Beautiful Bouquet",
+          "quantity": 5
+        }
+      ],
+      "source": "https://bluearchive-cn.com/news/1672"
+    },
+    {
+      "id": "cn-sheside-manufacturing-156",
+      "name_zh_cn": "Sheside Outside制造礼包",
+      "name_en": "Sheside Outside Manufacturing Package",
+      "name_ja": "Sheside Outside製造パック",
+      "category": "manufacturing",
+      "cadence": "limited",
+      "price_cny": 156,
+      "purchase_limit": 2,
+      "status": "expired",
+      "available_from": "2026-01-29",
+      "available_to": "2026-02-28T13:59:00+08:00",
+      "contents": [
+        { "kind": "item", "item_id": 3, "name_zh_cn": "拱心石", "name_en": "Keystone", "quantity": 20 },
+        { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1672",
+      "note": "用户确认的规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+    },
+    {
+      "id": "cn-serenade-manufacturing-156",
+      "name_zh_cn": "Serenade Promenade制造礼包",
+      "name_en": "Serenade Promenade Manufacturing Package",
+      "name_ja": "Serenade Promenade製造パック",
+      "category": "manufacturing",
+      "cadence": "limited",
+      "price_cny": 156,
+      "purchase_limit": 2,
+      "status": "expired",
+      "available_from": "2026-03-26",
+      "available_to": "2026-04-30T13:59:00+08:00",
+      "contents": [
+        { "kind": "item", "item_id": 3, "name_zh_cn": "拱心石", "name_en": "Keystone", "quantity": 20 },
+        { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
+      ],
+      "source": "https://bluearchive-cn.com/news/1735",
+      "note": "用户确认的规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+    }
+  ]
+}

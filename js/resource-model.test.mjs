@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { calculateResourceForecast, summarizeUnlimitedAssaultRewards } from "./resource-model.js";
 
-const snapshot = JSON.parse(fs.readFileSync(new URL("../../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8"));
+const snapshot = JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8"));
 
 assert.deepEqual(summarizeUnlimitedAssaultRewards(snapshot, 24), {
   floor: 24,

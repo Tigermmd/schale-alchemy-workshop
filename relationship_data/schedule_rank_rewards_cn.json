@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": {
+    "server": "cn",
+    "content": "日程总地区 Rank、地区 Rank 与特殊奖励候选",
+    "calculation_policy": "lead_only_never_auto_included",
+    "note_zh_cn": "数值来自国服中文社区日程功能表，官方公告只确认日程会产生好感，未公开完整 Rank 奖励表；因此最高档数据作为规划候选，不自动视为官方确认。"
+  },
+  "sources": [
+    {
+      "id": "gamekee-schedule-2025-05-19",
+      "url": "https://www.gamekee.com/ba/607324.html",
+      "title_zh_cn": "日程功能介绍",
+      "kind": "community",
+      "published_at": "2025-05-19",
+      "evidence_status": "lead",
+      "note_zh_cn": "文章包含每日券数、地区 Rank 表、好感经验/BONUS 概率、神名文字掉率及地区/奖励概率特殊效果。文章注明部分数据来自日文和英文 Wiki。"
+    },
+    {
+      "id": "cn-official-relationship-source-995",
+      "url": "https://bluearchive-cn.com/api/news/detail?id=995",
+      "title_zh_cn": "玛丽（体操服）好感问题后续处理方案",
+      "kind": "official_notice",
+      "published_at": "2024-08-04",
+      "evidence_status": "confirmed_scope",
+      "note_zh_cn": "官方提到日程和咖啡厅交互会产生好感，但未给出 Rank 数值表。"
+    }
+  ],
+  "daily_tickets_by_total_rank": [
+    {"total_rank": 1, "daily_schedule_tickets": 3},
+    {"total_rank": 10, "daily_schedule_tickets": 4},
+    {"total_rank": 25, "daily_schedule_tickets": 5},
+    {"total_rank": 50, "daily_schedule_tickets": 6},
+    {"total_rank": 80, "daily_schedule_tickets": 7}
+  ],
+  "area_rank_special_rewards": [
+    {"area_rank": 1, "exp_to_next_rank": 100, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.1, "special_effect_zh_cn": "初始", "artifact_shard_drop_probability": 0.04},
+    {"area_rank": 2, "exp_to_next_rank": 250, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.1, "special_effect_zh_cn": "区域增加", "artifact_shard_drop_probability": 0.04},
+    {"area_rank": 3, "exp_to_next_rank": 450, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.1, "special_effect_zh_cn": "区域增加", "artifact_shard_drop_probability": 0.04},
+    {"area_rank": 4, "exp_to_next_rank": 750, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.15, "special_effect_zh_cn": "获得奖励概率上升（LV2）", "artifact_shard_drop_probability": 0.06},
+    {"area_rank": 5, "exp_to_next_rank": 1150, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.15, "special_effect_zh_cn": "区域增加", "artifact_shard_drop_probability": 0.06},
+    {"area_rank": 6, "exp_to_next_rank": 1600, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.15, "special_effect_zh_cn": "区域增加", "artifact_shard_drop_probability": 0.06},
+    {"area_rank": 7, "exp_to_next_rank": 2100, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.2, "special_effect_zh_cn": "获得奖励概率上升（LV3）", "artifact_shard_drop_probability": 0.08},
+    {"area_rank": 8, "exp_to_next_rank": 2700, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.2, "special_effect_zh_cn": "区域增加", "artifact_shard_drop_probability": 0.08},
+    {"area_rank": 9, "exp_to_next_rank": 3400, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.2, "special_effect_zh_cn": "区域增加", "artifact_shard_drop_probability": 0.08},
+    {"area_rank": 10, "exp_to_next_rank": 4100, "relationship_exp": 15, "bonus_exp": 15, "bonus_probability": 0.25, "special_effect_zh_cn": "获得奖励概率上升（LV4）", "artifact_shard_drop_probability": 0.1},
+    {"area_rank": 11, "exp_to_next_rank": 4800, "relationship_exp": 20, "bonus_exp": 20, "bonus_probability": 0.25, "special_effect_zh_cn": "获得奖励概率上升（LV5）", "artifact_shard_drop_probability": 0.11},
+    {"area_rank": 12, "exp_to_next_rank": null, "relationship_exp": 25, "bonus_exp": 25, "bonus_probability": 0.25, "special_effect_zh_cn": "获得奖励概率上升（LV6）", "artifact_shard_drop_probability": 0.12, "is_max_rank": true}
+  ],
+  "region_special_rules": [
+    {"trigger": "area_rank_10_or_above", "effect_zh_cn": "部分初期开放地区追加 1 个自选盒子", "regions_zh_cn": ["Schale·办公区", "Schale·居住区", "D.U.白鸟区", "春叶原"]}
+  ],
+  "highest_default": {
+    "total_rank": 80,
+    "daily_schedule_tickets": 7,
+    "area_rank": 12,
+    "relationship_exp_per_ticket": 25,
+    "bonus_exp_per_ticket": 25,
+    "bonus_probability": 0.25,
+    "expected_relationship_exp_per_ticket": 31.25,
+    "expected_relationship_exp_per_day": 218.75,
+    "artifact_shard_drop_probability": 0.12,
+    "special_effect_zh_cn": "获得奖励概率上升（LV6）",
+    "note_zh_cn": "这是默认最高档候选；玩家日程次数仍应允许自行填写，不能强制使用 7 张/天。"
+  }
+}

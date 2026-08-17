@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const dashboardRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const jsRoot = path.join(dashboardRoot, "js");
-const BUILD_VERSION = "dashboard-20260817-gift-clean-v63";
+const BUILD_VERSION = "dashboard-20260817-gift-clean-v64";
 
 function assertVersionedUrl(specifier, sourceFile) {
   const url = new URL(specifier, "https://dashboard.invalid/");
@@ -35,7 +35,7 @@ for (const match of loader.matchAll(/`[^`]+\.json\?([^`]+)`/g)) {
 }
 assert.match(loader, new RegExp(`assets/manifest\\.json\\?v=${BUILD_VERSION}`));
 
-const timeline = JSON.parse(fs.readFileSync(path.join(dashboardRoot, "..", "relationship_data", "jp_release_timeline.json"), "utf8"));
+const timeline = JSON.parse(fs.readFileSync(path.join(dashboardRoot, "relationship_data", "jp_release_timeline.json"), "utf8"));
 assert.equal(timeline.server, "jp");
 assert.equal(timeline.students.find((student) => student.studentId === 10122)?.jpRank, 232);
 assert.equal(timeline.students.length, 272);
