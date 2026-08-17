@@ -18,8 +18,8 @@
 运行环境：Python 3.10 或更高版本。页面本身不需要安装 npm 依赖。
 
 ```bash
-git clone <你的私有仓库地址>
-cd <仓库目录>
+git clone git@github.com:Tigermmd/schale-relationship-dashboard.git
+cd schale-relationship-dashboard
 python3 harness_server.py
 ```
 
