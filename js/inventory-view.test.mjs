@@ -4,7 +4,7 @@ import { firstTargetStudent, mappedPreview, renderInventoryWorkspace, renderPeri
 
 const inventoryStyles = fs.readFileSync(new URL("../styles.css", import.meta.url), "utf8");
 assert.match(inventoryStyles, /\.inventory-gift-image\.gift-rarity-sr,\s*\.inventory-gift-image\.gift-rarity-ssr[\s\S]*?background-image:\s*none/, "Inventory gift icons must not inherit pixel rarity backgrounds");
-const resourceIconStyles = inventoryStyles.slice(inventoryStyles.lastIndexOf("/* v61:"));
+const resourceIconStyles = inventoryStyles.slice(inventoryStyles.lastIndexOf("/* v62:"));
 assert.match(resourceIconStyles, /\.icon-frame[\s\S]*background:\s*var\(--paper\)/, "Icon frames must use the shared paper background");
 assert.match(resourceIconStyles, /\.icon-frame[\s\S]*border:\s*1px solid var\(--line\)/, "Resource icons must share the standard border");
 assert.doesNotMatch(resourceIconStyles, /linear-gradient/, "Inventory resource icons must not use the dark gradient background");

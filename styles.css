@@ -2930,7 +2930,7 @@ details > summary { color: #21679f; font-weight: 800; }
   .filter-tab { width: 100%; min-width: 0; padding-inline: 4px; text-align: center; }
 }
 
-/* v61: one icon frame and explicit resource-row areas. */
+/* v62: normalize relationship icon visual bounds and keep resource-row areas explicit. */
 .icon-frame {
   position: relative;
   display: grid;
@@ -2967,6 +2967,7 @@ details > summary { color: #21679f; font-weight: 800; }
 
 .resource-icon.icon-frame img,
 .inventory-resource-icon .icon-frame img { width: 2.1rem; height: 2.1rem; }
+.resource-icon img[data-resource-icon="cafe"] { width: 1.6rem; height: 1.6rem; }
 .inventory-resource-icon .inventory-resource-glyph { color: var(--blue-deep); }
 
 .planner-gift-image > span[aria-hidden="true"],

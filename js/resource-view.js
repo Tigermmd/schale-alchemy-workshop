@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v61";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v61";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v61";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v61";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v61";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v62";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v62";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v62";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v62";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v62";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -136,7 +136,8 @@ function resourceIcon(resource, data) {
     "daily-cafe-exp": "ui:kivo-favor",
   }[resource.id];
   const source = assetKey ? data?.assetManifest?.entries?.[assetKey] : null;
-  return source ? `<img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote ?? "")}" alt="" loading="lazy">` : (resource.cadence === "daily" ? "D" : resource.cadence === "weekly" ? "W" : "M");
+  const iconVariant = resource.id === "daily-schedule-exp" ? "schedule" : resource.id === "daily-cafe-exp" ? "cafe" : "resource";
+  return source ? `<img src="${escapeHtml(source.local)}" data-resource-icon="${iconVariant}" data-fallback="${escapeHtml(source.remote ?? "")}" alt="" loading="lazy">` : (resource.cadence === "daily" ? "D" : resource.cadence === "weekly" ? "W" : "M");
 }
 
 function renderResourceRow({ resource, state, data, locale, evidenceById, sourceById }) {

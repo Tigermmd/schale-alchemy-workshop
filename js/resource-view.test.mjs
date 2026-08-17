@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { renderResourcesWorkspace } from "./resource-view.js";
+
+const styles = fs.readFileSync(new URL("../styles.css", import.meta.url), "utf8");
 
 const html = renderResourcesWorkspace({
   data: {
@@ -8,6 +11,7 @@ const html = renderResourcesWorkspace({
     assetManifest: { entries: {
       "ui:kivo-home-button": { local: "./assets/ui/kivo-home-button.webp" },
       "ui:kivo-favor": { local: "./assets/ui/kivo-favor.webp" },
+      "ui:schedule-favor": { local: "./assets/ui/schedule-favor.png" },
       "ui:kivo-options": { local: "./assets/ui/kivo-options.webp" },
       "ui:schaledb-gdd-logo": { local: "./assets/ui/schaledb-gdd-logo.png" },
     } },
@@ -76,6 +80,9 @@ assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
 assert.match(html, /resource-toolbar/);
 assert.doesNotMatch(html, /100000|100008|100009/);
 assert.match(html, /class="icon-frame resource-icon"/);
+assert.match(html, /data-resource-icon="schedule"/);
+assert.match(html, /data-resource-icon="cafe"/);
+assert.match(styles, /\.resource-icon img\[data-resource-icon="cafe"\][\s\S]*?width:\s*1\.6rem[\s\S]*?height:\s*1\.6rem/);
 assert.doesNotMatch(html, /已确认|用户确认/);
 
 const customFloorHtml = renderResourcesWorkspace({
