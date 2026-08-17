@@ -68,9 +68,12 @@ function normalizePackageInventoryPostings(value) {
 
 function normalizeResourceAmount(resource, value, fallback) {
   if (value === null || value === undefined) return fallback;
-  return ["floor", "daily_count"].includes(resource.input_kind)
-    ? integerOr(value, fallback)
-    : numberOr(value, fallback);
+  if (resource.input_kind === "floor") {
+    const min = Number(resource.min_floor ?? 1);
+    const max = Number(resource.max_floor ?? Number.MAX_SAFE_INTEGER);
+    return Math.min(max, Math.max(min, integerOr(value, fallback)));
+  }
+  return resource.input_kind === "daily_count" ? integerOr(value, fallback) : numberOr(value, fallback);
 }
 
 function normalizeStudentPlan(plan = {}) {
@@ -146,6 +149,9 @@ export function normalizePlannerState(input) {
     return {
       ...resource,
       amount: restoreDefaultTower ? resource.amount : savedAmount,
+      floor_mode: resource.input_kind === "floor"
+        ? (saved?.floor_mode === "custom" || (saved?.floor_mode === undefined && savedAmount !== null && !resource.floor_options?.includes(savedAmount))) ? "custom" : null
+        : undefined,
       value_source: restoreDefaultTower ? resource.value_source : savedHasUserValue ? "user" : saved?.value_source === "default" ? "default" : saved ? "user" : resource.value_source,
       enabled: saved?.enabled !== false,
     };
@@ -298,12 +304,29 @@ export function setGiftBoxCount(state, boxId, count) {
   };
 }
 
-export function setResourceAmount(state, resourceId, amount) {
+export function setResourceAmount(state, resourceId, amount, options = {}) {
   const normalizedState = normalizePlannerState(state);
   return {
     ...normalizedState,
     resources: normalizedState.resources.map((resource) => resource.id === resourceId
-      ? { ...resource, amount: amount === null || amount === "" ? null : normalizeResourceAmount(resource, amount, 0), value_source: "user" }
+      ? (() => {
+        const isFloor = resource.input_kind === "floor";
+        const isCustomMarker = isFloor && amount === "custom";
+        const hasExplicitFloorMode = Object.prototype.hasOwnProperty.call(options, "floorMode");
+        const floorMode = isFloor
+          ? isCustomMarker
+            ? "custom"
+            : hasExplicitFloorMode
+              ? options.floorMode === "custom" ? "custom" : null
+              : resource.floor_mode ?? null
+          : undefined;
+        return {
+          ...resource,
+          amount: isCustomMarker || amount === null || amount === "" ? null : normalizeResourceAmount(resource, amount, 0),
+          ...(isFloor ? { floor_mode: floorMode } : {}),
+          value_source: "user",
+        };
+      })()
       : resource),
   };
 }

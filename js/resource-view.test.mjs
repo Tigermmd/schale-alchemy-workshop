@@ -76,4 +76,28 @@ assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
 assert.match(html, /resource-toolbar/);
 assert.doesNotMatch(html, /100000|100008|100009/);
 
+const customFloorHtml = renderResourcesWorkspace({
+  data: { giftBoxes: [], unlimitedAssaultRewards: null },
+  state: {
+    periodDays: 30,
+    forecastDays: 30,
+    students: [],
+    giftBoxes: {},
+    resources: [{
+      id: "monthly-unlimited-assault-gift-boxes",
+      cadence: "monthly",
+      unit: "gift_box",
+      input_kind: "floor",
+      amount: 107,
+      floor_mode: "custom",
+      floor_options: [24, 49, 74, 99, 106, 124],
+      max_floor: 124,
+    }],
+  },
+  locale: "zh",
+  evidence: { sources: [], rows: [] },
+});
+assert.match(customFloorHtml, /<option value="custom" selected>/, "custom floor mode must keep the custom option selected after rerender");
+assert.match(customFloorHtml, /data-resource-amount="monthly-unlimited-assault-gift-boxes" value="107"/, "custom floor input must remain visible with the entered value");
+
 console.log("resource view tests passed");

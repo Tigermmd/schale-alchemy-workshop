@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260817-gift-clean-v59";
-import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v59";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260817-gift-clean-v59";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v59";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v59";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260817-gift-clean-v59";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260817-gift-clean-v59";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260817-gift-clean-v59";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260817-gift-clean-v59";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260817-gift-clean-v59";
-import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260817-gift-clean-v59";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260817-gift-clean-v59";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260817-gift-clean-v59";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260817-gift-clean-v59";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260817-gift-clean-v59";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260817-gift-clean-v60";
+import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v60";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260817-gift-clean-v60";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v60";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v60";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260817-gift-clean-v60";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260817-gift-clean-v60";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260817-gift-clean-v60";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260817-gift-clean-v60";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260817-gift-clean-v60";
+import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260817-gift-clean-v60";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260817-gift-clean-v60";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260817-gift-clean-v60";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260817-gift-clean-v60";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260817-gift-clean-v60";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -725,8 +725,14 @@ elements.detail.addEventListener("change", (event) => {
   }
   const resourceFloor = event.target.closest("[data-resource-floor]");
   if (resourceFloor) {
-    const amount = resourceFloor.value === "custom" ? null : resourceFloor.value;
-    state.planner = writePlannerState(window.localStorage, setResourceAmount(state.planner, resourceFloor.dataset.resourceFloor, amount));
+    const isCustom = resourceFloor.value === "custom";
+    const amount = isCustom ? "custom" : resourceFloor.value;
+    state.planner = writePlannerState(window.localStorage, setResourceAmount(
+      state.planner,
+      resourceFloor.dataset.resourceFloor,
+      amount,
+      { floorMode: isCustom ? "custom" : null },
+    ));
     renderActiveWorkbench();
     return;
   }

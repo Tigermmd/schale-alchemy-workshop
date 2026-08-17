@@ -70,6 +70,17 @@ assert.equal(cleared.resources.find((resource) => resource.id === "weekly-manufa
 assert.equal(normalizePlannerState(cleared).resources.find((resource) => resource.id === "weekly-manufacturing-stones").amount, null);
 assert.equal(setResourceAmount(empty, "monthly-unlimited-assault-gift-boxes", 99).resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes").amount, 99);
 assert.equal(setResourceAmount(empty, "daily-schedule-exp", 7).resources.find((resource) => resource.id === "daily-schedule-exp").amount, 7);
+const customFloor = setResourceAmount(empty, "monthly-unlimited-assault-gift-boxes", "custom");
+const customFloorResource = customFloor.resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes");
+assert.equal(customFloorResource.amount, null, "choosing custom floor must wait for a user value");
+assert.equal(customFloorResource.floor_mode, "custom", "choosing custom floor must persist custom mode");
+const enteredCustomFloor = setResourceAmount(customFloor, "monthly-unlimited-assault-gift-boxes", 107);
+const enteredCustomFloorResource = enteredCustomFloor.resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes");
+assert.equal(enteredCustomFloorResource.amount, 107);
+assert.equal(enteredCustomFloorResource.floor_mode, "custom", "typing a custom floor must keep the custom input visible");
+assert.equal(normalizePlannerState(enteredCustomFloor).resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes").floor_mode, "custom", "custom mode must survive reload normalization");
+const presetFloor = setResourceAmount(enteredCustomFloor, "monthly-unlimited-assault-gift-boxes", 99, { floorMode: null });
+assert.equal(presetFloor.resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes").floor_mode, null, "choosing a preset floor must leave custom mode");
 
 const normalized = normalizePlannerState({ version: 999, inventory: { "5001": 2 }, students: [{ studentId: 10001 }] });
 assert.equal(normalized.version, 4);

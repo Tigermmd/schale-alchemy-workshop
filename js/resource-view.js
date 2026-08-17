@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v59";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v59";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v59";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v59";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v59";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v60";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v60";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v60";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v60";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v60";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -72,7 +72,8 @@ function renderResourceInput(resource, state, locale, lead) {
     const options = resource.floor_options ?? [];
     const selectedFloor = Number(resource.amount);
     const isStandardFloor = Number.isInteger(selectedFloor) && options.includes(selectedFloor);
-    const selectValue = isStandardFloor ? String(selectedFloor) : resource.amount === null ? "" : "custom";
+    const isCustomFloor = resource.floor_mode === "custom" || (resource.amount !== null && !isStandardFloor);
+    const selectValue = isCustomFloor ? "custom" : isStandardFloor ? String(selectedFloor) : "";
     return `<div class="resource-input resource-floor-input">
       <label>
         <span class="sr-only">${escapeHtml(floorLabel)}</span>
