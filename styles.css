@@ -2824,6 +2824,14 @@ details > summary { color: #21679f; font-weight: 800; }
 .inventory-current-input,
 .inventory-quantity-details { align-self: center; }
 
+/* v52: the inventory list uses clean gift cutouts; rarity remains in the text. */
+.inventory-gift-image.gift-rarity-sr,
+.inventory-gift-image.gift-rarity-ssr {
+  border: 0;
+  background: transparent;
+  background-image: none;
+}
+
 @media (max-width: 1180px) {
   .dashboard { grid-template-columns: 80px minmax(0, 1fr); }
   .app-rail { width: 80px; }

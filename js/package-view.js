@@ -1,6 +1,6 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260817-inventory-v52";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-inventory-v52";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260817-inventory-v52";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v53";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v53";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v53";
 
 function escapeHtml(value) {
   return String(value ?? "")

@@ -1,20 +1,20 @@
-import { FUTURE_STUDENTS } from "./future-students.js?v=dashboard-20260817-inventory-v52";
-import { buildReleaseTimeline } from "./release-state.js?v=dashboard-20260817-inventory-v52";
-import { getCnGiftPackageCatalog } from "./package-catalog.js?v=dashboard-20260817-inventory-v52";
+import { FUTURE_STUDENTS } from "./future-students.js?v=dashboard-20260817-gift-clean-v53";
+import { buildReleaseTimeline } from "./release-state.js?v=dashboard-20260817-gift-clean-v53";
+import { getCnGiftPackageCatalog } from "./package-catalog.js?v=dashboard-20260817-gift-clean-v53";
 
 const DATA_ROOT = "../relationship_data";
 
 export const DATA_PATHS = Object.freeze({
-  gifts: `${DATA_ROOT}/gifts.json?v=dashboard-20260817-inventory-v52`,
-  preferences: `${DATA_ROOT}/student_gift_preferences.json?v=dashboard-20260817-inventory-v52`,
-  crafting: `${DATA_ROOT}/crafting_expected_relationship.json?v=dashboard-20260817-inventory-v52`,
-  thresholds: `${DATA_ROOT}/relationship_thresholds.json?v=dashboard-20260817-inventory-v52`,
-  packages: `${DATA_ROOT}/paid_packages_cn.json?v=dashboard-20260817-inventory-v52`,
-  giftBoxes: `${DATA_ROOT}/gift_boxes_cn.json?v=dashboard-20260817-inventory-v52`,
-  unlimitedAssaultRewards: `${DATA_ROOT}/unlimited_assault_rewards_cn.json?v=dashboard-20260817-inventory-v52`,
-  resourceEvidence: `${DATA_ROOT}/resource_evidence_cn.json?v=dashboard-20260817-inventory-v52`,
-  localization: `${DATA_ROOT}/localization.json?v=dashboard-20260817-inventory-v52`,
-  releaseTimeline: `${DATA_ROOT}/jp_release_timeline.json?v=dashboard-20260817-inventory-v52`,
+  gifts: `${DATA_ROOT}/gifts.json?v=dashboard-20260817-gift-clean-v53`,
+  preferences: `${DATA_ROOT}/student_gift_preferences.json?v=dashboard-20260817-gift-clean-v53`,
+  crafting: `${DATA_ROOT}/crafting_expected_relationship.json?v=dashboard-20260817-gift-clean-v53`,
+  thresholds: `${DATA_ROOT}/relationship_thresholds.json?v=dashboard-20260817-gift-clean-v53`,
+  packages: `${DATA_ROOT}/paid_packages_cn.json?v=dashboard-20260817-gift-clean-v53`,
+  giftBoxes: `${DATA_ROOT}/gift_boxes_cn.json?v=dashboard-20260817-gift-clean-v53`,
+  unlimitedAssaultRewards: `${DATA_ROOT}/unlimited_assault_rewards_cn.json?v=dashboard-20260817-gift-clean-v53`,
+  resourceEvidence: `${DATA_ROOT}/resource_evidence_cn.json?v=dashboard-20260817-gift-clean-v53`,
+  localization: `${DATA_ROOT}/localization.json?v=dashboard-20260817-gift-clean-v53`,
+  releaseTimeline: `${DATA_ROOT}/jp_release_timeline.json?v=dashboard-20260817-gift-clean-v53`,
 });
 
 async function fetchJson(path) {
@@ -46,7 +46,7 @@ export async function loadDashboardData() {
     fetchJson(DATA_PATHS.resourceEvidence),
     fetchJson(DATA_PATHS.localization),
     fetchJson(DATA_PATHS.releaseTimeline),
-    fetchOptionalJson("./assets/manifest.json?v=dashboard-20260817-inventory-v52"),
+    fetchOptionalJson("./assets/manifest.json?v=dashboard-20260817-gift-clean-v53"),
   ]);
 
   const gifts = giftSnapshot.gifts;

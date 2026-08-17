@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { firstTargetStudent, mappedPreview, renderInventoryWorkspace, renderPeriodicResources } from "./inventory-view.js";
+
+const inventoryStyles = fs.readFileSync(new URL("../styles.css", import.meta.url), "utf8");
+assert.match(inventoryStyles, /\.inventory-gift-image\.gift-rarity-sr,\s*\.inventory-gift-image\.gift-rarity-ssr[\s\S]*?background-image:\s*none/, "Inventory gift icons must not inherit pixel rarity backgrounds");
 
 const boxPreview = mappedPreview({
   stockResources: {},
