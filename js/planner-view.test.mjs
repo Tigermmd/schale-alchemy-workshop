@@ -24,9 +24,6 @@ assert.doesNotMatch(options, /10063/);
 const manyStudents = Array.from({ length: 30 }, (_, index) => ({ student_id: 11000 + index, name_zh_cn: `测试学生${index}`, name_en: `Test Student ${index}`, name_ja: `テスト${index}` }));
 const allMatchingOptions = renderPlannerStudentOptions({ students: manyStudents, query: "test", locale: "zh_cn", localization: {} });
 assert.equal((allMatchingOptions.match(/data-planner-student-option=/g) ?? []).length, 30, "Planner search must keep the full matching student set");
-assert.notEqual(text("zh_cn", "giftOnlyChoiceBoxLabel"), "giftOnlyChoiceBoxLabel");
-assert.notEqual(text("en", "giftOnlyChoiceBoxExplanation", "60.00"), "giftOnlyChoiceBoxExplanation");
-assert.notEqual(text("ja", "giftOnlyChoiceBoxPool", 35), "giftOnlyChoiceBoxPool");
 assert.notEqual(text("zh_cn", "planningCurrentGap"), "planningCurrentGap");
 assert.notEqual(text("zh_cn", "planningNonMainNote"), "planningNonMainNote");
 

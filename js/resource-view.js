@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v55";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v55";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v55";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v55";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v55";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v58";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v58";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v58";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v58";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v58";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -250,6 +250,7 @@ function renderGiftBoxWorkspace({ data, state, locale, localization }) {
 }
 
 export function renderResourcesWorkspace({ data = {}, state, locale, localization, evidence }) {
+  const resourcesCaption = t(locale, "resourcesCaption");
   const evidenceById = new Map((evidence?.rows ?? []).map((row) => [row.resource_id, row]));
   const sourceById = new Map((evidence?.sources ?? []).map((source) => [source.id, source]));
   const configured = state.resources.filter((resource) => resource.amount !== null);
@@ -260,7 +261,7 @@ export function renderResourcesWorkspace({ data = {}, state, locale, localizatio
     return sum + forecast.value;
   }, 0);
   return `<section class="resource-workspace panel" aria-labelledby="resource-title">
-    <div class="section-heading"><div class="resource-heading-copy"><h2 id="resource-title">${t(locale, "resourcesTitle")}</h2><p class="section-caption">${escapeHtml(t(locale, "resourcesCaption"))}</p></div></div>
+    <div class="section-heading"><div class="resource-heading-copy"><h2 id="resource-title">${t(locale, "resourcesTitle")}</h2>${resourcesCaption ? `<p class="section-caption">${escapeHtml(resourcesCaption)}</p>` : ""}</div></div>
     <div class="resource-toolbar"><label><span>${t(locale, "periodDays")}</span><input type="number" min="1" max="366" step="1" data-period-days value="${state.periodDays}"></label><a class="template-link" href="../relationship_data/cn_planner_data_to_fill.md" target="_blank" rel="noreferrer">${t(locale, "fillDataTemplate")}</a></div>
     <div class="resource-kpi-grid"><article><span>${t(locale, "resourceConfigured")}</span><strong>${configured.length}/${state.resources.length}</strong></article><article><span>${t(locale, "effectiveExp")}</span><strong>${formatExp(projected, locale)}</strong></article><article><span>${t(locale, "resourceMissing")}</span><strong>${state.resources.length - configured.length}</strong></article></div>
     ${missing.length ? `<section class="resource-missing-panel" aria-labelledby="resource-missing-title"><div class="resource-missing-heading"><div><span class="resource-missing-kicker">${escapeHtml(t(locale, "resourceMissing"))}</span><h2 id="resource-missing-title">${escapeHtml(t(locale, "resourceMissingTitle"))}</h2></div><span>${missing.length}</span></div><div class="resource-list">${missing.map((resource) => renderResourceRow({ resource, state, data, locale, evidenceById, sourceById })).join("")}</div></section>` : ""}

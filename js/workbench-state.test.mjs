@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260817-gift-clean-v55";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260817-gift-clean-v58";
 
 assert.deepEqual(getWorkbenchChromeState("planner"), {
   titleKey: "workbenchPlanner",

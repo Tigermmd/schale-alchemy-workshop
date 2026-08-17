@@ -59,7 +59,7 @@ const html = renderResourcesWorkspace({
   },
 });
 
-assert.match(html, /免费资源账本/);
+assert.match(html, /免费资源/);
 assert.match(html, /制造启动石/);
 assert.match(html, /aria-label="制造启动石 · 数量"/);
 assert.doesNotMatch(html, /每周制造启动石/);
@@ -68,8 +68,8 @@ assert.doesNotMatch(html, /70\.00/);
 assert.match(html, />3</);
 assert.doesNotMatch(html, /3\.00/);
 assert.match(html, /待填写/);
-assert.match(html, /日程：每天摸头次数/);
-assert.match(html, /咖啡厅：每天摸头次数/);
+assert.match(html, /日程：每天次数/);
+assert.match(html, /咖啡厅：每天次数/);
 assert.doesNotMatch(html, /resource-art-strip/);
 assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
 assert.match(html, /resource-toolbar/);

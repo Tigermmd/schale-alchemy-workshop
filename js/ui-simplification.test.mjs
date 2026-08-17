@@ -53,5 +53,10 @@ assert.match(plannerView, /planningAddGoal/, "规划表单空状态应使用短 
 assert.match(plannerView, /planner-empty-form/, "空规划状态只保留主 CTA，表单折叠入口不得占用首屏");
 assert.doesNotMatch(plannerView, /<p>\$\{escapeHtml\(t\(locale, "planningAddFirst"\)\)<\/p>/, "规划空状态不应把同一条 CTA 同时渲染为说明段落");
 assert.doesNotMatch(resourceView, /resourceMeta\(resource, locale\).*resourceCopyUnit/, "周期资源行不应在元信息中重复输入字段说明");
+assert.doesNotMatch(i18n, /制造与好感研究台|免费资源账本|只看当前库存与免费资源|先补这几项|查看来源与核验状态/, "首屏不应出现研究报告式长文案");
+assert.doesNotMatch(i18n, /AVAILABLE NODES|EXP RANKING|5択ノード方式/, "不应出现未本地化或内部标签");
+assert.match(i18n, /plannerCaption: ""/, "规划页首屏不应强制显示解释性副标题");
+assert.match(i18n, /resourcesCaption: ""/, "周期资源页首屏不应强制显示解释性副标题");
+assert.match(i18n, /inventoryHint: ""/, "库存页首屏不应强制显示解释性副标题");
 
 console.log("ui simplification tests passed");

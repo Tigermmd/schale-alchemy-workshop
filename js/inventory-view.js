@@ -1,7 +1,7 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v55";
-import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v55";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v55";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v55";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v58";
+import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v58";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v58";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v58";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -196,13 +196,14 @@ function renderReservationPanel({ data, state, summary, locale, localization }) 
 }
 
 export function renderInventoryWorkspace({ data, state, locale, localization, filters = {}, notice = "" }) {
+  const inventoryHint = t(locale, "inventoryHint");
   const summary = calculateInventorySummary(state);
   const message = noticeText(locale, notice);
   const currentGiftTotal = Object.values(summary.gifts ?? {}).reduce((sum, value) => sum + Number(value.current || 0), 0);
   const remainingGiftTotal = Object.values(summary.gifts ?? {}).reduce((sum, value) => sum + Number(value.remaining || 0), 0);
   const transferPanel = `<div class="inventory-heading-actions" aria-label="${escapeHtml(t(locale, "inventoryTransferTitle"))}"><button type="button" class="secondary-button" data-export-inventory>${escapeHtml(t(locale, "inventoryExport"))}</button><button type="button" class="primary-button" data-import-inventory>${escapeHtml(t(locale, "inventoryImport"))}</button><input id="inventory-import-file" type="file" accept="application/json,.json" hidden></div>`;
   const secondaryTools = `${renderPeriodicResources({ data, state, locale })}${renderGiftBoxes({ data, state, summary, locale, localization })}${renderEquivalentPools({ data, state, summary, locale, localization })}${renderSynthesis({ data, state, locale, localization })}`;
-  return `<section class="inventory-workspace" aria-labelledby="inventory-title"><div class="inventory-page-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchInventory"))}</span><h2 id="inventory-title">${escapeHtml(t(locale, "inventoryManagementTitle"))}</h2><p>${escapeHtml(t(locale, "inventoryHint"))}</p></div>${transferPanel}</div><div class="inventory-overview"><article><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><strong>${formatSmartQuantity(currentGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article><article><span>${escapeHtml(t(locale, "inventoryRemaining"))}</span><strong>${formatSmartQuantity(remainingGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article></div>${message ? `<div class="inventory-notice" role="status">${escapeHtml(message)}</div>` : ""}${renderReservationPanel({ data, state, summary, locale, localization })}${renderStockResources({ data, state, summary, locale })}${renderGifts({ data, state, summary, locale, localization, filters })}<details class="inventory-more-details"><summary>${escapeHtml(t(locale, "inventoryMoreTitle"))}</summary><div class="inventory-more-content">${secondaryTools}</div></details></section>`;
+  return `<section class="inventory-workspace" aria-labelledby="inventory-title"><div class="inventory-page-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchInventory"))}</span><h2 id="inventory-title">${escapeHtml(t(locale, "inventoryManagementTitle"))}</h2>${inventoryHint ? `<p>${escapeHtml(inventoryHint)}</p>` : ""}</div>${transferPanel}</div><div class="inventory-overview"><article><span>${escapeHtml(t(locale, "inventoryCurrent"))}</span><strong>${formatSmartQuantity(currentGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article><article><span>${escapeHtml(t(locale, "inventoryRemaining"))}</span><strong>${formatSmartQuantity(remainingGiftTotal, locale)}</strong><small>${escapeHtml(t(locale, "inventoryGiftsTitle"))}</small></article></div>${message ? `<div class="inventory-notice" role="status">${escapeHtml(message)}</div>` : ""}${renderReservationPanel({ data, state, summary, locale, localization })}${renderStockResources({ data, state, summary, locale })}${renderGifts({ data, state, summary, locale, localization, filters })}<details class="inventory-more-details"><summary>${escapeHtml(t(locale, "inventoryMoreTitle"))}</summary><div class="inventory-more-content">${secondaryTools}</div></details></section>`;
 }
 
 export function wireInventoryImageFallbacks(container) {

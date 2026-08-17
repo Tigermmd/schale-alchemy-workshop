@@ -51,8 +51,8 @@ assert.equal(normalizeLocale("ko"), "zh_cn");
 assert.equal(localizedName(localizedStudent, "student", "ja", localization), "コユキ");
 assert.equal(localizedName(localizedStudent, "student", "en", localization), "Koyuki");
 assert.equal(text("ja", "stage", 2), "ステージ 2");
-assert.equal(text("en", "documentTitle"), "Schale Manufacturing Lab");
-assert.equal(text("ja", "documentTitle"), "Schale 製造研究室");
+assert.equal(text("en", "documentTitle"), "Schale Manufacturing");
+assert.equal(text("ja", "documentTitle"), "Schale 製造ツール");
 const fakeStorage = new Map();
 const storageAdapter = { getItem: (key) => fakeStorage.get(key) ?? null, setItem: (key, value) => fakeStorage.set(key, value) };
 assert.equal(writeStoredLocale(storageAdapter, "ja"), "ja");
@@ -104,11 +104,11 @@ const resourceHtml = renderResourcesWorkspace({
     ],
   },
 });
-assert.match(resourceHtml, /调研线索（未确认，不计入）/);
+assert.match(resourceHtml, /未确认 · 不计入/);
 assert.match(resourceHtml, /17 拱心石\/周/);
 assert.match(resourceHtml, /每次活动最多 2 个金色礼物自选/);
 assert.match(resourceHtml, /每月活动次数仍待确认/);
-assert.match(resourceHtml, /官方边界：/);
+assert.match(resourceHtml, /官方/);
 assert.match(resourceHtml, /<strong>0\.00<\/strong>/);
 
 const defaultResourceHtml = renderResourcesWorkspace({
@@ -126,9 +126,9 @@ const defaultResourceHtml = renderResourcesWorkspace({
     }],
   },
 });
-assert.match(defaultResourceHtml, /用户确认，已预填（可修改）/);
+assert.match(defaultResourceHtml, /预填值/);
 assert.match(defaultResourceHtml, /每日任务和每周任务/);
-assert.match(defaultResourceHtml, /用户确认的规划默认值（可修改）/);
+assert.match(defaultResourceHtml, /已确认/);
 
 const eventShopResourceHtml = renderResourcesWorkspace({
   state: createEmptyPlannerState(),
@@ -168,7 +168,7 @@ const touchCountHtml = renderResourcesWorkspace({
   locale: "zh_cn",
   evidence: { sources: [], rows: [] },
 });
-assert.match(touchCountHtml, /每天摸头次数/);
+assert.match(touchCountHtml, /每天次数/);
 assert.match(touchCountHtml, /6,562\.50/);
 assert.match(touchCountHtml, /3,600\.00/);
 assert.doesNotMatch(touchCountHtml, /每日任务 \/ 日程好感[\s\S]{0,500}待补国服数据/);
@@ -263,7 +263,7 @@ const manufacturingHtml = renderResourcesWorkspace({
   locale: "zh_cn",
   evidence: { sources: [], rows: [] },
 });
-assert.match(manufacturingHtml, /制造石周期收益/);
+assert.match(manufacturingHtml, /制造石收益/);
 assert.match(manufacturingHtml, /小雪/);
 assert.match(manufacturingHtml, /77\.77/);
 assert.match(manufacturingHtml, /12\.34 \/ 23\.45 \/ 41\.98/);

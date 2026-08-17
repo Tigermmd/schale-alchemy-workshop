@@ -1,9 +1,9 @@
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-gift-clean-v55";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v55";
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v55";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v55";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v55";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-gift-clean-v55";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-gift-clean-v58";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v58";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v58";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v58";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v58";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-gift-clean-v58";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -136,6 +136,7 @@ export function renderWorkbenchTabs({ locale, active, data = {} }) {
 
 export function renderPlannerWorkspace({ data, state, locale, localization }) {
   const thresholds = data.snapshots.thresholds;
+  const plannerCaption = t(locale, "plannerCaption");
   const mainPlan = state.students?.find((plan) => String(plan.studentId) === String(state.mainTargetStudentId)) ?? state.students?.[0] ?? null;
   const editingPlan = mainPlan;
   const mainStudent = mainPlan ? data.studentById.get(String(mainPlan.studentId)) : null;
@@ -151,7 +152,7 @@ export function renderPlannerWorkspace({ data, state, locale, localization }) {
       <button class="primary-button" type="submit">${t(locale, "addStudent")}</button>
     </form></details>`;
   return `<section class="planner-workspace panel" aria-labelledby="planner-title">
-    <div class="workspace-intro"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchPlanner"))}</span><h2 id="planner-title">${t(locale, "plannerTitle")}</h2><p>${escapeHtml(t(locale, "plannerCaption"))}</p></div><label class="planner-forecast-days"><span>${escapeHtml(t(locale, "planningForecastDays"))}</span><input type="number" min="1" max="366" step="1" value="${summary.forecastDays}" data-planner-forecast-days aria-label="${escapeHtml(t(locale, "planningForecastDays"))}"></label></div>
+    <div class="workspace-intro"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchPlanner"))}</span><h2 id="planner-title">${t(locale, "plannerTitle")}</h2>${plannerCaption ? `<p>${escapeHtml(plannerCaption)}</p>` : ""}</div><label class="planner-forecast-days"><span>${escapeHtml(t(locale, "planningForecastDays"))}</span><input type="number" min="1" max="366" step="1" value="${summary.forecastDays}" data-planner-forecast-days aria-label="${escapeHtml(t(locale, "planningForecastDays"))}"></label></div>
     ${mainStudent ? `<div class="planner-target-strip">${studentImage(mainStudent, data.assetManifest, locale, localization)}<div><strong>${escapeHtml(localizedName(mainStudent, "student", locale, localization))}</strong><span>${escapeHtml(t(locale, "currentLevel"))} ${formatInteger(mainPlan.currentLevel, locale)} → ${escapeHtml(t(locale, "targetLevel"))} ${formatInteger(mainPlan.targetLevel, locale)}</span></div><span class="planner-target-status">${escapeHtml(t(locale, "planningMainTarget"))}</span></div>` : ""}
     <div class="planner-subsection"><div class="section-heading compact"><h2>${t(locale, "plannedStudents")}</h2></div>${state.students.length ? `<div class="planner-result-list">${orderedPlans.map((plan) => {
       const student = data.studentById.get(String(plan.studentId));

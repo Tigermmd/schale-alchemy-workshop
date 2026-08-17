@@ -47,7 +47,7 @@ const periodicHtml = renderPeriodicResources({
   },
   locale: "zh",
 });
-assert.match(periodicHtml, /本期预计入库/);
+assert.match(periodicHtml, /本期/);
 assert.match(periodicHtml, /\+72\.86 制造启动石/);
 assert.match(periodicHtml, /\+3 金色礼物自选盒/);
 assert.doesNotMatch(periodicHtml, /输入数值/);

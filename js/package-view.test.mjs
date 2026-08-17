@@ -33,7 +33,7 @@ const html = renderPackagesWorkspace({
   locale: "zh_cn",
   data: { packageCatalog: { scope: { as_of: "2026-08-10" }, packages: [catalogPackage] }, studentById: new Map([["1", { student_id: 1, name_zh_cn: "甲", name_en: "A", gift_values: [] }]]), giftBoxes: [], assetManifest: { entries: { "ui:arona-title-new": { local: "./assets/ui/arona-title-new.webp" }, "ui:kivo-options": { local: "./assets/ui/kivo-options.webp" } } } },
 });
-assert.match(html, /礼包购买参考/);
+assert.match(html, /礼包性价比/);
 assert.match(html, /好感 \/ 元/);
 assert.match(html, /¥78/);
 assert.doesNotMatch(html, /甲 · #1/);
@@ -69,7 +69,7 @@ const noTargetHtml = renderPackagesWorkspace({
   locale: "zh_cn",
   data: { packageCatalog: { scope: { as_of: "2026-08-10" }, packages: [catalogPackage] }, studentById: new Map([["1", { student_id: 1, name_zh_cn: "甲", name_en: "A", gift_values: [] }]]), giftBoxes: [] },
 });
-assert.match(noTargetHtml, /请先在礼物规划中加入学生目标/);
+assert.match(noTargetHtml, /先添加目标学生/);
 assert.match(noTargetHtml, /data-go-planner/);
 assert.doesNotMatch(noTargetHtml, /¥78\.00/);
 
