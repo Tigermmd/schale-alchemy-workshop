@@ -1,9 +1,9 @@
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-gift-clean-v53";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v53";
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v53";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v53";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v53";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-gift-clean-v53";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-gift-clean-v54";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v54";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v54";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v54";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v54";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-gift-clean-v54";
 
 function escapeHtml(value) {
   return String(value ?? "")

@@ -4,6 +4,10 @@ import { firstTargetStudent, mappedPreview, renderInventoryWorkspace, renderPeri
 
 const inventoryStyles = fs.readFileSync(new URL("../styles.css", import.meta.url), "utf8");
 assert.match(inventoryStyles, /\.inventory-gift-image\.gift-rarity-sr,\s*\.inventory-gift-image\.gift-rarity-ssr[\s\S]*?background-image:\s*none/, "Inventory gift icons must not inherit pixel rarity backgrounds");
+const resourceIconStyles = inventoryStyles.slice(inventoryStyles.lastIndexOf("/* v54: inventory resource icons use the card surface instead of a decorative block. */"));
+assert.match(resourceIconStyles, /border:\s*0/, "Inventory resource icons must not have a decorative border");
+assert.match(resourceIconStyles, /background:\s*transparent/, "Inventory resource icons must use the card background");
+assert.doesNotMatch(resourceIconStyles, /linear-gradient/, "Inventory resource icons must not use the dark gradient background");
 
 const boxPreview = mappedPreview({
   stockResources: {},

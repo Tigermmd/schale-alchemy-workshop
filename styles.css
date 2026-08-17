@@ -2832,6 +2832,14 @@ details > summary { color: #21679f; font-weight: 800; }
   background-image: none;
 }
 
+/* v54: inventory resource icons use the card surface instead of a decorative block. */
+.inventory-resource-icon {
+  border: 0;
+  background: transparent;
+  color: #21679f;
+}
+.inventory-resource-icon .inventory-resource-glyph { color: #21679f; }
+
 @media (max-width: 1180px) {
   .dashboard { grid-template-columns: 80px minmax(0, 1fr); }
   .app-rail { width: 80px; }

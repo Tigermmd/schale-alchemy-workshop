@@ -1,5 +1,5 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v53";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v53";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v54";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v54";
 
 function escapeHtml(value) {
   return String(value ?? "")
