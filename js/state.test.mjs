@@ -104,11 +104,11 @@ const resourceHtml = renderResourcesWorkspace({
     ],
   },
 });
-assert.match(resourceHtml, /未确认 · 不计入/);
+assert.doesNotMatch(resourceHtml, /未确认 · 不计入|已确认 · 已计入/);
 assert.match(resourceHtml, /17 拱心石\/周/);
 assert.match(resourceHtml, /每次活动最多 2 个金色礼物自选/);
 assert.doesNotMatch(resourceHtml, /每月活动次数仍待确认/);
-assert.match(resourceHtml, /官方/);
+assert.doesNotMatch(resourceHtml, /官方/);
 assert.match(resourceHtml, /<strong>0\.00<\/strong>/);
 
 const defaultResourceHtml = renderResourcesWorkspace({
@@ -126,9 +126,8 @@ const defaultResourceHtml = renderResourcesWorkspace({
     }],
   },
 });
-assert.match(defaultResourceHtml, /预填值/);
-assert.match(defaultResourceHtml, /每日任务和每周任务/);
-assert.match(defaultResourceHtml, /已确认/);
+assert.match(defaultResourceHtml, /17 拱心石\/周：每日任务和每周任务/);
+assert.doesNotMatch(defaultResourceHtml, /已确认|用户确认|已计入/);
 
 const eventShopResourceHtml = renderResourcesWorkspace({
   state: createEmptyPlannerState(),

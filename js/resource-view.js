@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v60";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v60";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v60";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v60";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v60";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v61";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v61";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v61";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260817-gift-clean-v61";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260817-gift-clean-v61";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -25,27 +25,36 @@ function publicEvidenceText(value, locale) {
     .replaceAll("100009", t(locale, "inventoryBoxName", "100009"));
 }
 
-function renderResourceEvidence({ lead, source, sourceById, locale, candidateUnit }) {
+function stripEvidencePrefix(value, locale) {
+  const prefixes = locale === "en"
+    ? [/^user[- ]confirmed:\s*/i, /^user[- ]provided:\s*/i]
+    : locale === "ja"
+      ? [/^ユーザー確認：?\s*/]
+      : [/^用户确认：?\s*/];
+  return prefixes.reduce((text, prefix) => text.replace(prefix, ""), String(value ?? "").trim());
+}
+
+function renderEvidenceExplanation({ lead, candidateText, candidateValue, locale }) {
+  const explanation = stripEvidencePrefix(publicEvidenceText(candidateText, locale), locale);
+  if (!explanation) return candidateValue || t(locale, "resourceEvidenceMissing");
+  const candidateNumber = Number(lead?.candidate_value);
+  if (Number.isFinite(candidateNumber) && explanation.includes(String(candidateNumber))) return explanation;
+  return candidateValue ? `${candidateValue}：${explanation}` : explanation;
+}
+
+function renderResourceEvidence({ lead, source, locale, candidateUnit }) {
   if (!["lead", "user_confirmed"].includes(lead?.status)) {
-    return '<div class="resource-evidence is-empty"><strong>' + escapeHtml(t(locale, "resourceEvidenceMissing")) + '</strong></div>';
+    return `<div class="resource-evidence is-empty"><span>${escapeHtml(t(locale, "resourceEvidenceMissing"))}</span></div>`;
   }
   const candidateText = publicEvidenceText(localizedEvidenceField(lead, "candidate_text", locale), locale);
   const candidateValue = lead.candidate_value !== null && lead.candidate_value !== undefined && Number.isFinite(Number(lead.candidate_value))
     ? `${formatSmartQuantity(lead.candidate_value, locale)} ${candidateUnit || ""}`.trim()
-    : candidateText;
-  const officialScope = publicEvidenceText(localizedEvidenceField(lead, "official_scope", locale), locale);
-  const officialSources = (lead.official_source_ids ?? []).map((id) => sourceById?.get(id)).filter(Boolean);
-  const evidenceLabel = lead.status === "user_confirmed" ? t(locale, "resourceEvidenceConfirmed") : t(locale, "resourceEvidenceLead");
+    : "";
+  const explanation = renderEvidenceExplanation({ lead, candidateText, candidateValue, locale });
   const sourceLink = source?.url
     ? '<a href="' + escapeHtml(source.url) + '" target="_blank" rel="noreferrer">' + escapeHtml(t(locale, "resourceEvidenceSource")) + ' ↗</a>'
     : '';
-  return '<div class="resource-evidence ' + (lead.status === "user_confirmed" ? "is-confirmed" : "is-lead") + '"><strong>' +
-    escapeHtml(evidenceLabel) +
-    '</strong><span>' +
-    escapeHtml(candidateValue || t(locale, "resourceEvidenceMissing")) +
-    '</span>' + (candidateText && candidateValue !== candidateText ? '<small>' + escapeHtml(candidateText) + '</small>' : '') +
-    (officialScope ? '<small class="resource-evidence-official"><b>' + escapeHtml(t(locale, "resourceEvidenceOfficial")) + '</b> ' + escapeHtml(officialScope) + (officialSources.length ? ' ' + officialSources.map((officialSource) => '<a href="' + escapeHtml(officialSource.url) + '" target="_blank" rel="noreferrer">' + escapeHtml(t(locale, "resourceEvidenceOfficialSource")) + ' ↗</a>').join(" ") : '') + '</small>' : '') +
-    sourceLink + '</div>';
+  return `<div class="resource-evidence ${lead.status === "user_confirmed" ? "is-confirmed" : "is-lead"}"><span class="resource-evidence-calculation">${escapeHtml(explanation)}</span>${sourceLink}</div>`;
 }
 
 function resourceSourceLabel(resource, lead, locale) {
@@ -76,14 +85,14 @@ function renderResourceInput(resource, state, locale, lead) {
     const selectValue = isCustomFloor ? "custom" : isStandardFloor ? String(selectedFloor) : "";
     return `<div class="resource-input resource-floor-input">
       <label>
-        <span class="sr-only">${escapeHtml(floorLabel)}</span>
+        <span>${escapeHtml(t(locale, "resourceFloorSelect"))}</span>
         <select data-resource-floor="${escapeHtml(resource.id)}" aria-label="${escapeHtml(floorLabel)}">
           <option value="">${escapeHtml(t(locale, "resourceFloorSelect"))}</option>
           ${options.map((floor) => `<option value="${floor}" ${selectValue === String(floor) ? "selected" : ""}>${escapeHtml(t(locale, "resourceFloorSummary", floor))}</option>`).join("")}
           <option value="custom" ${selectValue === "custom" ? "selected" : ""}>${escapeHtml(t(locale, "resourceCustomFloor"))}</option>
         </select>
       </label>
-      ${selectValue === "custom" ? `<label class="resource-custom-floor"><span class="sr-only">${escapeHtml(customFloorLabel)}</span><input type="number" min="1" max="${resource.max_floor ?? 124}" step="1" data-resource-amount="${escapeHtml(resource.id)}" value="${isConfigured ? resource.amount : ""}" placeholder="1–${resource.max_floor ?? 124}" inputmode="numeric" aria-label="${escapeHtml(customFloorLabel)}"></label>` : ""}
+      ${selectValue === "custom" ? `<label class="resource-custom-floor"><span>${escapeHtml(t(locale, "resourceCustomFloor"))}</span><input type="number" min="1" max="${resource.max_floor ?? 124}" step="1" data-resource-amount="${escapeHtml(resource.id)}" value="${isConfigured ? resource.amount : ""}" placeholder="1–${resource.max_floor ?? 124}" inputmode="numeric" aria-label="${escapeHtml(customFloorLabel)}"></label>` : ""}
     </div>`;
   }
   const inputLabel = resource.input_kind
@@ -91,11 +100,9 @@ function renderResourceInput(resource, state, locale, lead) {
     : `${t(locale, "resourceName", resource.id)} · ${t(locale, "resourceValue")}`;
   const inputTitle = resource.value_source === "user"
     ? t(locale, "resourceSourcePlayerOverride")
-    : lead?.status === "user_confirmed"
-      ? t(locale, "resourceInputConfirmed")
-      : t(locale, "resourceValue");
+    : t(locale, "resourceValue");
   const integerInput = Boolean(resource.input_kind) || resource.unit !== "relationship_exp";
-  return `<label class="resource-input"><span class="sr-only">${escapeHtml(inputLabel)}</span><input type="number" min="0" step="${integerInput ? "1" : "0.01"}" inputmode="${integerInput ? "numeric" : "decimal"}" data-resource-amount="${escapeHtml(resource.id)}" value="${isConfigured ? resource.amount : ""}" placeholder="${escapeHtml(resource.input_kind ? t(locale, "resourceInputPlaceholder", resource.input_kind) : "—")}" aria-label="${escapeHtml(inputLabel)}" title="${escapeHtml(inputTitle)}"></label>`;
+  return `<label class="resource-input"><span>${escapeHtml(inputLabel)}</span><input type="number" min="0" step="${integerInput ? "1" : "0.01"}" inputmode="${integerInput ? "numeric" : "decimal"}" data-resource-amount="${escapeHtml(resource.id)}" value="${isConfigured ? resource.amount : ""}" placeholder="${escapeHtml(resource.input_kind ? t(locale, "resourceInputPlaceholder", resource.input_kind) : "—")}" aria-label="${escapeHtml(inputLabel)}" title="${escapeHtml(inputTitle)}"></label>`;
 }
 
 function renderUnlimitedRewardSummary(summary, locale) {
@@ -138,12 +145,15 @@ function renderResourceRow({ resource, state, data, locale, evidenceById, source
   const lead = evidenceById.get(resource.id);
   const source = lead?.source_id ? sourceById.get(lead.source_id) : null;
   const candidateUnit = locale === "en" ? lead?.candidate_unit_en : locale === "ja" ? lead?.candidate_unit_ja : lead?.candidate_unit_zh_cn;
+  const detailsContent = resource.input_kind
+    ? `<p class="resource-source">${t(locale, "resourceSource")}：${escapeHtml(resourceSourceLabel(resource, lead, locale))}</p>`
+    : renderResourceEvidence({ lead, source, locale, candidateUnit });
   return `<article class="resource-row ${isConfigured ? "is-configured" : "is-missing"}">
-    <div class="resource-icon" aria-hidden="true">${resourceIcon(resource, data)}</div>
+    <div class="icon-frame resource-icon" aria-hidden="true">${resourceIcon(resource, data)}</div>
     <div class="resource-copy"><strong><span class="resource-name">${escapeHtml(t(locale, "resourceName", resource.id))}</span><em class="resource-status ${isConfigured ? "is-configured" : "is-missing"}">${escapeHtml(t(locale, isConfigured ? "resourceConfigured" : "resourceMissing"))}</em></strong><small>${escapeHtml(resourceMeta(resource, locale))}</small></div>
     ${renderResourceInput(resource, state, locale, lead)}
     <div class="resource-forecast ${resource.input_kind === "floor" ? "is-reward-forecast" : ""}">${renderResourceForecast(resource, forecast, locale)}</div>
-    <details class="resource-row-details"><summary aria-label="${escapeHtml(`${t(locale, "resourceName", resource.id)} · ${t(locale, "resourceEvidenceDetails")}`)}">${escapeHtml(t(locale, "resourceName", resource.id))} · ${escapeHtml(t(locale, "resourceEvidenceDetails"))}</summary><p class="resource-source">${t(locale, "resourceSource")}：${escapeHtml(resourceSourceLabel(resource, lead, locale))}</p>${resource.input_kind ? "" : renderResourceEvidence({ lead, source, sourceById, locale, candidateUnit })}</details>
+    <details class="resource-row-details"><summary aria-label="${escapeHtml(`${t(locale, "resourceName", resource.id)} · ${t(locale, "resourceEvidenceDetails")}`)}">${escapeHtml(t(locale, "resourceName", resource.id))} · ${escapeHtml(t(locale, "resourceEvidenceDetails"))}</summary>${detailsContent}</details>
   </article>`;
 }
 

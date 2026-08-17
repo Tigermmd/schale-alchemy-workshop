@@ -1,10 +1,10 @@
-import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v60";
+import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v61";
 import {
   localizedName,
   localizedReactionLabel,
   localeTag,
   text as t,
-} from "./i18n.js?v=dashboard-20260817-gift-clean-v60";
+} from "./i18n.js?v=dashboard-20260817-gift-clean-v61";
 
 const STAGES = ["1", "2", "3"];
 
@@ -80,7 +80,7 @@ function getImageSource(manifest, key, fallbackLocal, fallbackRemote) {
 
 function imageMarkup({ manifest, key, local, remote, alt, className = "" }) {
   const source = getImageSource(manifest, key, local, remote);
-  return `<div class="image-frame ${className}" data-image-frame>
+  return `<div class="icon-frame image-frame ${className}" data-image-frame>
     <img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote)}" alt="${escapeHtml(alt)}" loading="lazy" />
     <span class="image-fallback" aria-hidden="true">${escapeHtml(String(alt).slice(0, 1))}</span>
   </div>`;

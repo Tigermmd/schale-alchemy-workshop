@@ -1,7 +1,7 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v60";
-import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v60";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v60";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v60";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v61";
+import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v61";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v61";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v61";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -16,13 +16,13 @@ function giftImage(gift, manifest, locale, localization) {
   const name = localizedName(gift, "gift", locale, localization);
   const source = manifest?.entries?.[`gift:${gift.id}`];
   const rarity = String(gift?.rarity ?? "").toLowerCase();
-  return `<span class="inventory-gift-image ${rarity ? `gift-rarity-${rarity}` : ""}"><img src="${escapeHtml(source?.local ?? `./assets/gifts/${gift.id}.webp`)}" data-fallback="${escapeHtml(source?.remote ?? "")}" alt="${escapeHtml(name)}" loading="lazy"><span aria-hidden="true">${escapeHtml(name.slice(0, 1))}</span></span>`;
+  return `<span class="icon-frame inventory-gift-image ${rarity ? `gift-rarity-${rarity}` : ""}"><img src="${escapeHtml(source?.local ?? `./assets/gifts/${gift.id}.webp`)}" data-fallback="${escapeHtml(source?.remote ?? "")}" alt="${escapeHtml(name)}" loading="lazy"><span aria-hidden="true">${escapeHtml(name.slice(0, 1))}</span></span>`;
 }
 
 function itemImage(itemId, manifest, className = "inventory-item-image") {
   const source = manifest?.entries?.[`item:${itemId}`];
-  if (!source) return `<span class="inventory-resource-glyph" aria-hidden="true">✧</span>`;
-  return `<span class="${className}"><img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote ?? "")}" alt="" loading="lazy"></span>`;
+  if (!source) return `<span class="icon-frame inventory-resource-glyph" aria-hidden="true">✧</span>`;
+  return `<span class="icon-frame ${className}"><img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote ?? "")}" alt="" loading="lazy"></span>`;
 }
 
 function boxName(box, locale) {
@@ -72,7 +72,7 @@ function renderStockResources({ data, state, summary, locale }) {
   const itemIds = { manufacturing_stone: 3, synthesis_stone_gold: 82 };
   return `<section class="inventory-section" aria-labelledby="inventory-stock-title"><div class="section-heading compact"><h2 id="inventory-stock-title">${escapeHtml(t(locale, "inventoryStockTitle"))}</h2></div><div class="inventory-resource-list">${ids.map((id) => {
     const value = summary.stocks[id];
-    return `<article class="inventory-resource-card"><div class="inventory-resource-icon">${itemIds[id] ? itemImage(itemIds[id], data.assetManifest) : "<span class=\"inventory-resource-glyph\" aria-hidden=\"true\">✧</span>"}</div><div class="inventory-resource-copy"><strong>${escapeHtml(t(locale, "inventoryStockName", id))}</strong></div><label class="inventory-current-input"><input type="number" min="0" step="1" inputmode="numeric" data-stock-resource="${escapeHtml(id)}" value="${value.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${t(locale, "inventoryStockName", id)}`)}"></label>${quantityColumns(value, locale, t(locale, "inventoryStockName", id))}</article>`;
+    return `<article class="inventory-resource-card"><div class="inventory-resource-icon">${itemIds[id] ? itemImage(itemIds[id], data.assetManifest) : "<span class=\"icon-frame inventory-resource-glyph\" aria-hidden=\"true\">✧</span>"}</div><div class="inventory-resource-copy"><strong>${escapeHtml(t(locale, "inventoryStockName", id))}</strong></div><label class="inventory-current-input"><input type="number" min="0" step="1" inputmode="numeric" data-stock-resource="${escapeHtml(id)}" value="${value.current || ""}" placeholder="0" aria-label="${escapeHtml(`${t(locale, "inventoryCurrent")} ${t(locale, "inventoryStockName", id)}`)}"></label>${quantityColumns(value, locale, t(locale, "inventoryStockName", id))}</article>`;
   }).join("")}</div></section>`;
 }
 

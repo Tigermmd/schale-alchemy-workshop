@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { filterPlannerStudents, plannerStudentLabel, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs } from "./planner-view.js";
 import { text } from "./i18n.js";
+import { createEmptyPlannerState } from "./planner-state.js";
 
 const students = [
   { student_id: 10122, name_zh_cn: "未花（泳装）", name_en: "Mika (Swimsuit)", name_ja: "ミカ（水着）" },
@@ -53,5 +54,27 @@ const emptyPlannerHtml = renderPlannerWorkspace({
 });
 assert.match(emptyPlannerHtml, /class="planner-empty-copy"/, "Empty planner state should separate copy from its action");
 assert.match(emptyPlannerHtml, /data-planner-open-form/, "Empty planner state should keep one clear add-goal action");
+
+const iconPlannerStudent = { student_id: 10122, name_zh_cn: "未花（泳装）", name_en: "Mika (Swimsuit)", name_ja: "ミカ（水着）" };
+const iconPlannerState = createEmptyPlannerState();
+iconPlannerState.students = [{ id: "plan-10122", studentId: 10122, currentLevel: 1, currentProgress: 0, targetLevel: 50 }];
+iconPlannerState.mainTargetStudentId = 10122;
+const iconPlannerHtml = renderPlannerWorkspace({
+  data: {
+    snapshots: { thresholds: [] },
+    studentById: new Map([["10122", iconPlannerStudent]]),
+    plannerStudents: [iconPlannerStudent],
+    students: [iconPlannerStudent],
+    gifts: [],
+    giftById: new Map(),
+    giftBoxes: [],
+    craftingById: new Map(),
+    releaseTimeline: [],
+  },
+  state: iconPlannerState,
+  locale: "zh_cn",
+  localization: {},
+});
+assert.match(iconPlannerHtml, /class="planner-student-photo icon-frame"/, "Planner student portraits must use the shared icon frame");
 
 console.log("planner view tests passed");

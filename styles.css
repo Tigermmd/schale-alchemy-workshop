@@ -2929,3 +2929,96 @@ details > summary { color: #21679f; font-weight: 800; }
   .filter-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
   .filter-tab { width: 100%; min-width: 0; padding-inline: 4px; text-align: center; }
 }
+
+/* v61: one icon frame and explicit resource-row areas. */
+.icon-frame {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+.icon-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.image-frame.icon-frame img,
+.planner-student-photo.icon-frame img { object-fit: cover; }
+.profile-portrait-image.icon-frame img { object-fit: contain; }
+.profile-portrait-image.icon-frame { border: 0; background: transparent; }
+.gift-image.icon-frame.gift-rarity-sr,
+.gift-image.icon-frame.gift-rarity-ssr,
+.inventory-gift-image.icon-frame.gift-rarity-sr,
+.inventory-gift-image.icon-frame.gift-rarity-ssr {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  background-image: none;
+}
+
+.resource-icon.icon-frame,
+.inventory-resource-icon .icon-frame {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--blue-deep);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.resource-icon.icon-frame img,
+.inventory-resource-icon .icon-frame img { width: 2.1rem; height: 2.1rem; }
+.inventory-resource-icon .inventory-resource-glyph { color: var(--blue-deep); }
+
+.planner-gift-image > span[aria-hidden="true"],
+.planner-student-photo > span[aria-hidden="true"] { display: none; }
+.planner-gift-image.is-broken > span[aria-hidden="true"],
+.planner-student-photo.is-broken > span[aria-hidden="true"] { display: block; }
+
+.resource-row {
+  grid-template-areas:
+    "icon copy input forecast"
+    ".... details details details";
+  grid-template-columns: 2.5rem minmax(12rem, 1fr) minmax(10rem, .9fr) minmax(10rem, 1.2fr);
+}
+
+.resource-icon { grid-area: icon; }
+.resource-copy { grid-area: copy; }
+.resource-input { grid-area: input; min-width: 0; }
+.resource-forecast { grid-area: forecast; min-width: 0; }
+.resource-row-details { grid-area: details; min-width: 0; }
+.resource-input > span,
+.resource-input label > span { color: var(--muted); font-size: .58rem; font-weight: 800; }
+.resource-input input,
+.resource-input select { min-width: 0; width: 100%; }
+.resource-floor-input { align-content: center; }
+.resource-floor-input > label,
+.resource-custom-floor { display: grid; gap: .2rem; }
+.resource-evidence { display: flex; align-items: baseline; flex-wrap: wrap; gap: .4rem .65rem; padding-top: .45rem; color: var(--muted); font-size: .62rem; }
+.resource-evidence-calculation { flex: 1 1 20rem; min-width: 0; }
+.resource-evidence a { flex: 0 0 auto; white-space: nowrap; }
+.resource-evidence.is-empty { display: block; }
+
+@media (max-width: 900px) {
+  .resource-row {
+    grid-template-areas:
+      "icon copy forecast"
+      "icon input forecast"
+      ".... details details";
+    grid-template-columns: 2.5rem minmax(0, 1fr) minmax(10rem, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .resource-row {
+    grid-template-areas:
+      "copy"
+      "input"
+      "forecast"
+      "details";
+    grid-template-columns: minmax(0, 1fr);
+    gap: .5rem;
+  }
+  .resource-icon { display: none; }
+  .resource-forecast { justify-items: start; text-align: left; }
+  .resource-evidence { align-items: flex-start; flex-direction: column; gap: .35rem; }
+}

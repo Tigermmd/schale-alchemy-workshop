@@ -1,9 +1,9 @@
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-gift-clean-v60";
-import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v60";
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v60";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v60";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v60";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-gift-clean-v60";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260817-gift-clean-v61";
+import { getAvailableGiftInventory } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v61";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v61";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v61";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260817-gift-clean-v61";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260817-gift-clean-v61";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -17,11 +17,11 @@ function escapeHtml(value) {
 function giftImage(gift, manifest, locale, localization) {
   const name = localizedName(gift, "gift", locale, localization);
   const source = manifest?.entries?.[`gift:${gift.id}`];
-  return `<span class="planner-gift-image"><img src="${escapeHtml(source?.local ?? `./assets/gifts/${gift.id}.webp`)}" data-fallback="${escapeHtml(source?.remote ?? "")}" alt="${escapeHtml(name)}" loading="lazy"><span aria-hidden="true">${escapeHtml(name.slice(0, 1))}</span></span>`;
+  return `<span class="planner-gift-image icon-frame"><img src="${escapeHtml(source?.local ?? `./assets/gifts/${gift.id}.webp`)}" data-fallback="${escapeHtml(source?.remote ?? "")}" alt="${escapeHtml(name)}" loading="lazy"><span aria-hidden="true">${escapeHtml(name.slice(0, 1))}</span></span>`;
 }
 
 function studentImage(student, manifest, locale, localization, className = "planner-student-photo") {
-  if (!student) return `<span class="${className} is-fallback" aria-hidden="true">?</span>`;
+  if (!student) return `<span class="${className} icon-frame is-fallback" aria-hidden="true">?</span>`;
   const name = localizedName(student, "student", locale, localization);
   const source = manifest?.entries?.[`student:${student.student_id}`]
     ?? manifest?.entries?.[`student-collection:${student.student_id}`];
@@ -31,7 +31,7 @@ function studentImage(student, manifest, locale, localization, className = "plan
   const fallbackRemote = student.future_only === true
     ? `https://schaledb.com/images/student/collection/${student.student_id}.webp`
     : `https://schaledb.com/images/student/icon/${student.student_id}.webp`;
-  return `<span class="${className}"><img src="${escapeHtml(source?.local ?? fallbackLocal)}" data-fallback="${escapeHtml(source?.remote ?? fallbackRemote)}" alt="${escapeHtml(name)}" loading="lazy"><span aria-hidden="true">${escapeHtml(name.slice(0, 1))}</span></span>`;
+  return `<span class="${className} icon-frame"><img src="${escapeHtml(source?.local ?? fallbackLocal)}" data-fallback="${escapeHtml(source?.remote ?? fallbackRemote)}" alt="${escapeHtml(name)}" loading="lazy"><span aria-hidden="true">${escapeHtml(name.slice(0, 1))}</span></span>`;
 }
 
 export function plannerStudentLabel(student, locale, localization) {

@@ -75,6 +75,8 @@ assert.doesNotMatch(html, /resource-art-strip/);
 assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
 assert.match(html, /resource-toolbar/);
 assert.doesNotMatch(html, /100000|100008|100009/);
+assert.match(html, /class="icon-frame resource-icon"/);
+assert.doesNotMatch(html, /已确认|用户确认/);
 
 const customFloorHtml = renderResourcesWorkspace({
   data: { giftBoxes: [], unlimitedAssaultRewards: null },
@@ -99,5 +101,36 @@ const customFloorHtml = renderResourcesWorkspace({
 });
 assert.match(customFloorHtml, /<option value="custom" selected>/, "custom floor mode must keep the custom option selected after rerender");
 assert.match(customFloorHtml, /data-resource-amount="monthly-unlimited-assault-gift-boxes" value="107"/, "custom floor input must remain visible with the entered value");
+
+const evidenceExplanationHtml = renderResourcesWorkspace({
+  data: { giftBoxes: [], unlimitedAssaultRewards: null },
+  state: {
+    periodDays: 30,
+    forecastDays: 30,
+    students: [],
+    giftBoxes: {},
+    resources: [{
+      id: "monthly-event-shop-purple-gift-boxes",
+      cadence: "monthly",
+      unit: "gift_box",
+      amount: 4,
+    }],
+  },
+  locale: "zh_cn",
+  evidence: {
+    sources: [{ id: "lead", url: "https://example.com" }],
+    rows: [{
+      resource_id: "monthly-event-shop-purple-gift-boxes",
+      status: "user_confirmed",
+      candidate_value: 4,
+      candidate_unit_zh_cn: "个随机紫色礼物盒/月",
+      candidate_text_zh_cn: "用户确认：活动商店按每月约2次活动折算，每个活动可获得2个随机紫色礼物盒，合计4个/月。",
+      source_id: "lead",
+    }],
+  },
+});
+assert.match(evidenceExplanationHtml, /活动商店按每月约2次活动折算，每个活动可获得2个随机紫色礼物盒，合计4个\/月/);
+assert.match(evidenceExplanationHtml, /来源 ↗/);
+assert.doesNotMatch(evidenceExplanationHtml, /已确认|用户确认|已计入|预填值/);
 
 console.log("resource view tests passed");

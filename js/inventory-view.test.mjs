@@ -4,10 +4,11 @@ import { firstTargetStudent, mappedPreview, renderInventoryWorkspace, renderPeri
 
 const inventoryStyles = fs.readFileSync(new URL("../styles.css", import.meta.url), "utf8");
 assert.match(inventoryStyles, /\.inventory-gift-image\.gift-rarity-sr,\s*\.inventory-gift-image\.gift-rarity-ssr[\s\S]*?background-image:\s*none/, "Inventory gift icons must not inherit pixel rarity backgrounds");
-const resourceIconStyles = inventoryStyles.slice(inventoryStyles.lastIndexOf("/* v54: inventory resource icons use the card surface instead of a decorative block. */"));
-assert.match(resourceIconStyles, /border:\s*0/, "Inventory resource icons must not have a decorative border");
-assert.match(resourceIconStyles, /background:\s*transparent/, "Inventory resource icons must use the card background");
+const resourceIconStyles = inventoryStyles.slice(inventoryStyles.lastIndexOf("/* v61:"));
+assert.match(resourceIconStyles, /\.icon-frame[\s\S]*background:\s*var\(--paper\)/, "Icon frames must use the shared paper background");
+assert.match(resourceIconStyles, /\.icon-frame[\s\S]*border:\s*1px solid var\(--line\)/, "Resource icons must share the standard border");
 assert.doesNotMatch(resourceIconStyles, /linear-gradient/, "Inventory resource icons must not use the dark gradient background");
+assert.match(resourceIconStyles, /\.inventory-gift-image\.icon-frame\.gift-rarity-sr,[\s\S]*background:\s*var\(--paper\)[\s\S]*border:\s*1px solid var\(--line\)/, "Inventory gift icons must restore the shared frame after rarity overrides");
 assert.match(inventoryStyles, /\.inventory-gift-image\s*>\s*span\[aria-hidden=\"true\"\]\s*\{\s*display:\s*none/, "Inventory gift fallback letters must stay hidden while the image loads");
 assert.match(inventoryStyles, /\.inventory-gift-image\.is-broken\s*>\s*span\[aria-hidden=\"true\"\]\s*\{\s*display:\s*block/, "Inventory gift fallback letters must remain available after both image sources fail");
 
@@ -109,6 +110,7 @@ assert.match(emptyInventoryHtml, /金色礼物自选盒/);
 assert.match(emptyInventoryHtml, /紫色礼物随机盒/);
 assert.match(emptyInventoryHtml, /金色随机礼物池（等效）/);
 assert.doesNotMatch(emptyInventoryHtml, /金色制造石/, "Inventory must not show unused gold manufacturing stones");
+assert.doesNotMatch(emptyInventoryHtml, /class="icon-frame inventory-resource-icon"/, "Stone resources must not wrap a framed icon in another framed icon");
 assert.equal((emptyInventoryHtml.match(/class="inventory-resource-card"/g) ?? []).length, 2, "Inventory should render only the two usable stone resources");
 assert.match(emptyInventoryHtml, /inventory-heading-actions/);
 assert.equal((emptyInventoryHtml.match(/class="inventory-overview"/g) ?? []).length, 1);
