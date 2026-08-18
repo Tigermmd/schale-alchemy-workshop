@@ -1,5 +1,5 @@
-import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
 
 const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold"];
 // In SchaleDB's gift catalog SR is the gold-gift tier; SSR is purple.

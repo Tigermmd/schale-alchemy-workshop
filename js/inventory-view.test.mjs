@@ -9,6 +9,8 @@ assert.match(resourceIconStyles, /\.icon-frame[\s\S]*background:\s*var\(--paper\
 assert.match(resourceIconStyles, /\.icon-frame[\s\S]*border:\s*1px solid var\(--line\)/, "Resource icons must share the standard border");
 assert.doesNotMatch(resourceIconStyles, /linear-gradient/, "Inventory resource icons must not use the dark gradient background");
 assert.match(resourceIconStyles, /\.inventory-gift-image\.icon-frame\.gift-rarity-sr,[\s\S]*background:\s*var\(--paper\)[\s\S]*border:\s*1px solid var\(--line\)/, "Inventory gift icons must restore the shared frame after rarity overrides");
+assert.match(resourceIconStyles, /\.inventory-box-image\s*\{[^}]*width:\s*2\.5rem[^}]*height:\s*2\.5rem[^}]*\}/s, "Gift-box icons must have a fixed frame size");
+assert.match(resourceIconStyles, /\.inventory-box-image\s+img\s*\{[^}]*display:\s*block[^}]*width:\s*100%[^}]*height:\s*100%[^}]*object-fit:\s*contain[^}]*\}/s, "Gift-box images must stay contained inside their fixed frame");
 assert.match(inventoryStyles, /\.inventory-gift-image\s*>\s*span\[aria-hidden=\"true\"\]\s*\{\s*display:\s*none/, "Inventory gift fallback letters must stay hidden while the image loads");
 assert.match(inventoryStyles, /\.inventory-gift-image\.is-broken\s*>\s*span\[aria-hidden=\"true\"\]\s*\{\s*display:\s*block/, "Inventory gift fallback letters must remain available after both image sources fail");
 

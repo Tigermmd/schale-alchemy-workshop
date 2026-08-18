@@ -3135,3 +3135,33 @@ details > summary { color: #21679f; font-weight: 800; }
 @media (max-width: 620px) {
   .planner-detail-metric-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* v107: gift-box artwork must stay inside the same compact frame as other inventory icons. */
+.inventory-box-image {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+}
+
+.inventory-box-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.inventory-box-identity,
+.inventory-pool-heading {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+}
+
+.inventory-box-identity strong,
+.inventory-pool-heading strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

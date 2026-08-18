@@ -1,7 +1,7 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
-import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
 
 function escapeHtml(value) {
   return String(value ?? "")
