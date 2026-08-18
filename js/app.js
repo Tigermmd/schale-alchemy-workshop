@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v106";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -622,6 +622,58 @@ function rerenderInventoryFilter(input) {
   });
 }
 
+const INVENTORY_CONTROL_ATTRIBUTES = [
+  "data-inventory-gift",
+  "data-gift-box-count",
+  "data-stock-resource",
+  "data-equivalent-pool",
+];
+
+function inventoryControlDescriptor(input) {
+  const attribute = INVENTORY_CONTROL_ATTRIBUTES.find((name) => input?.hasAttribute(name));
+  return attribute ? { attribute, value: input.getAttribute(attribute) } : null;
+}
+
+function captureInventoryView(input) {
+  return {
+    scrollX: window.scrollX,
+    scrollY: window.scrollY,
+    detailScrollLeft: elements.detail.scrollLeft,
+    detailScrollTop: elements.detail.scrollTop,
+    details: [...elements.detail.querySelectorAll("details")].map((detail) => detail.open),
+    control: inventoryControlDescriptor(input),
+  };
+}
+
+function restoreInventoryView(snapshot) {
+  const restore = () => {
+    [...elements.detail.querySelectorAll("details")].forEach((detail, index) => {
+      if (snapshot.details[index] !== undefined) detail.open = snapshot.details[index];
+    });
+    window.scrollTo({ top: snapshot.scrollY, left: snapshot.scrollX, behavior: "auto" });
+    elements.detail.scrollTo?.({
+      top: snapshot.detailScrollTop,
+      left: snapshot.detailScrollLeft,
+      behavior: "auto",
+    });
+    if (snapshot.control) {
+      const control = [...elements.detail.querySelectorAll("input")].find((candidate) =>
+        candidate.hasAttribute(snapshot.control.attribute)
+        && candidate.getAttribute(snapshot.control.attribute) === snapshot.control.value
+      );
+      control?.focus({ preventScroll: true });
+    }
+  };
+  restore();
+  window.requestAnimationFrame(restore);
+}
+
+function rerenderInventoryAfterEdit(input) {
+  const snapshot = captureInventoryView(input);
+  renderActiveWorkbench();
+  restoreInventoryView(snapshot);
+}
+
 elements.directoryToggle?.addEventListener("click", () => {
   setDirectoryCollapsed(!elements.dashboard.classList.contains("directory-collapsed"));
 });
@@ -890,19 +942,19 @@ elements.detail.addEventListener("change", (event) => {
   const inventoryGiftInput = event.target.closest("[data-inventory-gift]");
   if (inventoryGiftInput) {
     state.planner = writePlannerState(window.localStorage, setInventoryCount(state.planner, inventoryGiftInput.dataset.inventoryGift, inventoryGiftInput.value));
-    renderActiveWorkbench();
+    rerenderInventoryAfterEdit(inventoryGiftInput);
     return;
   }
   const stockInput = event.target.closest("[data-stock-resource]");
   if (stockInput) {
     state.planner = writePlannerState(window.localStorage, setStockResourceCount(state.planner, stockInput.dataset.stockResource, stockInput.value));
-    renderActiveWorkbench();
+    rerenderInventoryAfterEdit(stockInput);
     return;
   }
   const poolInput = event.target.closest("[data-equivalent-pool]");
   if (poolInput) {
     state.planner = writePlannerState(window.localStorage, setEquivalentGiftPoolCount(state.planner, poolInput.dataset.equivalentPool, poolInput.value));
-    renderActiveWorkbench();
+    rerenderInventoryAfterEdit(poolInput);
     return;
   }
   const resourceInput = event.target.closest("[data-resource-amount]");
@@ -927,7 +979,7 @@ elements.detail.addEventListener("change", (event) => {
   const giftBoxInput = event.target.closest("[data-gift-box-count]");
   if (giftBoxInput) {
     state.planner = writePlannerState(window.localStorage, setGiftBoxCount(state.planner, giftBoxInput.dataset.giftBoxCount, giftBoxInput.value));
-    renderActiveWorkbench();
+    rerenderInventoryAfterEdit(giftBoxInput);
     return;
   }
   const periodInput = event.target.closest("[data-period-days]");

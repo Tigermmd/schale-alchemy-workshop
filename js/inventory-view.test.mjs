@@ -109,6 +109,10 @@ assert.match(emptyInventoryHtml, /data-inventory-filter="onlyOwned"(?![^>]*check
 assert.match(emptyInventoryHtml, /金色礼物自选盒/);
 assert.match(emptyInventoryHtml, /紫色礼物随机盒/);
 assert.match(emptyInventoryHtml, /金色随机礼物池（等效）/);
+assert.ok(
+  emptyInventoryHtml.indexOf('id="inventory-box-title"') < emptyInventoryHtml.indexOf('class="inventory-more-details"'),
+  "Gift boxes must be visible before the collapsed secondary inventory tools",
+);
 assert.doesNotMatch(emptyInventoryHtml, /金色制造石/, "Inventory must not show unused gold manufacturing stones");
 assert.doesNotMatch(emptyInventoryHtml, /class="icon-frame inventory-resource-icon"/, "Stone resources must not wrap a framed icon in another framed icon");
 assert.equal((emptyInventoryHtml.match(/class="inventory-resource-card"/g) ?? []).length, 2, "Inventory should render only the two usable stone resources");
