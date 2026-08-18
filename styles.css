@@ -743,6 +743,15 @@ textarea::placeholder { color: #9aabba; }
 
 .image-frame.is-broken img { display: none; }
 
+.student-avatar.image-frame.is-broken .image-fallback,
+.node-image.image-frame.is-broken .image-fallback,
+.gift-image.image-frame.is-broken .image-fallback,
+.reaction-face.image-frame.is-broken .image-fallback {
+  display: grid;
+  inset: 0;
+  place-items: center;
+}
+
 /* Relationship catalogue */
 .profile-panel {
   display: grid;

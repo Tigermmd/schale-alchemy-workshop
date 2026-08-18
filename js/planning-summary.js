@@ -1,8 +1,8 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { isGoldGift } from "./inventory-state.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { isGoldGift } from "./inventory-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);

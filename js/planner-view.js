@@ -1,7 +1,7 @@
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
 
 function escapeHtml(value) {
   return String(value ?? "")
