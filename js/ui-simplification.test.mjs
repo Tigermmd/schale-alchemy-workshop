@@ -19,8 +19,9 @@ const i18n = read("js/i18n.js");
 
 assert.doesNotMatch(indexHtml, /id="option-count"/, "隐藏的制造节点计数不应继续留在页面壳层");
 assert.doesNotMatch(indexHtml, /id="brand-eyebrow"/, "品牌眉题不应与主标题重复");
-assert.match(indexHtml, /class="brand-glyph"[^>]*><img src="\.\/assets\/students\/10059\.webp"/, "侧栏品牌图标应使用原皮未花头像");
-assert.match(indexHtml, /class="header-mark"[^>]*><img src="\.\/assets\/students\/10059\.webp"/, "顶部品牌图标应使用原皮未花头像");
+assert.match(indexHtml, /data-brand-avatar/, "品牌头像应由应用层动态挂载并支持选择");
+assert.match(appJs, /readBrandStudentId|renderBrandAvatar/, "应用层应读取并更新品牌头像");
+assert.doesNotMatch(indexHtml, /kivo-loading\.gif/, "加载状态不应继续捆绑 Kivo 加载图");
 assert.doesNotMatch(indexHtml, /class="brand-glyph"[^>]*><span>S<\/span>/, "侧栏不应继续使用 S 字母图标");
 assert.doesNotMatch(indexHtml, /placeholder="搜索中文名 \/ English \/ ID"/, "学生搜索框不应把内部 ID 作为用户入口文案");
 assert.doesNotMatch(appJs, /elements\.optionCount/, "应用层不应继续写入已移除的隐藏节点计数");

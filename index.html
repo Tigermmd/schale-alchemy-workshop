@@ -13,7 +13,7 @@
   <body>
     <div class="app-shell" id="app">
       <div class="loading-state" id="loading-state" role="status" aria-live="polite">
-        <span class="loading-mark" aria-hidden="true"><img src="./assets/ui/kivo-loading.gif" alt="" /></span>
+        <span class="loading-mark" aria-hidden="true"><span class="loading-orbit"></span></span>
         <div>
           <strong id="loading-title">正在加载数据</strong>
           <p id="loading-description">学生、礼物、制造数据</p>
@@ -26,7 +26,7 @@
       <main class="dashboard" id="dashboard" hidden>
         <aside class="app-rail" aria-label="工作区导航">
           <div class="rail-brand" aria-label="Schale">
-            <span class="brand-glyph" aria-hidden="true"><img src="./assets/students/10059.webp" alt="" /></span>
+            <button class="brand-glyph" type="button" data-brand-avatar aria-haspopup="dialog" aria-controls="brand-avatar-dialog" aria-label="品牌头像" title="品牌头像"><span class="brand-avatar-fallback" aria-hidden="true">未</span></button>
             <span class="rail-brand-name">SCHALE</span>
           </div>
           <div id="workbench-nav"></div>
@@ -42,7 +42,7 @@
               <span class="status-dot" aria-hidden="true"></span>
               <span id="header-meta-copy">SchaleDB CN · — 学生条目</span>
               <div class="language-switcher" id="language-switcher" role="group" aria-label="语言"></div>
-              <span class="header-mark" aria-hidden="true"><img src="./assets/students/10059.webp" alt="" /></span>
+              <span class="header-mark" data-brand-avatar aria-hidden="true"><span class="brand-avatar-fallback" aria-hidden="true">未</span></span>
             </div>
           </header>
           <div class="dashboard-layout">
@@ -55,6 +55,14 @@
           </div>
         </div>
       </main>
+      <dialog class="brand-avatar-dialog" id="brand-avatar-dialog" aria-labelledby="brand-avatar-dialog-title">
+        <div class="brand-avatar-dialog-head">
+          <div><span class="dialog-kicker" id="brand-avatar-dialog-kicker">SCHALE</span><h2 id="brand-avatar-dialog-title">选择品牌头像</h2></div>
+          <button class="icon-button" type="button" data-brand-avatar-close aria-label="关闭">×</button>
+        </div>
+        <label class="brand-avatar-search"><span class="sr-only" id="brand-avatar-search-label">搜索学生</span><input id="brand-avatar-search" type="search" autocomplete="off" placeholder="搜索学生" /></label>
+        <div class="brand-avatar-options" id="brand-avatar-options" role="listbox" aria-label="选择品牌头像"></div>
+      </dialog>
     </div>
   </body>
 </html>

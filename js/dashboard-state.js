@@ -1,3 +1,33 @@
+export const DEFAULT_BRAND_STUDENT_ID = "10059";
+export const BRAND_STUDENT_STORAGE_KEY = "schale-brand-student-id";
+
+export function normalizeBrandStudentId(value, students = []) {
+  const candidate = String(value ?? "").trim();
+  const available = new Set((students ?? []).map((student) => String(student.student_id)));
+  if (candidate && available.has(candidate)) return candidate;
+  return DEFAULT_BRAND_STUDENT_ID;
+}
+
+export function readBrandStudentId(storage, students = []) {
+  let stored = null;
+  try {
+    stored = storage?.getItem(BRAND_STUDENT_STORAGE_KEY);
+  } catch {
+    stored = null;
+  }
+  return normalizeBrandStudentId(stored, students);
+}
+
+export function writeBrandStudentId(storage, value, students = []) {
+  const normalized = normalizeBrandStudentId(value, students);
+  try {
+    storage?.setItem(BRAND_STUDENT_STORAGE_KEY, normalized);
+  } catch {
+    // Local storage is optional; the in-memory state still updates.
+  }
+  return normalized;
+}
+
 export function filterStudents(students, query, localization) {
   const normalized = query.trim().toLocaleLowerCase();
   if (!normalized) return students;

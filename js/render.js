@@ -160,6 +160,25 @@ export function renderStudentList({ container, students, selectedId, manifest, l
   `).join("");
 }
 
+export function renderBrandStudentOptions({ students = [], selectedId = "", manifest, locale = "zh_cn", localization }) {
+  if (!students.length) {
+    return `<div class="brand-avatar-empty" role="status">${escapeHtml(t(locale, "noMatchHint"))}</div>`;
+  }
+  return students.map((student) => {
+    const id = String(student.student_id);
+    const name = localizedName(student, "student", locale, localization);
+    const secondaryName = locale === "en"
+      ? student.name_zh_cn
+      : student.name_en;
+    const isSelected = id === String(selectedId);
+    return `<button type="button" class="brand-avatar-option" data-brand-student-id="${escapeHtml(id)}" role="option" aria-pressed="${isSelected}">
+      ${studentImage(student, manifest, locale, localization)}
+      <span class="brand-avatar-option-copy"><strong>${escapeHtml(name)}</strong>${secondaryName && secondaryName !== name ? `<small>${escapeHtml(secondaryName)}</small>` : ""}</span>
+      ${isSelected ? `<span class="brand-avatar-option-state">${escapeHtml(t(locale, "brandAvatarSelected"))}</span>` : ""}
+    </button>`;
+  }).join("");
+}
+
 function renderProfileGift(value, gift, manifest, locale, localization) {
   if (!gift) return "";
   const giftName = localizedName(gift, "gift", locale, localization);

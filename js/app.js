@@ -1,5 +1,5 @@
 import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { filterStudents, getCraftingMechanismSummary, readPackageTargetStudentId, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-zero-day-v96";
@@ -8,7 +8,7 @@ import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace,
 import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-zero-day-v96";
-import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-zero-day-v96";
 import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-zero-day-v96";
@@ -36,6 +36,14 @@ const elements = {
   studentList: document.querySelector("#student-list"),
   detail: document.querySelector("#detail-column"),
   workbenchNav: document.querySelector("#workbench-nav"),
+  brandAvatarSlots: document.querySelectorAll("[data-brand-avatar]"),
+  brandAvatarDialog: document.querySelector("#brand-avatar-dialog"),
+  brandAvatarDialogTitle: document.querySelector("#brand-avatar-dialog-title"),
+  brandAvatarDialogKicker: document.querySelector("#brand-avatar-dialog-kicker"),
+  brandAvatarSearch: document.querySelector("#brand-avatar-search"),
+  brandAvatarSearchLabel: document.querySelector("#brand-avatar-search-label"),
+  brandAvatarOptions: document.querySelector("#brand-avatar-options"),
+  brandAvatarClose: document.querySelector("[data-brand-avatar-close]"),
 };
 
 const WORKBENCHES = new Set(["relationship", "planner", "inventory", "resources", "packages", "agent"]);
@@ -78,6 +86,8 @@ const state = {
   inventoryFilters: { query: "", rarity: "all", exp: "all", onlyOwned: true },
   inventoryNotice: "",
   packageTargetStudentId: null,
+  brandStudentId: "10059",
+  brandAvatarQuery: "",
   plannerNotice: "",
   agent: { baseUrl: "", model: "", configured: false, messages: [], proposal: null, busy: false, notice: "" },
 };
@@ -89,6 +99,66 @@ function renderLanguageSwitcher() {
     <button type="button" class="language-option ${state.locale === option.id ? "is-active" : ""}" data-locale="${option.id}" aria-pressed="${state.locale === option.id}">${option.label}</button>
   `).join("");
   elements.languageSwitcher.setAttribute("aria-label", t(state.locale, "languageLabel"));
+}
+
+function brandStudent() {
+  return data?.studentById.get(String(state.brandStudentId));
+}
+
+function renderBrandAvatar() {
+  const student = brandStudent();
+  if (!student) return;
+  const name = localizedName(student, "student", state.locale, data.localization);
+  const entry = data.assetManifest?.entries?.[`student:${student.student_id}`];
+  for (const slot of elements.brandAvatarSlots) {
+    slot.replaceChildren();
+    const image = document.createElement("img");
+    const fallback = document.createElement("span");
+    image.alt = name;
+    image.loading = "eager";
+    image.addEventListener("load", () => { fallback.hidden = true; });
+    image.addEventListener("error", () => {
+      if (image.dataset.remoteTried !== "true" && (entry?.remote || !image.dataset.fallback)) {
+        image.dataset.remoteTried = "true";
+        image.src = entry?.remote ?? `https://schaledb.com/images/student/icon/${student.student_id}.webp`;
+        return;
+      }
+      image.hidden = true;
+      fallback.hidden = false;
+    });
+    fallback.className = "brand-avatar-fallback";
+    fallback.textContent = name.slice(0, 1);
+    fallback.hidden = true;
+    image.src = entry?.local ?? `./assets/students/${student.student_id}.webp`;
+    slot.append(image, fallback);
+    if (slot.matches("button")) {
+      slot.setAttribute("aria-label", t(state.locale, "brandAvatarButton", name));
+      slot.setAttribute("title", t(state.locale, "brandAvatarButton", name));
+    }
+  }
+}
+
+function renderBrandAvatarOptions() {
+  if (!data || !elements.brandAvatarOptions) return;
+  const students = filterStudents(data.students, state.brandAvatarQuery, data.localization);
+  elements.brandAvatarOptions.innerHTML = renderBrandStudentOptions({
+    students,
+    selectedId: state.brandStudentId,
+    manifest: data.assetManifest,
+    locale: state.locale,
+    localization: data.localization,
+  });
+  wireImageFallbacks(elements.brandAvatarOptions);
+}
+
+function openBrandAvatarDialog() {
+  state.brandAvatarQuery = "";
+  if (elements.brandAvatarSearch) elements.brandAvatarSearch.value = "";
+  renderBrandAvatarOptions();
+  if (typeof elements.brandAvatarDialog?.showModal === "function") {
+    elements.brandAvatarDialog.showModal();
+    elements.brandAvatarSearch?.focus({ preventScroll: true });
+  }
 }
 
 function applyLocaleChrome() {
@@ -105,7 +175,17 @@ function applyLocaleChrome() {
   elements.studentSearch.placeholder = t(state.locale, "searchPlaceholder");
   elements.studentSearchLabel.textContent = t(state.locale, "studentDirectory");
   elements.studentList.setAttribute("aria-label", t(state.locale, "searchAria"));
+  if (elements.brandAvatarDialogTitle) elements.brandAvatarDialogTitle.textContent = t(state.locale, "brandAvatarDialogTitle");
+  if (elements.brandAvatarDialogKicker) elements.brandAvatarDialogKicker.textContent = t(state.locale, "brandAvatarLabel");
+  if (elements.brandAvatarSearch) elements.brandAvatarSearch.placeholder = t(state.locale, "brandAvatarSearch");
+  if (elements.brandAvatarSearchLabel) elements.brandAvatarSearchLabel.textContent = t(state.locale, "brandAvatarSearch");
+  if (elements.brandAvatarOptions) elements.brandAvatarOptions.setAttribute("aria-label", t(state.locale, "brandAvatarDialogTitle"));
+  if (elements.brandAvatarClose) elements.brandAvatarClose.setAttribute("aria-label", t(state.locale, "brandAvatarClose"));
   renderLanguageSwitcher();
+  if (data) {
+    renderBrandAvatar();
+    if (elements.brandAvatarDialog?.open) renderBrandAvatarOptions();
+  }
 }
 
 function showError(error) {
@@ -415,6 +495,7 @@ async function bootstrap() {
       : state.planner.mainTargetStudentId && data.studentById.has(String(state.planner.mainTargetStudentId))
         ? String(state.planner.mainTargetStudentId)
         : readSelectedStudentId(window.location.search, data.students);
+    state.brandStudentId = readBrandStudentId(window.localStorage, data.students);
     if (state.workbench === "relationship" && window.matchMedia("(max-width: 1100px)").matches) setDirectoryCollapsed(true);
     applyLocaleChrome();
     renderDirectory();
@@ -450,6 +531,27 @@ elements.studentList.addEventListener("click", (event) => {
       window.setTimeout(() => elements.detail.scrollIntoView({ block: "start", behavior: "smooth" }), 0);
     }
   }
+});
+
+elements.brandAvatarSlots.forEach((slot) => {
+  if (!slot.matches("button")) return;
+  slot.addEventListener("click", openBrandAvatarDialog);
+});
+
+elements.brandAvatarClose?.addEventListener("click", () => elements.brandAvatarDialog?.close());
+
+elements.brandAvatarSearch?.addEventListener("input", () => {
+  state.brandAvatarQuery = elements.brandAvatarSearch.value;
+  renderBrandAvatarOptions();
+});
+
+elements.brandAvatarOptions?.addEventListener("click", (event) => {
+  const option = event.target.closest("[data-brand-student-id]");
+  if (!option) return;
+  state.brandStudentId = writeBrandStudentId(window.localStorage, option.dataset.brandStudentId, data.students);
+  state.brandAvatarQuery = "";
+  renderBrandAvatar();
+  elements.brandAvatarDialog?.close();
 });
 
 function setDirectoryCollapsed(collapsed) {
