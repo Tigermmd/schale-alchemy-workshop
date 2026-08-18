@@ -1,12 +1,12 @@
 # 第三方内容说明
 
-本文件说明仓库中随项目提供的第三方数据、图片和游戏内容。根目录的 `LICENSE` 只适用于本项目自行编写的 HTML、CSS、JavaScript、Python、测试和文档代码，不自动适用于下列内容。
+根目录 `LICENSE` 适用于本项目自行编写的代码和文档。仓库中的游戏数据、图片、角色内容、商标和网站资源保留各自权利人的权利。
 
 ## SchaleDB
 
-学生、礼物、制造节点、好感数据，以及大部分学生头像、礼物图标和界面资源，来自 [SchaleDB](https://schaledb.com/) 的公开数据和图片地址。当前本地快照的抓取时间记录在 `assets/manifest.json` 和 `relationship_data/*.json` 的 `retrieved_at`、`as_of` 或 `scope.as_of` 字段中。
+学生、礼物、制造节点和好感数据，以及大部分学生头像、礼物图标和界面资源，来自 [SchaleDB](https://schaledb.com/) 的公开数据与图片地址。快照时间记录在 `assets/manifest.json` 和 `relationship_data/*.json` 的 `source`、`retrieved_at`、`as_of` 或 `scope.as_of` 字段中。
 
-对应来源包括：
+相关来源：
 
 - <https://schaledb.com/data/jp/students.min.json>
 - <https://schaledb.com/data/cn/students.min.json>
@@ -14,21 +14,24 @@
 - <https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/data/crafting_cn.json>
 - <https://schaledb.com/images/>
 
-SchaleDB 仓库当前没有随 GitHub API 返回的标准开源许可证声明；因此本项目不声称这些游戏数据或图片已获得 MIT 授权。需要再分发、部署或制作衍生站点时，请自行核对 SchaleDB 的当前说明及其上游权利边界。
+SchaleDB 数据和图片的授权范围请以其当前仓库、网站说明和上游权利边界为准。项目不将这些内容纳入 MIT License。
 
-## Kivo Wiki 与 arona.icu
+## arona.icu 与 Kivo Wiki
 
-本版本不再随仓库捆绑 Kivo Wiki、arona.icu 的网站专属图片、头像、加载图、反应图标或装饰资源。两者仅作为交互参考来源；项目没有复制其网站代码，参考关系不代表合作、授权或从属关系。
+[arona.icu](https://arona.icu/) 和 [Kivo Wiki](https://kivo.wiki/) 为交互设计与数据格式的参考来源。项目使用 arona.icu 兼容的库存 JSON 格式，并保留对应的导入/导出能力。仓库不包含这些网站的代码、专属装饰或网站品牌资源。
 
-库存 JSON 的 Arona.icu 兼容导入仍保留，这是数据格式兼容，不代表导入文件中的第三方内容取得了本项目许可。
+参考关系不表示合作、授权或从属关系。
 
-## 《蔚蓝档案》及国服官网资源
+## 《蔚蓝档案》内容
 
-角色、礼物、图标、文字、美术和其他游戏内容属于其各自权利人。本版本不再捆绑国服官网的专属静态资源；《蔚蓝档案》是相关权利人的作品和商标。本项目是非官方玩家工具，不代表 NEXON、国服运营方或其他官方机构。
+《蔚蓝档案》的角色、礼物、图标、文字、美术、商标和其他游戏内容属于相关权利人。本项目是非官方玩家工具，不代表 NEXON、国服运营方或其他官方机构。
 
-## 使用边界
+## 国服官网与社区资料
 
-- 不要把第三方数据、图片、角色内容或商标当作本项目 MIT 代码使用许可的一部分。
-- 发布本项目的源码版本时，请保留本文件和对应来源字段。
-- 对外公开部署前，请根据各来源网站当前的服务条款和权利人要求确认图片是否可以继续随仓库分发；无法确认的资源应改为运行时链接、替换或移除。
-- 如果你是相关权利人并希望修改来源标注或移除资源，请通过项目仓库 Issue 联系维护者。
+国服公告链接、中文社区资料和玩家填写值用于记录国服资源口径。每条记录的来源、日期和适用范围保存在对应数据文件中。
+
+## 使用提示
+
+- MIT License 仅覆盖本项目自行编写的代码和文档；
+- 对外部署或再分发缓存图片前，请核对各来源当前的服务条款和权利要求；
+- 相关权利人如需修改来源标注或移除资源，可以通过项目仓库 Issue 联系维护者。
