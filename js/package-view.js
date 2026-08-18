@@ -1,7 +1,7 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
 
 function escapeHtml(value) {
   return String(value ?? "")

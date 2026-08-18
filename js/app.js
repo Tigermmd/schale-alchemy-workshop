@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -89,10 +89,18 @@ const state = {
   brandStudentId: "10059",
   brandAvatarQuery: "",
   plannerNotice: "",
-  agent: { baseUrl: "", model: "", configured: false, messages: [], proposal: null, busy: false, notice: "" },
+  agent: { baseUrl: "", model: "", configured: false, messages: [], proposal: null, workingChanges: [], workingPlannerState: null, busy: false, notice: "" },
 };
 
 let data;
+
+function agentPlannerState() {
+  return state.agent.workingPlannerState ? normalizePlannerState(state.agent.workingPlannerState) : state.planner;
+}
+
+function discardAgentWorkingCopy() {
+  state.agent = { ...state.agent, workingChanges: [], workingPlannerState: null, proposal: null };
+}
 
 function renderLanguageSwitcher() {
   elements.languageSwitcher.innerHTML = LANGUAGE_OPTIONS.map((option) => `
@@ -307,7 +315,7 @@ function renderActiveWorkbench({ resetScroll = false, focusResourceId = null } =
     return;
   }
   if (state.workbench === "agent") {
-    const context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
+    const context = buildAgentContext(agentPlannerState(), { workbench: state.workbench }, data, {
       conversation: state.agent.messages,
       locale: state.locale,
     });
@@ -392,6 +400,7 @@ async function sendAgentMessage(form) {
   const message = String(values.get("message") || "").trim();
   const sameConfiguredProxy = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.baseUrl, configuredModel: state.agent.model, baseUrl: settings?.baseUrl, model: settings?.model });
   if (!settings?.baseUrl || !settings?.model || (!settings?.apiKey && !sameConfiguredProxy) || !message) { state.agent.notice = t(state.locale, "agentNeedSettings"); renderActiveWorkbench(); return; }
+  const workingPlannerState = agentPlannerState();
   const nextMessages = [...state.agent.messages, { role: "user", content: message }];
   state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, messages: nextMessages, busy: true, activityKey: "agentActivityPreparing", notice: "" };
   renderActiveWorkbench();
@@ -401,7 +410,7 @@ async function sendAgentMessage(form) {
     updateAgentActivity("agentActivityGifts");
     await yieldToBrowser();
     updateAgentActivity("agentActivityResources");
-    context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
+    context = buildAgentContext(workingPlannerState, { workbench: state.workbench }, data, {
       message,
       conversation: state.agent.messages.slice(0, -1),
       locale: state.locale,
@@ -413,10 +422,24 @@ async function sendAgentMessage(form) {
     updateAgentActivity("agentActivityReview");
     await yieldToBrowser();
     let proposal = null;
+    let nextWorkingPlannerState = workingPlannerState;
+    let nextWorkingChanges = Array.isArray(state.agent.workingChanges) ? state.agent.workingChanges : [];
+    let nextProposal = state.agent.proposal;
     if (result.proposal) {
-      const validation = validatePlanningProposal(result.proposal, { state: state.planner, data });
-      proposal = validation.ok ? result.proposal : null;
-      if (!validation.ok) state.agent.notice = `${t(state.locale, "agentInvalidProposal")} ${validation.errors.join("; ")}`;
+      const validation = validatePlanningProposal(result.proposal, { state: workingPlannerState, data });
+      if (validation.ok) {
+        const staged = stagePlanningProposal(workingPlannerState, result.proposal, { data });
+        if (staged.ok) {
+          proposal = mergePlanningProposals(state.agent.proposal, result.proposal);
+          nextProposal = proposal;
+          nextWorkingChanges = proposal.changes;
+          nextWorkingPlannerState = staged.state;
+        } else {
+          state.agent.notice = `${t(state.locale, "agentInvalidProposal")} ${staged.errors.join("; ")}`;
+        }
+      } else {
+        state.agent.notice = `${t(state.locale, "agentInvalidProposal")} ${validation.errors.join("; ")}`;
+      }
     }
     state.agent = {
       ...state.agent,
@@ -425,7 +448,9 @@ async function sendAgentMessage(form) {
         content: String(result.answer || ""),
         questions: Array.isArray(result.questions) ? result.questions : [],
       }],
-      proposal: result.needs_user_input === true ? null : proposal,
+      proposal: result.needs_user_input === true ? nextProposal : (proposal ?? nextProposal),
+      workingChanges: nextWorkingChanges,
+      workingPlannerState: nextWorkingPlannerState,
       busy: false,
       activityKey: "",
     };
@@ -440,7 +465,7 @@ function applyAgentChanges(indices) {
   const result = applyPlanningProposal(state.planner, { ...proposal, changes }, { data });
   if (!result.ok) { state.agent.notice = t(state.locale, "agentInvalidProposal"); renderActiveWorkbench(); return; }
   state.planner = writePlannerState(window.localStorage, result.state);
-  state.agent = { ...state.agent, proposal: null, notice: t(state.locale, "agentApplied") };
+  state.agent = { ...state.agent, proposal: null, workingChanges: [], workingPlannerState: null, notice: t(state.locale, "agentApplied") };
   renderActiveWorkbench();
 }
 
@@ -614,6 +639,7 @@ elements.detail.addEventListener("click", (event) => {
   }
   const goPlanner = event.target.closest("[data-go-planner]");
   if (goPlanner) {
+    discardAgentWorkingCopy();
     state.workbench = "planner";
     writeWorkbench(state.workbench);
     renderActiveWorkbench();
@@ -637,7 +663,7 @@ elements.detail.addEventListener("click", (event) => {
     return;
   }
   if (event.target.closest("[data-agent-apply-all]")) { applyAgentChanges((state.agent.proposal?.changes ?? []).map((_, index) => index)); return; }
-  if (event.target.closest("[data-agent-reject]")) { state.agent = { ...state.agent, proposal: null, notice: t(state.locale, "agentRejected") }; renderActiveWorkbench(); return; }
+  if (event.target.closest("[data-agent-reject]")) { state.agent = { ...state.agent, proposal: null, workingChanges: [], workingPlannerState: null, notice: t(state.locale, "agentRejected") }; renderActiveWorkbench(); return; }
   if (event.target.closest("[data-inventory-show-all]")) {
     state.inventoryFilters = { ...state.inventoryFilters, onlyOwned: false };
     renderActiveWorkbench();
@@ -824,6 +850,7 @@ elements.detail.addEventListener("input", (event) => {
 elements.workbenchNav.addEventListener("click", (event) => {
   const button = event.target.closest("[data-workbench]");
   if (!button || !WORKBENCHES.has(button.dataset.workbench)) return;
+  if (state.workbench === "agent" && button.dataset.workbench !== "agent") discardAgentWorkingCopy();
   state.workbench = button.dataset.workbench;
   writeWorkbench(state.workbench);
   if (state.workbench === "relationship" && window.matchMedia("(max-width: 820px)").matches) setDirectoryCollapsed(true);
@@ -833,6 +860,7 @@ elements.workbenchNav.addEventListener("click", (event) => {
 elements.workbenchNav.addEventListener("change", (event) => {
   const select = event.target.closest("[data-workbench-select]");
   if (!select || !WORKBENCHES.has(select.value)) return;
+  if (state.workbench === "agent" && select.value !== "agent") discardAgentWorkingCopy();
   state.workbench = select.value;
   writeWorkbench(state.workbench);
   if (state.workbench === "relationship" && window.matchMedia("(max-width: 820px)").matches) setDirectoryCollapsed(true);

@@ -1,5 +1,5 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
 
 export const DEFAULT_AGENT_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_AGENT_MODEL = "deepseek-v4-flash";
@@ -18,15 +18,20 @@ function formatJson(value) {
 }
 
 function changeLabel(change, data, locale, localization) {
-  if (change.kind === "set_student_target") {
+  const studentName = () => {
     const student = data?.cutoffStudentById?.get(String(change.studentId)) ?? data?.studentById?.get(String(change.studentId));
-    return t(locale, "agentChangeStudentTarget", localizedName(student, "student", locale, localization), change.targetLevel);
-  }
+    return localizedName(student, "student", locale, localization);
+  };
+  if (change.kind === "set_student_target") return t(locale, "agentChangeStudentTarget", studentName(), change.targetLevel);
+  if (change.kind === "add_student_goal") return t(locale, "agentChangeAddStudentGoal", studentName(), change.targetLevel);
+  if (change.kind === "update_student_goal") return t(locale, "agentChangeUpdateStudentGoal", studentName(), change.targetLevel ?? "—");
+  if (change.kind === "remove_student_goal") return t(locale, "agentChangeRemoveStudentGoal", studentName());
+  if (change.kind === "set_main_target") return change.studentId === null ? t(locale, "agentChangeClearMainTarget") : t(locale, "agentChangeMainTarget", studentName());
   if (change.kind === "set_forecast_days") return t(locale, "agentChangeForecastDays", change.value);
   if (change.kind === "set_cn_cutoff_student") {
-    const student = data?.cutoffStudentById?.get(String(change.studentId)) ?? data?.studentById?.get(String(change.studentId));
-    return t(locale, "agentChangeCnCutoff", localizedName(student, "student", locale, localization));
+    return t(locale, "agentChangeCnCutoff", studentName());
   }
+  if (change.kind === "reorder_student_goals") return t(locale, "agentChangeReorderStudents", (change.studentIds ?? []).join(", "));
   return String(change.kind ?? "");
 }
 

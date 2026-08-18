@@ -26,6 +26,28 @@ const configuredHtml = renderAgentWorkspace({
 assert.doesNotMatch(configuredHtml, /agent-visual-anchors|momotalk\.png|arona-avatar-1\.png/);
 assert.match(configuredHtml, /class="agent-chat"/);
 
+const proposalHtml = renderAgentWorkspace({
+  locale: "zh_cn",
+  state: {
+    messages: [], proposal: {
+      type: "planning_proposal",
+      summary: "调整规划",
+      changes: [
+        { kind: "add_student_goal", studentId: 10000, targetLevel: 80 },
+        { kind: "update_student_goal", studentId: 10000, targetLevel: 90 },
+        { kind: "remove_student_goal", studentId: 10000 },
+        { kind: "set_main_target", studentId: 10000 },
+        { kind: "reorder_student_goals", studentIds: [10000] },
+      ],
+    }, configured: true, baseUrl: "https://api.example.com", model: "test-model", notice: "", busy: false,
+  },
+  data: { localization: {}, studentById: new Map([["10000", { name_zh_cn: "爱露" }]]) },
+  context: { students: [{ studentId: 10000, names: { zh_cn: "爱露" } }], plannerState: { inventory: {}, students: [] }, calculatedResults: { giftPlanning: { projections: [] } }, disclosure: {} },
+});
+assert.match(proposalHtml, /添加 爱露/);
+assert.match(proposalHtml, /移除 爱露/);
+assert.match(proposalHtml, /设为主目标/);
+
 const busyHtml = renderAgentWorkspace({
   locale: "zh_cn",
   state: { messages: [{ role: "user", content: "帮我规划" }], proposal: null, configured: true, baseUrl: "https://api.example.com", model: "test-model", notice: "", busy: true, activityKey: "agentActivityResources" },

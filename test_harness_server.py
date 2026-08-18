@@ -56,6 +56,32 @@ class HarnessContractTests(unittest.TestCase):
             "changes": [{"kind": "set_forecast_days", "value": 60, "inventory": {}}],
         }))
 
+    def test_proposal_sanitizer_accepts_working_planner_actions(self):
+        proposal = harness_server.sanitize_proposal({
+            "type": "planning_proposal",
+            "summary": "重排学生目标",
+            "changes": [
+                {"kind": "add_student_goal", "studentId": 10122, "currentLevel": 1, "currentProgress": 0, "targetLevel": 100},
+                {"kind": "update_student_goal", "studentId": 10122, "targetLevel": 80},
+                {"kind": "remove_student_goal", "studentId": 10001},
+                {"kind": "set_main_target", "studentId": 10122},
+                {"kind": "reorder_student_goals", "studentIds": [10122]},
+            ],
+            "assumptions": [],
+            "warnings": [],
+        })
+        self.assertEqual([item["kind"] for item in proposal["changes"]], [
+            "add_student_goal", "update_student_goal", "remove_student_goal", "set_main_target", "reorder_student_goals",
+        ])
+        self.assertIsNone(harness_server.sanitize_proposal({
+            "type": "planning_proposal",
+            "changes": [{"kind": "reorder_student_goals", "studentIds": [10122], "inventory": {}}],
+        }))
+        self.assertIsNone(harness_server.sanitize_proposal({
+            "type": "planning_proposal",
+            "changes": [{"kind": "set_package_plan", "packageId": "p-1", "planned": 1}],
+        }))
+
     def test_model_questions_disable_proposal(self):
         result = harness_server.proposal_from_content(json.dumps({
             "answer": "需要补充数据",
@@ -193,6 +219,8 @@ class HarnessContractTests(unittest.TestCase):
         request_text = json.dumps(received["body"], ensure_ascii=False)
         self.assertIn("confirmedFacts", request_text)
         self.assertIn("calculatedResults", request_text)
+        self.assertIn("add_student_goal", request_text)
+        self.assertIn("working copy", request_text)
         self.assertNotIn("test-key-that-must-not-leak", request_text)
 
     def test_call_openai_asks_relevant_missing_input_before_upstream(self):

@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260818-relationship-agent-progress-v102";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
 
 function escapeHtml(value) {
   return String(value ?? "")

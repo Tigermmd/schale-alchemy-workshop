@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { applyPlanningProposal, buildAgentContext, calculateResourceContribution, canReuseConfiguredProxy, extractConversationFacts, validatePlanningProposal } from "./agent-state.js";
+import { applyPlanningProposal, buildAgentContext, calculateResourceContribution, canReuseConfiguredProxy, extractConversationFacts, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js";
 import { buildReleaseTimeline, calculateRelationshipSourceForecast, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js";
 import { createEmptyPlannerState } from "./planner-state.js";
 import { getGiftOnlyPlanningStudents } from "./planner-view.js";
@@ -59,6 +59,9 @@ assert.ok(Array.isArray(context.dataQuality.missingUserInputs));
 assert.equal(context.schemaVersion, 2);
 assert.equal(context.plannerState.mainTargetStudentId, null);
 assert.equal(context.disclosure.mode, "progressive");
+assert.equal(context.planningSession.mode, "working_copy");
+assert.equal(context.planningSession.requiresConfirmation, true);
+assert.ok(context.rules.planningActions.some((action) => action.kind === "remove_student_goal"));
 assert.ok(Array.isArray(context.calculationTools));
 assert.ok(context.calculationTools.some((tool) => tool.id === "calculate_student_plan"));
 assert.ok(Array.isArray(context.calculatedResults.giftPlanning.packageEfficiency.students));
@@ -196,5 +199,39 @@ assert.equal(appliedZeroDay.state.periodDays, 0);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_inventory", giftId: 5000, count: 999 }] }, { state, data }).ok, false);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_forecast_days", value: 60, inventory: {} }] }, { state, data }).ok, false);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_package_plan", packageId: "p-1", planned: 1 }] }, { state, data }).ok, false);
+
+const multiActionState = { ...createEmptyPlannerState(), students: [
+  { id: "student-10001", studentId: 10001, currentLevel: 20, currentProgress: 3, targetLevel: 60 },
+  { id: "student-10002", studentId: 10002, currentLevel: 10, currentProgress: 0, targetLevel: 50 },
+], mainTargetStudentId: 10001 };
+const multiActionProposal = { type: "planning_proposal", summary: "重排目标", changes: [
+  { kind: "add_student_goal", studentId: 10122, currentLevel: 1, currentProgress: 0, targetLevel: 100 },
+  { kind: "update_student_goal", studentId: 10122, currentLevel: 10, targetLevel: 80 },
+  { kind: "remove_student_goal", studentId: 10002 },
+  { kind: "set_main_target", studentId: 10122 },
+  { kind: "reorder_student_goals", studentIds: [10122, 10001] },
+] };
+assert.equal(validatePlanningProposal(multiActionProposal, { state: multiActionState, data }).ok, true);
+const multiActionApplied = applyPlanningProposal(multiActionState, multiActionProposal, { data });
+assert.equal(multiActionApplied.ok, true);
+assert.deepEqual(multiActionApplied.state.students.map((student) => student.studentId), [10122, 10001]);
+assert.equal(multiActionApplied.state.students[0].currentLevel, 10);
+assert.equal(multiActionApplied.state.students[0].targetLevel, 80);
+assert.equal(multiActionApplied.state.mainTargetStudentId, 10122);
+const staged = stagePlanningProposal(multiActionState, multiActionProposal, { data });
+assert.equal(staged.ok, true);
+assert.equal(staged.persisted, false);
+assert.equal(multiActionState.students.length, 2, "staging must not mutate the page planner state");
+assert.equal(staged.state.students.length, 2);
+const merged = mergePlanningProposals(
+  { type: "planning_proposal", summary: "第一轮", changes: [{ kind: "add_student_goal", studentId: 10001, targetLevel: 60 }] },
+  { type: "planning_proposal", summary: "第二轮", changes: [{ kind: "set_main_target", studentId: 10001 }] },
+);
+assert.deepEqual(merged.changes.map((change) => change.kind), ["add_student_goal", "set_main_target"]);
+assert.equal(validatePlanningProposal({ ...multiActionProposal, changes: [{ kind: "remove_student_goal", studentId: 99999 }] }, { state: multiActionState, data }).ok, false);
+assert.equal(validatePlanningProposal({ ...multiActionProposal, changes: [{ kind: "reorder_student_goals", studentIds: [10001] }] }, { state: multiActionState, data }).ok, false);
+assert.equal(validatePlanningProposal({ ...multiActionProposal, changes: [{ kind: "set_main_target", studentId: null }] }, { state: multiActionState, data }).ok, true);
+assert.equal(validatePlanningProposal({ ...multiActionProposal, changes: [{ kind: "set_main_target" }] }, { state: multiActionState, data }).ok, false);
+assert.equal(validatePlanningProposal({ ...multiActionProposal, changes: [{ kind: "set_forecast_days", value: "not-a-number" }] }, { state: multiActionState, data }).ok, false);
 
 console.log("agent state tests passed");

@@ -166,9 +166,13 @@ def user_input_response(questions: list[str]) -> dict:
 
 ALLOWED_CHANGE_KINDS = {
     "set_student_target": {"studentId", "currentLevel", "currentProgress", "targetLevel"},
+    "add_student_goal": {"studentId", "currentLevel", "currentProgress", "targetLevel"},
+    "update_student_goal": {"studentId", "currentLevel", "currentProgress", "targetLevel"},
+    "remove_student_goal": {"studentId"},
+    "set_main_target": {"studentId"},
     "set_forecast_days": {"value"},
+    "reorder_student_goals": {"studentIds"},
     "set_cn_cutoff_student": {"studentId"},
-    "set_package_plan": {"packageId", "planned"},
 }
 
 
@@ -220,12 +224,18 @@ def call_openai(message: str, context: object, conversation: object) -> dict:
         "Use only the supplied context; do not invent current CN package or release facts. "
         "The context is progressively disclosed: confirmedFacts and calculatedResults are authoritative local results. "
         "Use them directly and never ask the user to repeat a value already present there. "
+        "plannerState and calculatedResults describe the current Agent working copy for this conversation, not necessarily the page state. "
+        "Use a planning proposal as a delta against that working copy; the page is changed only after the user confirms it. "
         "Return ONLY a JSON object with keys answer, needs_user_input, questions, and proposal. answer is a concise natural-language reply. "
         "Only ask questions listed in dataQuality.relevantMissingUserInputs when the exact requested answer depends on them. "
         "Ignore optionalMissingUserInputs unless the user explicitly asks to include that source. "
         "Never fill a missing value with a web-search guess or an uncited assumption. If the user answers the questions, use only those explicit answers and continue. "
         "proposal is null or an object with type planning_proposal, summary, changes, assumptions, warnings. "
-        "Allowed change kinds are set_student_target, set_forecast_days, set_cn_cutoff_student, set_package_plan. "
+        "Allowed change kinds are add_student_goal, update_student_goal, remove_student_goal, set_main_target, set_forecast_days, reorder_student_goals, set_cn_cutoff_student. "
+        "set_student_target is accepted only for backwards compatibility; do not use it when a more specific action is available. "
+        "add_student_goal uses studentId/currentLevel/currentProgress/targetLevel; update_student_goal uses studentId plus any fields to change; "
+        "remove_student_goal uses studentId; set_main_target uses an existing studentId or null; reorder_student_goals uses the complete studentIds array. "
+        "Use only student IDs present in the supplied full students directory and only update students present in plannerState. "
         "Never propose inventory, gift box, purchased-package, localStorage, code, or arbitrary field changes. "
         "Unreleased or unknown CN students must exclude Schedule and Cafe EXP and use gift-only planning. "
         "100008 is a gold selectable gift box; 100009 is a random purple gift box; do not confuse them."
