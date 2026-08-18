@@ -14,6 +14,8 @@ assert.doesNotMatch(html, /agent-connection-visual|agent-visual-anchors/, "Agent
 assert.doesNotMatch(html, /class="agent-chat"/, "Unconfigured Agent should not show a chat area before connection");
 assert.doesNotMatch(html, /class="agent-quick"/, "Unconfigured Agent should not show quick questions before connection");
 assert.match(html, /<details class="agent-settings-details" open>/, "First-time connection settings should be immediately available");
+assert.match(html, /name="baseUrl"[^>]*value="https:\/\/api\.deepseek\.com"/, "Agent should prefill the official DeepSeek API endpoint");
+assert.match(html, /name="model"[^>]*value="deepseek-v4-flash"/, "Agent should prefill the requested Flash model");
 
 const configuredHtml = renderAgentWorkspace({
   locale: "zh_cn",

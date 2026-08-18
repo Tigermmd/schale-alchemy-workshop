@@ -1,10 +1,10 @@
-import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
 import {
   localizedName,
   localizedReactionLabel,
   localeTag,
   text as t,
-} from "./i18n.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+} from "./i18n.js?v=dashboard-20260818-relationship-brand-avatar-v99";
 
 const STAGES = ["1", "2", "3"];
 

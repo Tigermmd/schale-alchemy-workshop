@@ -1,4 +1,4 @@
-import { createInventoryState } from "./inventory-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { createInventoryState } from "./inventory-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
 
 export const INVENTORY_TRANSFER_FORMAT = "schale-relationship-inventory";
 export const INVENTORY_TRANSFER_SCHEMA_VERSION = 1;

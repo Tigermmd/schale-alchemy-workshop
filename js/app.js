@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-brand-avatar-v98";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
