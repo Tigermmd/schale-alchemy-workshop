@@ -1,5 +1,5 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-progress-v100";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v102";
 
 export const DEFAULT_AGENT_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_AGENT_MODEL = "deepseek-v4-flash";

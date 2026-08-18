@@ -1,8 +1,8 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
-import { isGoldGift } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
-import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-progress-v100";
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { isGoldGift } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -129,12 +129,13 @@ function removeGiftQuantities(inventory, giftIds) {
   return next;
 }
 
-function chooseAllocationWithSynthesis({ students, inventory, giftById, giftValuesByStudent, mainPlan, choiceBoxExp, synthesisStones }) {
+function chooseAllocationWithSynthesis({ students, inventory, giftById, giftValuesByStudent, mainPlan, choiceBoxExp, synthesisStones, priorityStudentIds = [] }) {
   const directAllocation = (candidateInventory) => planGiftAllocation({
     students,
     inventory: candidateInventory,
     giftById,
     giftValuesByStudent,
+    priorityStudentIds,
   });
   const baseline = directAllocation(inventory);
   if (!mainPlan || !(choiceBoxExp > 0) || !(synthesisStones > 0)) return { allocation: baseline, consumedGiftIds: [], searchTruncated: false };
@@ -304,6 +305,10 @@ function buildAllocation({ plans, data, state, mainTargetId, synthesisStones = 0
   // count them in the projected contribution until the user confirms use.
   const inventory = Object.fromEntries(Object.entries(state?.inventory ?? {}).map(([giftId, quantity]) => [String(giftId), integerOr(quantity)]));
   const mainPlan = students.find((plan) => Number(plan.studentId) === Number(mainTargetId));
+  const priorityStudentIds = [
+    mainPlan?.id,
+    ...students.filter((plan) => Number(plan.studentId) !== Number(mainTargetId)).map((plan) => plan.id),
+  ].filter(Boolean);
   const synthesisReservation = chooseAllocationWithSynthesis({
     students,
     inventory,
@@ -312,6 +317,7 @@ function buildAllocation({ plans, data, state, mainTargetId, synthesisStones = 0
     mainPlan,
     choiceBoxExp,
     synthesisStones,
+    priorityStudentIds,
   });
   const allocation = synthesisReservation.allocation;
   return {
@@ -324,6 +330,10 @@ function buildAllocation({ plans, data, state, mainTargetId, synthesisStones = 0
 
 function activePosting(state, resourceId, periodDays) {
   return (state?.resourcePostingHistory ?? []).some((item) => item?.active !== false && item.postingKey === `${resourceId}:${periodDays}`);
+}
+
+function hasActivePostingForResource(state, resourceId) {
+  return (state?.resourcePostingHistory ?? []).some((item) => item?.active !== false && String(item.resourceId) === String(resourceId));
 }
 
 function currentPeriodIncoming(state, periodDays) {
@@ -359,7 +369,7 @@ function currentPeriodIncoming(state, periodDays) {
   return result;
 }
 
-function dailyRelationshipExp(state, studentId, periodDays, data) {
+function dailyRelationshipExp(state, studentId, periodDays, data, { includeIncoming = true, excludePostedResources = false } = {}) {
   const release = getEligibleRelationshipSources(studentId, state?.cnProgress, data?.releaseTimeline ?? []);
   if (release.giftOnly) {
     return {
@@ -379,7 +389,8 @@ function dailyRelationshipExp(state, studentId, periodDays, data) {
     if (resource?.cadence !== "daily" || resource?.unit !== "relationship_exp") continue;
     const allowed = resource.id === "daily-schedule-exp" ? release.includeSchedule : resource.id === "daily-cafe-exp" ? release.includeCafe : false;
     if (!allowed) continue;
-    const isPosted = periodDays > 0 && activePosting(state, resource.id, periodDays);
+    const isPosted = includeIncoming && periodDays > 0 && activePosting(state, resource.id, periodDays);
+    if (!includeIncoming && excludePostedResources && hasActivePostingForResource(state, resource.id)) continue;
     const value = isPosted
       ? numberOr(periodIncoming[resource.id])
       : numberOr(resource.amount) * periodDays * numberOr(resource.expected_per_count);
@@ -472,21 +483,28 @@ function forecastContribution({ forecast, student, giftBoxes, crafting, synthesi
   };
 }
 
-function freeContribution({ state, student, studentId, isMain, periodDays, data, giftBoxes, crafting, rawForecast, synthesisGiftIds = [], currentSynthesisConsumedGiftIds = [] }) {
-  if (!isMain || !student) return { totalExp: 0, sourceBreakdown: {}, daily: { scheduleExp: 0, cafeExp: 0, totalExp: 0 } };
-  const forecast = mergeIncomingForecast(state, rawForecast, periodDays);
+function freeContribution({ state, student, studentId, isMain, includeIncoming = true, excludePostedResources = false, periodDays, data, giftBoxes, crafting, rawForecast, synthesisGiftIds = [], currentSynthesisConsumedGiftIds = [] }) {
+  if (!isMain || !student) return { totalExp: 0, recurringTotalExp: 0, incomingTotalExp: 0, sourceBreakdown: {}, daily: { scheduleExp: 0, cafeExp: 0, totalExp: 0 } };
+  const forecast = includeIncoming ? mergeIncomingForecast(state, rawForecast, periodDays) : rawForecast;
   const recurring = forecastContribution({ forecast: rawForecast, student, giftBoxes, crafting, synthesisGiftIds, currentSynthesisConsumedGiftIds });
   const total = forecastContribution({ forecast, student, giftBoxes, crafting, synthesisGiftIds, currentSynthesisConsumedGiftIds });
-  const incoming = {
+  const incoming = includeIncoming ? {
     choiceBoxExp: Math.max(0, total.choiceBoxExp - recurring.choiceBoxExp),
     randomGoldBoxExp: Math.max(0, total.randomGoldBoxExp - recurring.randomGoldBoxExp),
     randomPurpleBoxExp: Math.max(0, total.randomPurpleBoxExp - recurring.randomPurpleBoxExp),
     manufacturingExp: Math.max(0, total.manufacturingExp - recurring.manufacturingExp),
     synthesisExp: Math.max(0, total.synthesisExp - recurring.synthesisExp),
     synthesisCount: Math.max(0, total.synthesisCount - recurring.synthesisCount),
+  } : {
+    choiceBoxExp: 0,
+    randomGoldBoxExp: 0,
+    randomPurpleBoxExp: 0,
+    manufacturingExp: 0,
+    synthesisExp: 0,
+    synthesisCount: 0,
   };
   incoming.totalExp = incoming.choiceBoxExp + incoming.randomGoldBoxExp + incoming.randomPurpleBoxExp + incoming.manufacturingExp + incoming.synthesisExp;
-  const daily = dailyRelationshipExp(state, studentId, periodDays, data);
+  const daily = dailyRelationshipExp(state, studentId, periodDays, data, { includeIncoming, excludePostedResources });
   const recurringTotalExp = recurring.totalExp + daily.recurringTotalExp;
   const incomingTotalExp = incoming.totalExp + daily.incomingTotalExp;
   return {
@@ -531,50 +549,86 @@ export function calculatePlanningSummary({ state = {}, targets, mainTargetId, fo
     choiceBoxExp,
     synthesisStones: numberOr(state?.stockResources?.synthesis_stone_gold) + numberOr(forecast.synthesisStones),
   });
-  const students = allocation.students.map((allocated) => {
+  const priorityStudents = [
+    allocation.students.find((allocated) => Number(allocated.studentId) === Number(mainId)),
+    ...allocation.students.filter((allocated) => Number(allocated.studentId) !== Number(mainId)),
+  ].filter(Boolean);
+  const resultByPlanId = new Map();
+  let previousCompletionDays = 0;
+  let previousCompletionUnknown = false;
+  for (const allocated of priorityStudents) {
     const student = targetStudent(data, allocated);
     const release = getEligibleRelationshipSources(allocated.studentId, state.cnProgress, data.releaseTimeline ?? []);
     const requiredExp = numberOr(allocated.requiredExp);
     const isMain = Number(allocated.studentId) === Number(mainId);
     const crafting = valueFor(data?.craftingById, allocated.studentId);
     const current = currentContribution({ state, student, allocationResult: allocated, isMain, giftBoxes, crafting, synthesisGiftIds: allocation.synthesisGiftIds });
+    const startDay = isMain ? 0 : previousCompletionUnknown ? null : previousCompletionDays;
+    const availableDays = startDay === null ? 0 : Math.max(0, days - startDay);
+    const actualPeriodDays = isMain ? days : availableDays;
+    const actualRawForecast = isMain
+      ? rawForecast
+      : calculateGiftOnlyForecast(state, {
+        periodDays: actualPeriodDays,
+        rewardSnapshot: data?.snapshots?.unlimitedAssaultRewards ?? data?.unlimitedAssaultRewards,
+        excludePostedResources: true,
+      });
     const free = freeContribution({
       state,
       student,
       studentId: allocated.studentId,
-      isMain,
-      periodDays: days,
+      isMain: true,
+      includeIncoming: isMain,
+      excludePostedResources: !isMain,
+      periodDays: actualPeriodDays,
       data,
       giftBoxes,
       crafting,
-      rawForecast,
-      synthesisGiftIds: allocation.synthesisGiftIds,
-      currentSynthesisConsumedGiftIds: current.synthesisConsumedGiftIds,
+      rawForecast: actualRawForecast,
+      synthesisGiftIds: isMain ? allocation.synthesisGiftIds : [],
+      currentSynthesisConsumedGiftIds: isMain ? current.synthesisConsumedGiftIds : [],
     });
-    const rateFree = days > 0
-      ? free
-      : freeContribution({
+    const rateForecast = isMain
+      ? rateRawForecast
+      : calculateGiftOnlyForecast(state, {
+        periodDays: ratePeriodDays,
+        rewardSnapshot: data?.snapshots?.unlimitedAssaultRewards ?? data?.unlimitedAssaultRewards,
+        excludePostedResources: true,
+      });
+    const rateFree = freeContribution({
         state,
         student,
         studentId: allocated.studentId,
-        isMain,
+        isMain: true,
+        includeIncoming: isMain,
+        excludePostedResources: !isMain,
         periodDays: ratePeriodDays,
         data,
         giftBoxes,
         crafting,
-        rawForecast: rateRawForecast,
-        synthesisGiftIds: allocation.synthesisGiftIds,
-        currentSynthesisConsumedGiftIds: current.synthesisConsumedGiftIds,
+        rawForecast: rateForecast,
+        synthesisGiftIds: isMain ? allocation.synthesisGiftIds : [],
+        currentSynthesisConsumedGiftIds: isMain ? current.synthesisConsumedGiftIds : [],
       });
     const totalExpectedExp = current.totalExp + free.totalExp;
     const gapWithinPeriod = Math.max(0, requiredExp - totalExpectedExp);
-    const recurringFreeExp = days > 0 ? numberOr(free.recurringTotalExp) : numberOr(rateFree.recurringTotalExp);
+    const recurringFreeExp = numberOr(rateFree.recurringTotalExp);
     const incomingFreeExp = days > 0 ? numberOr(free.incomingTotalExp) : 0;
     const freeExpPerDay = recurringFreeExp / ratePeriodDays;
     const immediateGap = Math.max(0, requiredExp - current.totalExp);
     const gapAfterIncoming = Math.max(0, immediateGap - incomingFreeExp);
-    const estimatedDays = gapAfterIncoming <= 0 ? 0 : freeExpPerDay > 0 ? Math.ceil(gapAfterIncoming / freeExpPerDay) : null;
-    return {
+    const ownDays = gapAfterIncoming <= 0 ? 0 : freeExpPerDay > 0 ? Math.ceil(gapAfterIncoming / freeExpPerDay) : null;
+    const estimatedDays = ownDays === null
+      ? null
+      : ownDays === 0
+        ? 0
+        : (isMain ? 0 : previousCompletionDays) + ownDays;
+    if (ownDays === null) {
+      previousCompletionUnknown = true;
+    } else if (!previousCompletionUnknown) {
+      previousCompletionDays = ownDays === 0 ? previousCompletionDays : (isMain ? 0 : previousCompletionDays) + ownDays;
+    }
+    resultByPlanId.set(String(allocated.id), {
       studentId: allocated.studentId,
       planId: allocated.id,
       requiredExp,
@@ -590,8 +644,9 @@ export function calculatePlanningSummary({ state = {}, targets, mainTargetId, fo
       releaseStatus: release.status,
       isMainTarget: isMain,
       sourceBreakdown: { current, free: { ...free.sourceBreakdown, forecast: free.forecast } },
-    };
-  });
+    });
+  }
+  const students = allocation.students.map((allocated) => resultByPlanId.get(String(allocated.id)));
   return { forecastDays: days, mainTargetId: mainId, students, allocation };
 }
 

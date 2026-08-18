@@ -165,7 +165,7 @@ const multiSynthesisGlobalSummary = calculatePlanningSummary({
   data: multiSynthesisGlobalData,
   forecastDays: 10,
 });
-assert.equal(multiSynthesisGlobalSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 220, "multiple synthesis stones must search combinations globally instead of keeping only the best prefix");
+assert.equal(multiSynthesisGlobalSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 200, "multiple synthesis stones must follow the main-target-first greedy allocation");
 const multiStudentSynthesisData = {
   ...synthesisData,
   students: [
@@ -192,7 +192,7 @@ const multiStudentSynthesisSummary = calculatePlanningSummary({
   data: multiStudentSynthesisData,
   forecastDays: 10,
 });
-assert.equal(multiStudentSynthesisSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 120, "multi-student allocation must keep higher direct gift value instead of monopolizing the pair for synthesis");
+assert.equal(multiStudentSynthesisSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 40, "multi-student allocation must prioritize the configured main target");
 const mixedMultiStudentData = {
   ...multiStudentSynthesisData,
   students: [
@@ -219,7 +219,7 @@ const mixedMultiStudentSynthesisSummary = calculatePlanningSummary({
   data: mixedMultiStudentData,
   forecastDays: 10,
 });
-assert.equal(mixedMultiStudentSynthesisSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 180, "synthesis should consume the pair with the lowest global direct opportunity");
+assert.equal(mixedMultiStudentSynthesisSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 60, "main-target-first greedy allocation should preserve the main target's gifts before synthesis");
 
 const nonPrefixSynthesisData = {
   ...mixedMultiStudentData,
@@ -251,7 +251,7 @@ const nonPrefixSynthesisSummary = calculatePlanningSummary({
   data: nonPrefixSynthesisData,
   forecastDays: 10,
 });
-assert.equal(nonPrefixSynthesisSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 300, "synthesis must compare non-prefix gift pairs against the global allocation");
+assert.equal(nonPrefixSynthesisSummary.students.reduce((sum, item) => sum + item.currentExp, 0), 240, "main-target-first synthesis must preserve the configured priority order");
 assert.deepEqual(nonPrefixSynthesisSummary.students[0].sourceBreakdown.current.synthesisConsumedGiftIds, ["5000", "5003"], "synthesis should reserve the pair with the best global outcome");
 
 const manyGoldGifts = Object.fromEntries(Array.from({ length: 35 }, (_, index) => [String(5000 + index), 1]));
@@ -327,6 +327,39 @@ assert.ok(Number.isFinite(largeMultiStudentSummary.students[0].currentExp));
 const packageIndependentState = { ...state, packagePlans: { p: { purchased: 99, planned: 99 } } };
 const packageIndependentSummary = calculatePlanningSummary({ state: packageIndependentState, data, forecastDays: 10 });
 assert.deepEqual(packageIndependentSummary.students, summary.students);
+
+const secondStudent = {
+  student_id: 2,
+  gift_values: [{ gift_id: 5000, relationship_exp: 60 }],
+};
+const multiStudentForecastData = {
+  ...data,
+  students: [student, secondStudent],
+  studentById: new Map([['1', student], ['2', secondStudent]]),
+  releaseTimeline: [{ studentId: 1, jpRank: 1 }, { studentId: 2, jpRank: 2 }],
+  snapshots: { thresholds: [{ level: 1, cumulative_exp_to_reach_level: 0 }, { level: 2, cumulative_exp_to_reach_level: 1000 }] },
+};
+const multiStudentForecastState = {
+  ...state,
+  students: [
+    { id: 'student-1', studentId: 1, currentLevel: 1, currentProgress: 0, targetLevel: 2 },
+    { id: 'student-2', studentId: 2, currentLevel: 1, currentProgress: 0, targetLevel: 2 },
+  ],
+  mainTargetStudentId: 1,
+  cnProgress: { cutoffRank: 2 },
+  inventory: {},
+  giftBoxes: {},
+  equivalentGiftPools: {},
+  stockResources: { manufacturing_stone: 0, synthesis_stone_gold: 0 },
+  resources: [
+    { id: 'daily-schedule-exp', cadence: 'daily', unit: 'relationship_exp', amount: 1, expected_per_count: 31.25 },
+    { id: 'daily-cafe-exp', cadence: 'daily', unit: 'relationship_exp', amount: 1, expected_per_count: 15 },
+  ],
+};
+const multiStudentForecastSummary = calculatePlanningSummary({ state: multiStudentForecastState, data: multiStudentForecastData, forecastDays: 60 });
+assert.equal(multiStudentForecastSummary.students[0].estimatedDays, 22, 'the main target should consume the first part of the shared daily resource stream');
+assert.equal(multiStudentForecastSummary.students[1].estimatedDays, 44, 'the second target should continue after the main target instead of becoming unestimable');
+assert.ok(Number.isFinite(multiStudentForecastSummary.students[1].freeExpPerDay));
 
 const periodState = {
   ...state,

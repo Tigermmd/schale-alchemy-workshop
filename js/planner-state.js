@@ -592,18 +592,33 @@ function improveAllocation(assignments, remainingInventory, students, giftValues
   }
 }
 
-export function planGiftAllocation({ students = [], inventory = {}, giftById, giftValuesByStudent = new Map() }) {
+export function planGiftAllocation({ students = [], inventory = {}, giftById, giftValuesByStudent = new Map(), priorityStudentIds = [] }) {
   const remaining = new Map(students.map((student) => [String(student.id), Math.max(0, numberOr(student.requiredExp, 0))]));
   const remainingInventory = Object.fromEntries(Object.entries(inventory).map(([giftId, count]) => [String(giftId), integerOr(count, 0)]));
   const assignmentMap = new Map();
+  const priorityStudents = priorityStudentIds
+    .map((studentId) => students.find((student) => String(student.id) === String(studentId)))
+    .filter(Boolean);
   let totalPotentialExp = 0;
   let totalEffectiveExp = 0;
 
   while (true) {
     let bestAction = null;
+    const candidateStudents = priorityStudents.length
+      ? (() => {
+        const active = priorityStudents.find((student) => {
+          const studentId = String(student.id);
+          if ((remaining.get(studentId) ?? 0) <= 0) return false;
+          return Object.entries(remainingInventory).some(([giftId, count]) => (
+            count > 0 && giftById?.has?.(String(giftId)) && numberOr(giftValuesByStudent.get(studentId)?.[String(giftId)], 0) > 0
+          ));
+        });
+        return active ? [active] : [];
+      })()
+      : students;
     for (const [giftId, count] of Object.entries(remainingInventory)) {
       if (count <= 0 || !giftById?.has?.(String(giftId))) continue;
-      for (const student of students) {
+      for (const student of candidateStudents) {
         const studentId = String(student.id);
         const remainingExp = remaining.get(studentId) ?? 0;
         if (remainingExp <= 0) continue;
@@ -638,7 +653,7 @@ export function planGiftAllocation({ students = [], inventory = {}, giftById, gi
     assignmentMap.set(key, previous);
   }
 
-  improveAllocation(assignmentMap, remainingInventory, students, giftValuesByStudent);
+  if (!priorityStudents.length) improveAllocation(assignmentMap, remainingInventory, students, giftValuesByStudent);
 
   const assignments = [...assignmentMap.values()];
   const studentResults = students.map((student) => {

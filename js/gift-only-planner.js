@@ -1,6 +1,6 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
-import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
-import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v102";
+import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-progress-v102";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -89,7 +89,7 @@ function cadenceMultiplier(resource, periodDays) {
  * stones are converted using the same planning assumptions as paid bundles.
  * A posted row is already present in incomingResources and is not duplicated.
  */
-export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapshot } = {}) {
+export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapshot, excludePostedResources = false } = {}) {
   const forecast = {
     choiceBoxes: 0,
     randomGoldBoxes: 0,
@@ -99,7 +99,11 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
   };
   for (const resource of state?.resources ?? []) {
     if (resource?.amount === null || resource?.amount === undefined || resource?.amount === "") continue;
-    if (state?.resourcePostingHistory?.some((item) => item.active !== false && item.postingKey === `${resource.id}:${periodDays}`)) continue;
+    const isPosted = state?.resourcePostingHistory?.some((item) => item.active !== false && (
+      item.postingKey === `${resource.id}:${periodDays}`
+      || (excludePostedResources && item.resourceId === resource.id)
+    ));
+    if (isPosted) continue;
     const multiplier = cadenceMultiplier(resource, periodDays);
     const effectiveAmount = calculatePeriodicResourceAmount(resource, resource.amount, state?.resources ?? []);
     const amount = numberOr(effectiveAmount) * multiplier;
