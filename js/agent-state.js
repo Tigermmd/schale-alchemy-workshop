@@ -1,8 +1,8 @@
-import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
 
 const ALLOWED_CHANGE_KINDS = new Set([
   // Kept for compatibility with older Harness responses.

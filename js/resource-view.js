@@ -1,8 +1,8 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
 
 function escapeHtml(value) {
   return String(value ?? "")

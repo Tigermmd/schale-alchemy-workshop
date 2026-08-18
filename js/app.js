@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
 
 const elements = {
   loading: document.querySelector("#loading-state"),

@@ -1,8 +1,9 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-working-copy-v104";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v105";
 
 export const DEFAULT_AGENT_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_AGENT_MODEL = "deepseek-v4-flash";
+const ARONA_AVATAR_SRC = "./assets/ui/arona-title.webp";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -15,6 +16,10 @@ function escapeHtml(value) {
 
 function formatJson(value) {
   try { return JSON.stringify(value, null, 2); } catch { return ""; }
+}
+
+function renderAgentAvatar(locale) {
+  return `<div class="agent-message-avatar"><img src="${ARONA_AVATAR_SRC}" alt="${escapeHtml(t(locale, "agentAronaAlt"))}" loading="lazy"></div>`;
 }
 
 function changeLabel(change, data, locale, localization) {
@@ -59,7 +64,15 @@ function renderAgentThinking({ locale, activityKey }) {
     "agentActivityReview",
   ]);
   const currentActivityKey = allowedActivityKeys.has(activityKey) ? activityKey : "agentActivityPreparing";
-  return `<article class="agent-message agent-message-assistant agent-thinking-message" role="status" aria-live="polite"><span>${escapeHtml(t(locale, "agentAssistant"))}</span><p class="agent-thinking-copy"><span class="agent-thinking-cursor" aria-hidden="true">✦</span><span>${escapeHtml(t(locale, currentActivityKey))}</span><span class="agent-thinking-dots" aria-hidden="true">...</span></p></article>`;
+  return `<article class="agent-message agent-message-assistant agent-thinking-message" role="status" aria-live="polite">${renderAgentAvatar(locale)}<div class="agent-message-body"><span>${escapeHtml(t(locale, "agentAssistant"))}</span><p class="agent-thinking-copy"><span class="agent-thinking-cursor" aria-hidden="true">✦</span><span>${escapeHtml(t(locale, currentActivityKey))}</span><span class="agent-thinking-dots" aria-hidden="true">...</span></p></div></article>`;
+}
+
+function renderMessage(message, locale) {
+  const isUser = message.role === "user";
+  const questions = Array.isArray(message.questions) && message.questions.length
+    ? `<div class="agent-questions"><strong>${escapeHtml(t(locale, "agentQuestionsTitle"))}</strong><ol>${message.questions.map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ol></div>`
+    : "";
+  return `<article class="agent-message agent-message-${isUser ? "user" : "assistant"}">${isUser ? "" : renderAgentAvatar(locale)}<div class="agent-message-body"><span>${escapeHtml(t(locale, isUser ? "agentYou" : "agentAssistant"))}</span><p>${escapeHtml(message.content)}</p>${questions}</div></article>`;
 }
 
 export function renderAgentWorkspace({ locale, state, data, context }) {
@@ -69,7 +82,7 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
   const contextSummary = t(locale, "agentContextSummary", contextStudents.length, Object.keys(context?.plannerState?.inventory ?? {}).length);
   const notice = state.notice ? `<div class="agent-notice" role="status">${escapeHtml(state.notice)}</div>` : "";
   const conversation = messages.length
-    ? messages.map((message) => `<article class="agent-message agent-message-${message.role === "user" ? "user" : "assistant"}"><span>${escapeHtml(message.role === "user" ? t(locale, "agentYou") : t(locale, "agentAssistant"))}</span><p>${escapeHtml(message.content)}</p>${Array.isArray(message.questions) && message.questions.length ? `<div class="agent-questions"><strong>${escapeHtml(t(locale, "agentQuestionsTitle"))}</strong><ol>${message.questions.map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ol></div>` : ""}</article>`).join("")
+    ? messages.map((message) => renderMessage(message, locale)).join("")
     : state.busy ? "" : `<div class="agent-empty" role="status">${escapeHtml(t(locale, "agentEmpty"))}</div>`;
   const thinking = state.busy ? renderAgentThinking({ locale, activityKey: state.activityKey }) : "";
   const proposalHtml = proposal
@@ -84,10 +97,10 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
   const settingsForm = `<form class="agent-settings-form" id="agent-settings-form"><label><span>${escapeHtml(t(locale, "agentBaseUrl"))}</span><input name="baseUrl" type="url" value="${escapeHtml(baseUrl)}" placeholder="https://api.example.com" autocomplete="url" required></label><label><span>${escapeHtml(t(locale, "agentModel"))}</span><input name="model" value="${escapeHtml(model)}" placeholder="model-name" autocomplete="off" required></label><label><span>${escapeHtml(t(locale, "agentApiKey"))}</span><input class="agent-api-key-input" name="apiKey" type="password" value="" placeholder="${escapeHtml(state.configured ? t(locale, "agentApiKeyReusePlaceholder") : t(locale, "agentApiKeyPlaceholder"))}" autocomplete="new-password" autocapitalize="off" spellcheck="false" inputmode="text" ${state.configured ? "" : "required"}></label><button type="button" class="secondary-button" data-agent-test>${escapeHtml(t(locale, "agentTest"))}</button><small>${escapeHtml(apiKeyHint)}</small></form>`;
   const quickQuestions = !messages.length ? `<div class="agent-quick"><strong>${escapeHtml(t(locale, "agentQuickTitle"))}</strong><div>${[1, 2, 3].map((id) => `<button type="button" class="agent-quick-button" data-agent-question="${escapeHtml(t(locale, `agentQuickQuestion${id}`))}">${escapeHtml(t(locale, `agentQuickQuestion${id}`))}</button>`).join("")}</div></div>` : "";
   const settings = `<details class="agent-settings-details"${state.configured ? "" : " open"}><summary>${escapeHtml(t(locale, state.configured ? "agentSettingsDetails" : "agentSetupCta"))}</summary>${settingsForm}</details>`;
-  const chat = `<div class="agent-chat" aria-live="polite">${conversation}${thinking}</div><form class="agent-chat-form" id="agent-chat-form"><label><span>${escapeHtml(t(locale, "agentMessage"))}</span><textarea name="message" rows="3" maxlength="20000" placeholder="${escapeHtml(t(locale, "agentMessagePlaceholder"))}" required></textarea></label><div class="agent-chat-actions"><button type="submit" class="primary-button" ${state.busy || !state.configured ? "disabled" : ""}>${escapeHtml(state.busy ? t(locale, "agentThinking") : state.configured ? t(locale, "agentSend") : t(locale, "agentConfigureFirst"))}</button></div></form>${quickQuestions}`;
+  const chat = `<section class="agent-chat-window" aria-labelledby="agent-chat-title"><div class="agent-chat-window-heading"><span class="agent-chat-window-avatar">${renderAgentAvatar(locale)}</span><div><span class="workspace-kicker">${escapeHtml(t(locale, "agentAssistant"))}</span><h3 id="agent-chat-title">${escapeHtml(t(locale, "agentChatTitle"))}</h3></div></div><div class="agent-chat" aria-live="polite">${conversation}${thinking}</div><form class="agent-chat-form" id="agent-chat-form"><label><span>${escapeHtml(t(locale, "agentMessage"))}</span><textarea name="message" rows="3" maxlength="20000" placeholder="${escapeHtml(t(locale, "agentMessagePlaceholder"))}" required></textarea></label><div class="agent-chat-actions"><button type="submit" class="primary-button" ${state.busy || !state.configured ? "disabled" : ""}>${escapeHtml(state.busy ? t(locale, "agentThinking") : state.configured ? t(locale, "agentSend") : t(locale, "agentConfigureFirst"))}</button></div></form>${quickQuestions}</section>`;
   if (!state.configured) {
     const planSummary = calculatedProjectionCount ? renderPlanSummary({ context, locale, localization: data.localization }) : "";
     return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${planSummary}<div class="agent-connection-empty" role="status"><div class="agent-connection-copy"><span class="agent-connection-mark" aria-hidden="true">✦</span><div><strong>${escapeHtml(t(locale, "agentSetupTitle"))}</strong><p>${escapeHtml(t(locale, "agentSetupPrompt"))}</p></div></div></div>${settings}${notice}</section>`;
   }
-  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${renderPlanSummary({ context, locale, localization: data.localization })}${settings}${chat}${proposalHtml}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p></details></section>`;
+  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${renderPlanSummary({ context, locale, localization: data.localization })}${chat}${proposalHtml}${settings}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p></details></section>`;
 }

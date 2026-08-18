@@ -221,6 +221,7 @@ class HarnessContractTests(unittest.TestCase):
         self.assertIn("calculatedResults", request_text)
         self.assertIn("add_student_goal", request_text)
         self.assertIn("working copy", request_text)
+        self.assertIn("Arona", request_text)
         self.assertNotIn("test-key-that-must-not-leak", request_text)
 
     def test_call_openai_asks_relevant_missing_input_before_upstream(self):

@@ -26,6 +26,21 @@ const configuredHtml = renderAgentWorkspace({
 assert.doesNotMatch(configuredHtml, /agent-visual-anchors|momotalk\.png|arona-avatar-1\.png/);
 assert.match(configuredHtml, /class="agent-chat"/);
 
+const chatHtml = renderAgentWorkspace({
+  locale: "zh_cn",
+  state: {
+    messages: [
+      { role: "user", content: "帮我看看规划" },
+      { role: "assistant", content: "老师，我来帮你整理一下。" },
+    ], proposal: null, configured: true, baseUrl: "https://api.example.com", model: "test-model", notice: "", busy: false,
+  },
+  data: { localization: {} },
+  context: { students: [], plannerState: { inventory: {}, students: [] }, calculatedResults: { giftPlanning: { projections: [] } }, disclosure: {} },
+});
+assert.match(chatHtml, /class="agent-chat-window"/, "Configured Agent should use a chat window container");
+assert.match(chatHtml, /assets\/ui\/arona-title\.webp/, "Assistant messages should show the local Arona avatar");
+assert.match(chatHtml, />Arona<\/span>/, "Assistant messages should be labeled Arona");
+
 const proposalHtml = renderAgentWorkspace({
   locale: "zh_cn",
   state: {
