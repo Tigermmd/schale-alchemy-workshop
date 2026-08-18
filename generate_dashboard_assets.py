@@ -69,87 +69,9 @@ UI_ASSET_SPECS = [
         f"{BASE_URL}/images/ui/ImgFont_Momotalk.png",
     ),
     (
-        "ui:arona-error",
-        "./assets/ui/arona-error.png",
+        "ui:schaledb-error",
+        "./assets/ui/schaledb-error.png",
         f"{BASE_URL}/images/ui/arona_error.png",
-    ),
-    (
-        "ui:arona-loading-bg",
-        "./assets/ui/arona-loading-bg.png",
-        "https://arona.icu/assets/loading_bg_pc.ba246778-ba246778.png",
-    ),
-    (
-        "ui:arona-avatar-1",
-        "./assets/ui/arona-avatar-1.png",
-        "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar1.c18ce793.png",
-    ),
-    (
-        "ui:arona-avatar-2",
-        "./assets/ui/arona-avatar-2.png",
-        "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar2.916294c1.png",
-    ),
-    (
-        "ui:arona-avatar-3",
-        "./assets/ui/arona-avatar-3.png",
-        "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar3.5e643647.png",
-    ),
-    (
-        "ui:arona-avatar-4",
-        "./assets/ui/arona-avatar-4.png",
-        "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar4.be61bf91.png",
-    ),
-    # These are used as small visual anchors in the resource, package and
-    # agent workspaces. They are deliberately local and optional so the app
-    # remains usable when a third-party asset host is unavailable.
-    (
-        "ui:arona-title-new",
-        "./assets/ui/arona-title-new.webp",
-        "https://arona.icu/arona_title_new.webp",
-    ),
-    (
-        "ui:kivo-home-button",
-        "./assets/ui/kivo-home-button.webp",
-        "https://kivo.wiki/assets/home_button-BRCngEW_.webp",
-    ),
-    (
-        "ui:kivo-favor",
-        "./assets/ui/kivo-favor.webp",
-        "https://kivo.wiki/assets/favor-BK4Xpa_s.webp",
-    ),
-    (
-        "ui:kivo-options",
-        "./assets/ui/kivo-options.webp",
-        "https://kivo.wiki/assets/options-DoCj5sFX.webp",
-    ),
-    (
-        "ui:kivo-empty",
-        "./assets/ui/kivo-empty.webp",
-        "https://kivo.wiki/assets/empty-V3buqWTa.webp",
-    ),
-    (
-        "ui:kivo-default-half-body",
-        "./assets/ui/kivo-default-half-body.webp",
-        "https://kivo.wiki/assets/default-half_body-anmscmGj.webp",
-    ),
-    (
-        "ui:kivo-default-avatar",
-        "./assets/ui/kivo-default-avatar.webp",
-        "https://kivo.wiki/assets/default_avatar-DsP7GJoc.webp",
-    ),
-    (
-        "ui:kivo-logo",
-        "./assets/ui/kivo-logo.svg",
-        "https://kivo.wiki/assets/logo-Br8CpJHI.svg",
-    ),
-    (
-        "ui:kivo-loading",
-        "./assets/ui/kivo-loading.gif",
-        "https://kivo.wiki/load.gif",
-    ),
-    (
-        "ui:arona-favicon",
-        "./assets/ui/arona.jpg",
-        "https://arona.icu/arona.jpg",
     ),
     (
         "ui:schaledb-gdd-full",
@@ -165,39 +87,6 @@ UI_ASSET_SPECS = [
         "ui:schaledb-logo-dark",
         "./assets/ui/schaledb-logo-dark.png",
         "https://schaledb.com/logo-dark.png",
-    ),
-    # Small, game-like state markers from KivoWiki. They are used as a
-    # visual key for reaction/empty states, never as a replacement for the
-    # official SchaleDB gift reaction values.
-    (
-        "ui:kivo-reaction-a",
-        "./assets/ui/kivo-reaction-a.webp",
-        "https://kivo.wiki/assets/A-CEklTVgE.webp",
-    ),
-    (
-        "ui:kivo-reaction-b",
-        "./assets/ui/kivo-reaction-b.webp",
-        "https://kivo.wiki/assets/B-CSvihKot.webp",
-    ),
-    (
-        "ui:kivo-reaction-c",
-        "./assets/ui/kivo-reaction-c.webp",
-        "https://kivo.wiki/assets/C-BhTrONJU.webp",
-    ),
-    (
-        "ui:kivo-reaction-d",
-        "./assets/ui/kivo-reaction-d.webp",
-        "https://kivo.wiki/assets/D-CS4HgjoS.webp",
-    ),
-    (
-        "ui:kivo-reaction-s",
-        "./assets/ui/kivo-reaction-s.webp",
-        "https://kivo.wiki/assets/S-DHjdbk-G.webp",
-    ),
-    (
-        "ui:kivo-reaction-ss",
-        "./assets/ui/kivo-reaction-ss.webp",
-        "https://kivo.wiki/assets/SS-RrLftTEI.webp",
     ),
     # SchaleDB's native rarity tiles keep gift cards recognizable without
     # adding another large illustration or inventing a new visual language.

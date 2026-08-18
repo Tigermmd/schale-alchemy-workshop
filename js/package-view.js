@@ -87,8 +87,7 @@ function contentIcon(content, data) {
     return `<img src="${escapeHtml(itemSource.local)}" data-fallback="${escapeHtml(itemSource.remote ?? "")}" alt="" loading="lazy">`;
   }
   if (content?.kind === "student_favorite_gift") {
-    const source = data?.assetManifest?.entries?.["ui:kivo-favor"];
-    return source ? `<img src="${escapeHtml(source.local)}" alt="" loading="lazy">` : `<span class="package-content-glyph" aria-hidden="true">♡</span>`;
+    return `<span class="package-content-glyph package-favorite-glyph" aria-hidden="true">♡</span>`;
   }
   return `<span class="package-content-glyph" aria-hidden="true">▧</span>`;
 }

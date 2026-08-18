@@ -3,7 +3,7 @@
   "source": {
     "image_base": "https://schaledb.com",
     "crafting_source": "https://schaledb.com/data/crafting.min.json",
-    "retrieved_at": "2026-08-14T08:14:35+00:00"
+    "retrieved_at": "2026-08-18T08:15:04+00:00"
   },
   "entries": {
     "gift:5000": {
@@ -3720,6 +3720,24 @@
       "downloaded": true,
       "bytes": 136200
     },
+    "student:10099": {
+      "local": "./assets/students/10099.webp",
+      "remote": "https://schaledb.com/images/student/icon/10099.webp",
+      "downloaded": true,
+      "bytes": 8088
+    },
+    "student-collection:10099": {
+      "local": "./assets/students/collection/10099.webp",
+      "remote": "https://schaledb.com/images/student/collection/10099.webp",
+      "downloaded": true,
+      "bytes": 14914
+    },
+    "student-portrait:10099": {
+      "local": "./assets/students/portrait/10099.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10099.webp",
+      "downloaded": true,
+      "bytes": 104488
+    },
     "student:10100": {
       "local": "./assets/students/10100.webp",
       "remote": "https://schaledb.com/images/student/icon/10100.webp",
@@ -4134,17 +4152,1067 @@
       "downloaded": true,
       "bytes": 114914
     },
-    "student-portrait:10122": {
-      "local": "./assets/students/portrait/10122.webp",
-      "remote": "https://schaledb.com/images/student/portrait/10122.webp",
+    "student:20043": {
+      "local": "./assets/students/20043.webp",
+      "remote": "https://schaledb.com/images/student/icon/20043.webp",
       "downloaded": true,
-      "bytes": 127378
+      "bytes": 9054
+    },
+    "student-collection:20043": {
+      "local": "./assets/students/collection/20043.webp",
+      "remote": "https://schaledb.com/images/student/collection/20043.webp",
+      "downloaded": true,
+      "bytes": 15124
+    },
+    "student-portrait:20043": {
+      "local": "./assets/students/portrait/20043.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20043.webp",
+      "downloaded": true,
+      "bytes": 148524
+    },
+    "student:10115": {
+      "local": "./assets/students/10115.webp",
+      "remote": "https://schaledb.com/images/student/icon/10115.webp",
+      "downloaded": true,
+      "bytes": 9500
+    },
+    "student-collection:10115": {
+      "local": "./assets/students/collection/10115.webp",
+      "remote": "https://schaledb.com/images/student/collection/10115.webp",
+      "downloaded": true,
+      "bytes": 18366
+    },
+    "student-portrait:10115": {
+      "local": "./assets/students/portrait/10115.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10115.webp",
+      "downloaded": true,
+      "bytes": 128896
+    },
+    "student:20044": {
+      "local": "./assets/students/20044.webp",
+      "remote": "https://schaledb.com/images/student/icon/20044.webp",
+      "downloaded": true,
+      "bytes": 9052
+    },
+    "student-collection:20044": {
+      "local": "./assets/students/collection/20044.webp",
+      "remote": "https://schaledb.com/images/student/collection/20044.webp",
+      "downloaded": true,
+      "bytes": 18298
+    },
+    "student-portrait:20044": {
+      "local": "./assets/students/portrait/20044.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20044.webp",
+      "downloaded": true,
+      "bytes": 157340
+    },
+    "student:10116": {
+      "local": "./assets/students/10116.webp",
+      "remote": "https://schaledb.com/images/student/icon/10116.webp",
+      "downloaded": true,
+      "bytes": 8596
+    },
+    "student-collection:10116": {
+      "local": "./assets/students/collection/10116.webp",
+      "remote": "https://schaledb.com/images/student/collection/10116.webp",
+      "downloaded": true,
+      "bytes": 14446
+    },
+    "student-portrait:10116": {
+      "local": "./assets/students/portrait/10116.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10116.webp",
+      "downloaded": true,
+      "bytes": 132292
+    },
+    "student:10117": {
+      "local": "./assets/students/10117.webp",
+      "remote": "https://schaledb.com/images/student/icon/10117.webp",
+      "downloaded": true,
+      "bytes": 9212
+    },
+    "student-collection:10117": {
+      "local": "./assets/students/collection/10117.webp",
+      "remote": "https://schaledb.com/images/student/collection/10117.webp",
+      "downloaded": true,
+      "bytes": 18878
+    },
+    "student-portrait:10117": {
+      "local": "./assets/students/portrait/10117.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10117.webp",
+      "downloaded": true,
+      "bytes": 133090
+    },
+    "student:10118": {
+      "local": "./assets/students/10118.webp",
+      "remote": "https://schaledb.com/images/student/icon/10118.webp",
+      "downloaded": true,
+      "bytes": 8904
+    },
+    "student-collection:10118": {
+      "local": "./assets/students/collection/10118.webp",
+      "remote": "https://schaledb.com/images/student/collection/10118.webp",
+      "downloaded": true,
+      "bytes": 16540
+    },
+    "student-portrait:10118": {
+      "local": "./assets/students/portrait/10118.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10118.webp",
+      "downloaded": true,
+      "bytes": 140764
+    },
+    "student:16017": {
+      "local": "./assets/students/16017.webp",
+      "remote": "https://schaledb.com/images/student/icon/16017.webp",
+      "downloaded": true,
+      "bytes": 7978
+    },
+    "student-collection:16017": {
+      "local": "./assets/students/collection/16017.webp",
+      "remote": "https://schaledb.com/images/student/collection/16017.webp",
+      "downloaded": true,
+      "bytes": 16450
+    },
+    "student-portrait:16017": {
+      "local": "./assets/students/portrait/16017.webp",
+      "remote": "https://schaledb.com/images/student/portrait/16017.webp",
+      "downloaded": true,
+      "bytes": 112230
+    },
+    "student:20045": {
+      "local": "./assets/students/20045.webp",
+      "remote": "https://schaledb.com/images/student/icon/20045.webp",
+      "downloaded": true,
+      "bytes": 8332
+    },
+    "student-collection:20045": {
+      "local": "./assets/students/collection/20045.webp",
+      "remote": "https://schaledb.com/images/student/collection/20045.webp",
+      "downloaded": true,
+      "bytes": 15960
+    },
+    "student-portrait:20045": {
+      "local": "./assets/students/portrait/20045.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20045.webp",
+      "downloaded": true,
+      "bytes": 89476
+    },
+    "student:10119": {
+      "local": "./assets/students/10119.webp",
+      "remote": "https://schaledb.com/images/student/icon/10119.webp",
+      "downloaded": true,
+      "bytes": 6260
+    },
+    "student-collection:10119": {
+      "local": "./assets/students/collection/10119.webp",
+      "remote": "https://schaledb.com/images/student/collection/10119.webp",
+      "downloaded": true,
+      "bytes": 12792
+    },
+    "student-portrait:10119": {
+      "local": "./assets/students/portrait/10119.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10119.webp",
+      "downloaded": true,
+      "bytes": 139290
+    },
+    "student:20046": {
+      "local": "./assets/students/20046.webp",
+      "remote": "https://schaledb.com/images/student/icon/20046.webp",
+      "downloaded": true,
+      "bytes": 8452
+    },
+    "student-collection:20046": {
+      "local": "./assets/students/collection/20046.webp",
+      "remote": "https://schaledb.com/images/student/collection/20046.webp",
+      "downloaded": true,
+      "bytes": 15488
+    },
+    "student-portrait:20046": {
+      "local": "./assets/students/portrait/20046.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20046.webp",
+      "downloaded": true,
+      "bytes": 139292
+    },
+    "student:10120": {
+      "local": "./assets/students/10120.webp",
+      "remote": "https://schaledb.com/images/student/icon/10120.webp",
+      "downloaded": true,
+      "bytes": 8994
+    },
+    "student-collection:10120": {
+      "local": "./assets/students/collection/10120.webp",
+      "remote": "https://schaledb.com/images/student/collection/10120.webp",
+      "downloaded": true,
+      "bytes": 15688
+    },
+    "student-portrait:10120": {
+      "local": "./assets/students/portrait/10120.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10120.webp",
+      "downloaded": true,
+      "bytes": 108186
+    },
+    "student:10121": {
+      "local": "./assets/students/10121.webp",
+      "remote": "https://schaledb.com/images/student/icon/10121.webp",
+      "downloaded": true,
+      "bytes": 9100
+    },
+    "student-collection:10121": {
+      "local": "./assets/students/collection/10121.webp",
+      "remote": "https://schaledb.com/images/student/collection/10121.webp",
+      "downloaded": true,
+      "bytes": 16238
+    },
+    "student-portrait:10121": {
+      "local": "./assets/students/portrait/10121.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10121.webp",
+      "downloaded": true,
+      "bytes": 154728
+    },
+    "student:13014": {
+      "local": "./assets/students/13014.webp",
+      "remote": "https://schaledb.com/images/student/icon/13014.webp",
+      "downloaded": true,
+      "bytes": 8950
+    },
+    "student-collection:13014": {
+      "local": "./assets/students/collection/13014.webp",
+      "remote": "https://schaledb.com/images/student/collection/13014.webp",
+      "downloaded": true,
+      "bytes": 16648
+    },
+    "student-portrait:13014": {
+      "local": "./assets/students/portrait/13014.webp",
+      "remote": "https://schaledb.com/images/student/portrait/13014.webp",
+      "downloaded": true,
+      "bytes": 137400
+    },
+    "student:20047": {
+      "local": "./assets/students/20047.webp",
+      "remote": "https://schaledb.com/images/student/icon/20047.webp",
+      "downloaded": true,
+      "bytes": 7278
+    },
+    "student-collection:20047": {
+      "local": "./assets/students/collection/20047.webp",
+      "remote": "https://schaledb.com/images/student/collection/20047.webp",
+      "downloaded": true,
+      "bytes": 13494
+    },
+    "student-portrait:20047": {
+      "local": "./assets/students/portrait/20047.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20047.webp",
+      "downloaded": true,
+      "bytes": 105608
+    },
+    "student:10123": {
+      "local": "./assets/students/10123.webp",
+      "remote": "https://schaledb.com/images/student/icon/10123.webp",
+      "downloaded": true,
+      "bytes": 9192
+    },
+    "student-collection:10123": {
+      "local": "./assets/students/collection/10123.webp",
+      "remote": "https://schaledb.com/images/student/collection/10123.webp",
+      "downloaded": true,
+      "bytes": 15310
+    },
+    "student-portrait:10123": {
+      "local": "./assets/students/portrait/10123.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10123.webp",
+      "downloaded": true,
+      "bytes": 127564
+    },
+    "student:10124": {
+      "local": "./assets/students/10124.webp",
+      "remote": "https://schaledb.com/images/student/icon/10124.webp",
+      "downloaded": true,
+      "bytes": 8690
+    },
+    "student-collection:10124": {
+      "local": "./assets/students/collection/10124.webp",
+      "remote": "https://schaledb.com/images/student/collection/10124.webp",
+      "downloaded": true,
+      "bytes": 15602
+    },
+    "student-portrait:10124": {
+      "local": "./assets/students/portrait/10124.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10124.webp",
+      "downloaded": true,
+      "bytes": 109214
+    },
+    "student:26015": {
+      "local": "./assets/students/26015.webp",
+      "remote": "https://schaledb.com/images/student/icon/26015.webp",
+      "downloaded": true,
+      "bytes": 9094
+    },
+    "student-collection:26015": {
+      "local": "./assets/students/collection/26015.webp",
+      "remote": "https://schaledb.com/images/student/collection/26015.webp",
+      "downloaded": true,
+      "bytes": 15134
+    },
+    "student-portrait:26015": {
+      "local": "./assets/students/portrait/26015.webp",
+      "remote": "https://schaledb.com/images/student/portrait/26015.webp",
+      "downloaded": true,
+      "bytes": 113662
+    },
+    "student:20048": {
+      "local": "./assets/students/20048.webp",
+      "remote": "https://schaledb.com/images/student/icon/20048.webp",
+      "downloaded": true,
+      "bytes": 7826
+    },
+    "student-collection:20048": {
+      "local": "./assets/students/collection/20048.webp",
+      "remote": "https://schaledb.com/images/student/collection/20048.webp",
+      "downloaded": true,
+      "bytes": 16794
+    },
+    "student-portrait:20048": {
+      "local": "./assets/students/portrait/20048.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20048.webp",
+      "downloaded": true,
+      "bytes": 176606
+    },
+    "student:10122": {
+      "local": "./assets/students/10122.webp",
+      "remote": "https://schaledb.com/images/student/icon/10122.webp",
+      "downloaded": true,
+      "bytes": 7456
     },
     "student-collection:10122": {
       "local": "./assets/students/collection/10122.webp",
       "remote": "https://schaledb.com/images/student/collection/10122.webp",
       "downloaded": true,
       "bytes": 13472
+    },
+    "student-portrait:10122": {
+      "local": "./assets/students/portrait/10122.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10122.webp",
+      "downloaded": true,
+      "bytes": 127378
+    },
+    "student:10125": {
+      "local": "./assets/students/10125.webp",
+      "remote": "https://schaledb.com/images/student/icon/10125.webp",
+      "downloaded": true,
+      "bytes": 7530
+    },
+    "student-collection:10125": {
+      "local": "./assets/students/collection/10125.webp",
+      "remote": "https://schaledb.com/images/student/collection/10125.webp",
+      "downloaded": true,
+      "bytes": 16436
+    },
+    "student-portrait:10125": {
+      "local": "./assets/students/portrait/10125.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10125.webp",
+      "downloaded": true,
+      "bytes": 125728
+    },
+    "student:10126": {
+      "local": "./assets/students/10126.webp",
+      "remote": "https://schaledb.com/images/student/icon/10126.webp",
+      "downloaded": true,
+      "bytes": 8242
+    },
+    "student-collection:10126": {
+      "local": "./assets/students/collection/10126.webp",
+      "remote": "https://schaledb.com/images/student/collection/10126.webp",
+      "downloaded": true,
+      "bytes": 16522
+    },
+    "student-portrait:10126": {
+      "local": "./assets/students/portrait/10126.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10126.webp",
+      "downloaded": true,
+      "bytes": 101818
+    },
+    "student:20049": {
+      "local": "./assets/students/20049.webp",
+      "remote": "https://schaledb.com/images/student/icon/20049.webp",
+      "downloaded": true,
+      "bytes": 8042
+    },
+    "student-collection:20049": {
+      "local": "./assets/students/collection/20049.webp",
+      "remote": "https://schaledb.com/images/student/collection/20049.webp",
+      "downloaded": true,
+      "bytes": 15482
+    },
+    "student-portrait:20049": {
+      "local": "./assets/students/portrait/20049.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20049.webp",
+      "downloaded": true,
+      "bytes": 103814
+    },
+    "student:10127": {
+      "local": "./assets/students/10127.webp",
+      "remote": "https://schaledb.com/images/student/icon/10127.webp",
+      "downloaded": true,
+      "bytes": 7998
+    },
+    "student-collection:10127": {
+      "local": "./assets/students/collection/10127.webp",
+      "remote": "https://schaledb.com/images/student/collection/10127.webp",
+      "downloaded": true,
+      "bytes": 17020
+    },
+    "student-portrait:10127": {
+      "local": "./assets/students/portrait/10127.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10127.webp",
+      "downloaded": true,
+      "bytes": 111380
+    },
+    "student:10128": {
+      "local": "./assets/students/10128.webp",
+      "remote": "https://schaledb.com/images/student/icon/10128.webp",
+      "downloaded": true,
+      "bytes": 7890
+    },
+    "student-collection:10128": {
+      "local": "./assets/students/collection/10128.webp",
+      "remote": "https://schaledb.com/images/student/collection/10128.webp",
+      "downloaded": true,
+      "bytes": 13616
+    },
+    "student-portrait:10128": {
+      "local": "./assets/students/portrait/10128.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10128.webp",
+      "downloaded": true,
+      "bytes": 79590
+    },
+    "student:20050": {
+      "local": "./assets/students/20050.webp",
+      "remote": "https://schaledb.com/images/student/icon/20050.webp",
+      "downloaded": true,
+      "bytes": 8566
+    },
+    "student-collection:20050": {
+      "local": "./assets/students/collection/20050.webp",
+      "remote": "https://schaledb.com/images/student/collection/20050.webp",
+      "downloaded": true,
+      "bytes": 14224
+    },
+    "student-portrait:20050": {
+      "local": "./assets/students/portrait/20050.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20050.webp",
+      "downloaded": true,
+      "bytes": 109968
+    },
+    "student:20051": {
+      "local": "./assets/students/20051.webp",
+      "remote": "https://schaledb.com/images/student/icon/20051.webp",
+      "downloaded": true,
+      "bytes": 10080
+    },
+    "student-collection:20051": {
+      "local": "./assets/students/collection/20051.webp",
+      "remote": "https://schaledb.com/images/student/collection/20051.webp",
+      "downloaded": true,
+      "bytes": 17698
+    },
+    "student-portrait:20051": {
+      "local": "./assets/students/portrait/20051.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20051.webp",
+      "downloaded": true,
+      "bytes": 168142
+    },
+    "student:10129": {
+      "local": "./assets/students/10129.webp",
+      "remote": "https://schaledb.com/images/student/icon/10129.webp",
+      "downloaded": true,
+      "bytes": 9024
+    },
+    "student-collection:10129": {
+      "local": "./assets/students/collection/10129.webp",
+      "remote": "https://schaledb.com/images/student/collection/10129.webp",
+      "downloaded": true,
+      "bytes": 16332
+    },
+    "student-portrait:10129": {
+      "local": "./assets/students/portrait/10129.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10129.webp",
+      "downloaded": true,
+      "bytes": 153022
+    },
+    "student:16018": {
+      "local": "./assets/students/16018.webp",
+      "remote": "https://schaledb.com/images/student/icon/16018.webp",
+      "downloaded": true,
+      "bytes": 7696
+    },
+    "student-collection:16018": {
+      "local": "./assets/students/collection/16018.webp",
+      "remote": "https://schaledb.com/images/student/collection/16018.webp",
+      "downloaded": true,
+      "bytes": 16648
+    },
+    "student-portrait:16018": {
+      "local": "./assets/students/portrait/16018.webp",
+      "remote": "https://schaledb.com/images/student/portrait/16018.webp",
+      "downloaded": true,
+      "bytes": 130436
+    },
+    "student:10130": {
+      "local": "./assets/students/10130.webp",
+      "remote": "https://schaledb.com/images/student/icon/10130.webp",
+      "downloaded": true,
+      "bytes": 8200
+    },
+    "student-collection:10130": {
+      "local": "./assets/students/collection/10130.webp",
+      "remote": "https://schaledb.com/images/student/collection/10130.webp",
+      "downloaded": true,
+      "bytes": 14316
+    },
+    "student-portrait:10130": {
+      "local": "./assets/students/portrait/10130.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10130.webp",
+      "downloaded": true,
+      "bytes": 98804
+    },
+    "student:10131": {
+      "local": "./assets/students/10131.webp",
+      "remote": "https://schaledb.com/images/student/icon/10131.webp",
+      "downloaded": true,
+      "bytes": 8864
+    },
+    "student-collection:10131": {
+      "local": "./assets/students/collection/10131.webp",
+      "remote": "https://schaledb.com/images/student/collection/10131.webp",
+      "downloaded": true,
+      "bytes": 16738
+    },
+    "student-portrait:10131": {
+      "local": "./assets/students/portrait/10131.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10131.webp",
+      "downloaded": true,
+      "bytes": 102490
+    },
+    "student:20052": {
+      "local": "./assets/students/20052.webp",
+      "remote": "https://schaledb.com/images/student/icon/20052.webp",
+      "downloaded": true,
+      "bytes": 9020
+    },
+    "student-collection:20052": {
+      "local": "./assets/students/collection/20052.webp",
+      "remote": "https://schaledb.com/images/student/collection/20052.webp",
+      "downloaded": true,
+      "bytes": 16250
+    },
+    "student-portrait:20052": {
+      "local": "./assets/students/portrait/20052.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20052.webp",
+      "downloaded": true,
+      "bytes": 85466
+    },
+    "student:10132": {
+      "local": "./assets/students/10132.webp",
+      "remote": "https://schaledb.com/images/student/icon/10132.webp",
+      "downloaded": true,
+      "bytes": 8556
+    },
+    "student-collection:10132": {
+      "local": "./assets/students/collection/10132.webp",
+      "remote": "https://schaledb.com/images/student/collection/10132.webp",
+      "downloaded": true,
+      "bytes": 14184
+    },
+    "student-portrait:10132": {
+      "local": "./assets/students/portrait/10132.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10132.webp",
+      "downloaded": true,
+      "bytes": 137946
+    },
+    "student:20053": {
+      "local": "./assets/students/20053.webp",
+      "remote": "https://schaledb.com/images/student/icon/20053.webp",
+      "downloaded": true,
+      "bytes": 8650
+    },
+    "student-collection:20053": {
+      "local": "./assets/students/collection/20053.webp",
+      "remote": "https://schaledb.com/images/student/collection/20053.webp",
+      "downloaded": true,
+      "bytes": 15104
+    },
+    "student-portrait:20053": {
+      "local": "./assets/students/portrait/20053.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20053.webp",
+      "downloaded": true,
+      "bytes": 105886
+    },
+    "student:10133": {
+      "local": "./assets/students/10133.webp",
+      "remote": "https://schaledb.com/images/student/icon/10133.webp",
+      "downloaded": true,
+      "bytes": 7836
+    },
+    "student-collection:10133": {
+      "local": "./assets/students/collection/10133.webp",
+      "remote": "https://schaledb.com/images/student/collection/10133.webp",
+      "downloaded": true,
+      "bytes": 14426
+    },
+    "student-portrait:10133": {
+      "local": "./assets/students/portrait/10133.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10133.webp",
+      "downloaded": true,
+      "bytes": 87842
+    },
+    "student:16019": {
+      "local": "./assets/students/16019.webp",
+      "remote": "https://schaledb.com/images/student/icon/16019.webp",
+      "downloaded": true,
+      "bytes": 9978
+    },
+    "student-collection:16019": {
+      "local": "./assets/students/collection/16019.webp",
+      "remote": "https://schaledb.com/images/student/collection/16019.webp",
+      "downloaded": true,
+      "bytes": 16302
+    },
+    "student-portrait:16019": {
+      "local": "./assets/students/portrait/16019.webp",
+      "remote": "https://schaledb.com/images/student/portrait/16019.webp",
+      "downloaded": true,
+      "bytes": 123876
+    },
+    "student:20054": {
+      "local": "./assets/students/20054.webp",
+      "remote": "https://schaledb.com/images/student/icon/20054.webp",
+      "downloaded": true,
+      "bytes": 10664
+    },
+    "student-collection:20054": {
+      "local": "./assets/students/collection/20054.webp",
+      "remote": "https://schaledb.com/images/student/collection/20054.webp",
+      "downloaded": true,
+      "bytes": 18408
+    },
+    "student-portrait:20054": {
+      "local": "./assets/students/portrait/20054.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20054.webp",
+      "downloaded": true,
+      "bytes": 271956
+    },
+    "student:10134": {
+      "local": "./assets/students/10134.webp",
+      "remote": "https://schaledb.com/images/student/icon/10134.webp",
+      "downloaded": true,
+      "bytes": 10254
+    },
+    "student-collection:10134": {
+      "local": "./assets/students/collection/10134.webp",
+      "remote": "https://schaledb.com/images/student/collection/10134.webp",
+      "downloaded": true,
+      "bytes": 16716
+    },
+    "student-portrait:10134": {
+      "local": "./assets/students/portrait/10134.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10134.webp",
+      "downloaded": true,
+      "bytes": 217956
+    },
+    "student:10135": {
+      "local": "./assets/students/10135.webp",
+      "remote": "https://schaledb.com/images/student/icon/10135.webp",
+      "downloaded": true,
+      "bytes": 8640
+    },
+    "student-collection:10135": {
+      "local": "./assets/students/collection/10135.webp",
+      "remote": "https://schaledb.com/images/student/collection/10135.webp",
+      "downloaded": true,
+      "bytes": 15794
+    },
+    "student-portrait:10135": {
+      "local": "./assets/students/portrait/10135.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10135.webp",
+      "downloaded": true,
+      "bytes": 144072
+    },
+    "student:10136": {
+      "local": "./assets/students/10136.webp",
+      "remote": "https://schaledb.com/images/student/icon/10136.webp",
+      "downloaded": true,
+      "bytes": 9204
+    },
+    "student-collection:10136": {
+      "local": "./assets/students/collection/10136.webp",
+      "remote": "https://schaledb.com/images/student/collection/10136.webp",
+      "downloaded": true,
+      "bytes": 17576
+    },
+    "student-portrait:10136": {
+      "local": "./assets/students/portrait/10136.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10136.webp",
+      "downloaded": true,
+      "bytes": 161082
+    },
+    "student:20055": {
+      "local": "./assets/students/20055.webp",
+      "remote": "https://schaledb.com/images/student/icon/20055.webp",
+      "downloaded": true,
+      "bytes": 8950
+    },
+    "student-collection:20055": {
+      "local": "./assets/students/collection/20055.webp",
+      "remote": "https://schaledb.com/images/student/collection/20055.webp",
+      "downloaded": true,
+      "bytes": 16346
+    },
+    "student-portrait:20055": {
+      "local": "./assets/students/portrait/20055.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20055.webp",
+      "downloaded": true,
+      "bytes": 136488
+    },
+    "student:20056": {
+      "local": "./assets/students/20056.webp",
+      "remote": "https://schaledb.com/images/student/icon/20056.webp",
+      "downloaded": true,
+      "bytes": 7284
+    },
+    "student-collection:20056": {
+      "local": "./assets/students/collection/20056.webp",
+      "remote": "https://schaledb.com/images/student/collection/20056.webp",
+      "downloaded": true,
+      "bytes": 13890
+    },
+    "student-portrait:20056": {
+      "local": "./assets/students/portrait/20056.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20056.webp",
+      "downloaded": true,
+      "bytes": 158610
+    },
+    "student:10137": {
+      "local": "./assets/students/10137.webp",
+      "remote": "https://schaledb.com/images/student/icon/10137.webp",
+      "downloaded": true,
+      "bytes": 6708
+    },
+    "student-collection:10137": {
+      "local": "./assets/students/collection/10137.webp",
+      "remote": "https://schaledb.com/images/student/collection/10137.webp",
+      "downloaded": true,
+      "bytes": 16066
+    },
+    "student-portrait:10137": {
+      "local": "./assets/students/portrait/10137.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10137.webp",
+      "downloaded": true,
+      "bytes": 102970
+    },
+    "student:10138": {
+      "local": "./assets/students/10138.webp",
+      "remote": "https://schaledb.com/images/student/icon/10138.webp",
+      "downloaded": true,
+      "bytes": 10272
+    },
+    "student-collection:10138": {
+      "local": "./assets/students/collection/10138.webp",
+      "remote": "https://schaledb.com/images/student/collection/10138.webp",
+      "downloaded": true,
+      "bytes": 19886
+    },
+    "student-portrait:10138": {
+      "local": "./assets/students/portrait/10138.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10138.webp",
+      "downloaded": true,
+      "bytes": 114344
+    },
+    "student:20057": {
+      "local": "./assets/students/20057.webp",
+      "remote": "https://schaledb.com/images/student/icon/20057.webp",
+      "downloaded": true,
+      "bytes": 8082
+    },
+    "student-collection:20057": {
+      "local": "./assets/students/collection/20057.webp",
+      "remote": "https://schaledb.com/images/student/collection/20057.webp",
+      "downloaded": true,
+      "bytes": 14856
+    },
+    "student-portrait:20057": {
+      "local": "./assets/students/portrait/20057.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20057.webp",
+      "downloaded": true,
+      "bytes": 72080
+    },
+    "student:10139": {
+      "local": "./assets/students/10139.webp",
+      "remote": "https://schaledb.com/images/student/icon/10139.webp",
+      "downloaded": true,
+      "bytes": 9474
+    },
+    "student-collection:10139": {
+      "local": "./assets/students/collection/10139.webp",
+      "remote": "https://schaledb.com/images/student/collection/10139.webp",
+      "downloaded": true,
+      "bytes": 17058
+    },
+    "student-portrait:10139": {
+      "local": "./assets/students/portrait/10139.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10139.webp",
+      "downloaded": true,
+      "bytes": 118552
+    },
+    "student:10140": {
+      "local": "./assets/students/10140.webp",
+      "remote": "https://schaledb.com/images/student/icon/10140.webp",
+      "downloaded": true,
+      "bytes": 8752
+    },
+    "student-collection:10140": {
+      "local": "./assets/students/collection/10140.webp",
+      "remote": "https://schaledb.com/images/student/collection/10140.webp",
+      "downloaded": true,
+      "bytes": 17234
+    },
+    "student-portrait:10140": {
+      "local": "./assets/students/portrait/10140.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10140.webp",
+      "downloaded": true,
+      "bytes": 106078
+    },
+    "student:16020": {
+      "local": "./assets/students/16020.webp",
+      "remote": "https://schaledb.com/images/student/icon/16020.webp",
+      "downloaded": true,
+      "bytes": 9734
+    },
+    "student-collection:16020": {
+      "local": "./assets/students/collection/16020.webp",
+      "remote": "https://schaledb.com/images/student/collection/16020.webp",
+      "downloaded": true,
+      "bytes": 17160
+    },
+    "student-portrait:16020": {
+      "local": "./assets/students/portrait/16020.webp",
+      "remote": "https://schaledb.com/images/student/portrait/16020.webp",
+      "downloaded": true,
+      "bytes": 185056
+    },
+    "student:20058": {
+      "local": "./assets/students/20058.webp",
+      "remote": "https://schaledb.com/images/student/icon/20058.webp",
+      "downloaded": true,
+      "bytes": 8760
+    },
+    "student-collection:20058": {
+      "local": "./assets/students/collection/20058.webp",
+      "remote": "https://schaledb.com/images/student/collection/20058.webp",
+      "downloaded": true,
+      "bytes": 14498
+    },
+    "student-portrait:20058": {
+      "local": "./assets/students/portrait/20058.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20058.webp",
+      "downloaded": true,
+      "bytes": 94282
+    },
+    "student:10141": {
+      "local": "./assets/students/10141.webp",
+      "remote": "https://schaledb.com/images/student/icon/10141.webp",
+      "downloaded": true,
+      "bytes": 7766
+    },
+    "student-collection:10141": {
+      "local": "./assets/students/collection/10141.webp",
+      "remote": "https://schaledb.com/images/student/collection/10141.webp",
+      "downloaded": true,
+      "bytes": 13228
+    },
+    "student-portrait:10141": {
+      "local": "./assets/students/portrait/10141.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10141.webp",
+      "downloaded": true,
+      "bytes": 73736
+    },
+    "student:20059": {
+      "local": "./assets/students/20059.webp",
+      "remote": "https://schaledb.com/images/student/icon/20059.webp",
+      "downloaded": true,
+      "bytes": 8658
+    },
+    "student-collection:20059": {
+      "local": "./assets/students/collection/20059.webp",
+      "remote": "https://schaledb.com/images/student/collection/20059.webp",
+      "downloaded": true,
+      "bytes": 15300
+    },
+    "student-portrait:20059": {
+      "local": "./assets/students/portrait/20059.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20059.webp",
+      "downloaded": true,
+      "bytes": 119612
+    },
+    "student:10142": {
+      "local": "./assets/students/10142.webp",
+      "remote": "https://schaledb.com/images/student/icon/10142.webp",
+      "downloaded": true,
+      "bytes": 5592
+    },
+    "student-collection:10142": {
+      "local": "./assets/students/collection/10142.webp",
+      "remote": "https://schaledb.com/images/student/collection/10142.webp",
+      "downloaded": true,
+      "bytes": 11554
+    },
+    "student-portrait:10142": {
+      "local": "./assets/students/portrait/10142.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10142.webp",
+      "downloaded": true,
+      "bytes": 126462
+    },
+    "student:10143": {
+      "local": "./assets/students/10143.webp",
+      "remote": "https://schaledb.com/images/student/icon/10143.webp",
+      "downloaded": true,
+      "bytes": 7864
+    },
+    "student-collection:10143": {
+      "local": "./assets/students/collection/10143.webp",
+      "remote": "https://schaledb.com/images/student/collection/10143.webp",
+      "downloaded": true,
+      "bytes": 13918
+    },
+    "student-portrait:10143": {
+      "local": "./assets/students/portrait/10143.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10143.webp",
+      "downloaded": true,
+      "bytes": 105578
+    },
+    "student:10144": {
+      "local": "./assets/students/10144.webp",
+      "remote": "https://schaledb.com/images/student/icon/10144.webp",
+      "downloaded": true,
+      "bytes": 7806
+    },
+    "student-collection:10144": {
+      "local": "./assets/students/collection/10144.webp",
+      "remote": "https://schaledb.com/images/student/collection/10144.webp",
+      "downloaded": true,
+      "bytes": 14260
+    },
+    "student-portrait:10144": {
+      "local": "./assets/students/portrait/10144.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10144.webp",
+      "downloaded": true,
+      "bytes": 88716
+    },
+    "student:10145": {
+      "local": "./assets/students/10145.webp",
+      "remote": "https://schaledb.com/images/student/icon/10145.webp",
+      "downloaded": true,
+      "bytes": 5718
+    },
+    "student-collection:10145": {
+      "local": "./assets/students/collection/10145.webp",
+      "remote": "https://schaledb.com/images/student/collection/10145.webp",
+      "downloaded": true,
+      "bytes": 14698
+    },
+    "student-portrait:10145": {
+      "local": "./assets/students/portrait/10145.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10145.webp",
+      "downloaded": true,
+      "bytes": 108746
+    },
+    "student:10146": {
+      "local": "./assets/students/10146.webp",
+      "remote": "https://schaledb.com/images/student/icon/10146.webp",
+      "downloaded": true,
+      "bytes": 8018
+    },
+    "student-collection:10146": {
+      "local": "./assets/students/collection/10146.webp",
+      "remote": "https://schaledb.com/images/student/collection/10146.webp",
+      "downloaded": true,
+      "bytes": 14844
+    },
+    "student-portrait:10146": {
+      "local": "./assets/students/portrait/10146.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10146.webp",
+      "downloaded": true,
+      "bytes": 139684
+    },
+    "student:10147": {
+      "local": "./assets/students/10147.webp",
+      "remote": "https://schaledb.com/images/student/icon/10147.webp",
+      "downloaded": true,
+      "bytes": 9454
+    },
+    "student-collection:10147": {
+      "local": "./assets/students/collection/10147.webp",
+      "remote": "https://schaledb.com/images/student/collection/10147.webp",
+      "downloaded": true,
+      "bytes": 15996
+    },
+    "student-portrait:10147": {
+      "local": "./assets/students/portrait/10147.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10147.webp",
+      "downloaded": true,
+      "bytes": 103252
+    },
+    "student:26016": {
+      "local": "./assets/students/26016.webp",
+      "remote": "https://schaledb.com/images/student/icon/26016.webp",
+      "downloaded": true,
+      "bytes": 8468
+    },
+    "student-collection:26016": {
+      "local": "./assets/students/collection/26016.webp",
+      "remote": "https://schaledb.com/images/student/collection/26016.webp",
+      "downloaded": true,
+      "bytes": 16398
+    },
+    "student-portrait:26016": {
+      "local": "./assets/students/portrait/26016.webp",
+      "remote": "https://schaledb.com/images/student/portrait/26016.webp",
+      "downloaded": true,
+      "bytes": 123712
+    },
+    "student:10148": {
+      "local": "./assets/students/10148.webp",
+      "remote": "https://schaledb.com/images/student/icon/10148.webp",
+      "downloaded": true,
+      "bytes": 8100
+    },
+    "student-collection:10148": {
+      "local": "./assets/students/collection/10148.webp",
+      "remote": "https://schaledb.com/images/student/collection/10148.webp",
+      "downloaded": true,
+      "bytes": 17046
+    },
+    "student-portrait:10148": {
+      "local": "./assets/students/portrait/10148.webp",
+      "remote": "https://schaledb.com/images/student/portrait/10148.webp",
+      "downloaded": true,
+      "bytes": 134666
+    },
+    "student:20060": {
+      "local": "./assets/students/20060.webp",
+      "remote": "https://schaledb.com/images/student/icon/20060.webp",
+      "downloaded": true,
+      "bytes": 7986
+    },
+    "student-collection:20060": {
+      "local": "./assets/students/collection/20060.webp",
+      "remote": "https://schaledb.com/images/student/collection/20060.webp",
+      "downloaded": true,
+      "bytes": 13818
+    },
+    "student-portrait:20060": {
+      "local": "./assets/students/portrait/20060.webp",
+      "remote": "https://schaledb.com/images/student/portrait/20060.webp",
+      "downloaded": true,
+      "bytes": 108864
     },
     "node:1": {
       "local": "./assets/nodes/1.png",
@@ -5004,101 +6072,11 @@
       "downloaded": true,
       "bytes": 4929
     },
-    "ui:arona-error": {
-      "local": "./assets/ui/arona-error.png",
+    "ui:schaledb-error": {
+      "local": "./assets/ui/schaledb-error.png",
       "remote": "https://schaledb.com/images/ui/arona_error.png",
       "downloaded": true,
       "bytes": 20050
-    },
-    "ui:arona-loading-bg": {
-      "local": "./assets/ui/arona-loading-bg.png",
-      "remote": "https://arona.icu/assets/loading_bg_pc.ba246778-ba246778.png",
-      "downloaded": true,
-      "bytes": 66346
-    },
-    "ui:arona-avatar-1": {
-      "local": "./assets/ui/arona-avatar-1.png",
-      "remote": "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar1.c18ce793.png",
-      "downloaded": true,
-      "bytes": 22835
-    },
-    "ui:arona-avatar-2": {
-      "local": "./assets/ui/arona-avatar-2.png",
-      "remote": "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar2.916294c1.png",
-      "downloaded": true,
-      "bytes": 57345
-    },
-    "ui:arona-avatar-3": {
-      "local": "./assets/ui/arona-avatar-3.png",
-      "remote": "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar3.5e643647.png",
-      "downloaded": true,
-      "bytes": 60689
-    },
-    "ui:arona-avatar-4": {
-      "local": "./assets/ui/arona-avatar-4.png",
-      "remote": "https://webcnstatic.yostar.net/ba_cn_web/prod/web/assets/avatar4.be61bf91.png",
-      "downloaded": true,
-      "bytes": 58031
-    },
-    "ui:arona-title-new": {
-      "local": "./assets/ui/arona-title-new.webp",
-      "remote": "https://arona.icu/arona_title_new.webp",
-      "downloaded": true,
-      "bytes": 8446
-    },
-    "ui:kivo-home-button": {
-      "local": "./assets/ui/kivo-home-button.webp",
-      "remote": "https://kivo.wiki/assets/home_button-BRCngEW_.webp",
-      "downloaded": true,
-      "bytes": 29338
-    },
-    "ui:kivo-favor": {
-      "local": "./assets/ui/kivo-favor.webp",
-      "remote": "https://kivo.wiki/assets/favor-BK4Xpa_s.webp",
-      "downloaded": true,
-      "bytes": 2496
-    },
-    "ui:kivo-options": {
-      "local": "./assets/ui/kivo-options.webp",
-      "remote": "https://kivo.wiki/assets/options-DoCj5sFX.webp",
-      "downloaded": true,
-      "bytes": 45564
-    },
-    "ui:kivo-empty": {
-      "local": "./assets/ui/kivo-empty.webp",
-      "remote": "https://kivo.wiki/assets/empty-V3buqWTa.webp",
-      "downloaded": true,
-      "bytes": 114576
-    },
-    "ui:kivo-default-half-body": {
-      "local": "./assets/ui/kivo-default-half-body.webp",
-      "remote": "https://kivo.wiki/assets/default-half_body-anmscmGj.webp",
-      "downloaded": true,
-      "bytes": 486810
-    },
-    "ui:kivo-default-avatar": {
-      "local": "./assets/ui/kivo-default-avatar.webp",
-      "remote": "https://kivo.wiki/assets/default_avatar-DsP7GJoc.webp",
-      "downloaded": true,
-      "bytes": 4534
-    },
-    "ui:kivo-logo": {
-      "local": "./assets/ui/kivo-logo.svg",
-      "remote": "https://kivo.wiki/assets/logo-Br8CpJHI.svg",
-      "downloaded": true,
-      "bytes": 6416
-    },
-    "ui:kivo-loading": {
-      "local": "./assets/ui/kivo-loading.gif",
-      "remote": "https://kivo.wiki/load.gif",
-      "downloaded": true,
-      "bytes": 130375
-    },
-    "ui:arona-favicon": {
-      "local": "./assets/ui/arona.jpg",
-      "remote": "https://arona.icu/arona.jpg",
-      "downloaded": true,
-      "bytes": 1220
     },
     "ui:schaledb-gdd-full": {
       "local": "./assets/ui/schaledb-gdd-full.png",
@@ -5117,42 +6095,6 @@
       "remote": "https://schaledb.com/logo-dark.png",
       "downloaded": true,
       "bytes": 10026
-    },
-    "ui:kivo-reaction-a": {
-      "local": "./assets/ui/kivo-reaction-a.webp",
-      "remote": "https://kivo.wiki/assets/A-CEklTVgE.webp",
-      "downloaded": true,
-      "bytes": 1840
-    },
-    "ui:kivo-reaction-b": {
-      "local": "./assets/ui/kivo-reaction-b.webp",
-      "remote": "https://kivo.wiki/assets/B-CSvihKot.webp",
-      "downloaded": true,
-      "bytes": 1872
-    },
-    "ui:kivo-reaction-c": {
-      "local": "./assets/ui/kivo-reaction-c.webp",
-      "remote": "https://kivo.wiki/assets/C-BhTrONJU.webp",
-      "downloaded": true,
-      "bytes": 1842
-    },
-    "ui:kivo-reaction-d": {
-      "local": "./assets/ui/kivo-reaction-d.webp",
-      "remote": "https://kivo.wiki/assets/D-CS4HgjoS.webp",
-      "downloaded": true,
-      "bytes": 2150
-    },
-    "ui:kivo-reaction-s": {
-      "local": "./assets/ui/kivo-reaction-s.webp",
-      "remote": "https://kivo.wiki/assets/S-DHjdbk-G.webp",
-      "downloaded": true,
-      "bytes": 2084
-    },
-    "ui:kivo-reaction-ss": {
-      "local": "./assets/ui/kivo-reaction-ss.webp",
-      "remote": "https://kivo.wiki/assets/SS-RrLftTEI.webp",
-      "downloaded": true,
-      "bytes": 2420
     },
     "ui:schaledb-rarity-n": {
       "local": "./assets/ui/pixel/BG_N.png",
@@ -5445,14 +6387,14 @@
   },
   "counts": {
     "gifts": 52,
-    "students": 212,
-    "student_collection_portraits": 213,
-    "student_portraits": 213,
+    "students": 272,
+    "student_collection_portraits": 272,
+    "student_portraits": 272,
     "crafting_nodes": 132,
     "reaction_icons": 4,
-    "ui_assets": 46,
+    "ui_assets": 25,
     "event_art": 12,
     "item_assets": 10,
-    "downloaded": 906
+    "downloaded": 1063
   }
 }
