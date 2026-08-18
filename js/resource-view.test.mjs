@@ -25,7 +25,7 @@ const html = renderResourcesWorkspace({
       id: "monthly-synthesis-stones",
       cadence: "monthly",
       unit: "synthesis_stone_gold",
-      amount: 70,
+      amount: 50,
     }, {
       id: "monthly-total-assault-gift-boxes",
       cadence: "monthly",
@@ -79,8 +79,8 @@ assert.match(html, /免费资源/);
 assert.match(html, /制造启动石/);
 assert.match(html, /aria-label="制造启动石 · 数量"/);
 assert.doesNotMatch(html, /每周制造启动石/);
-assert.match(html, />70</);
-assert.doesNotMatch(html, /70\.00/);
+assert.match(html, />50</);
+assert.doesNotMatch(html, /50\.00/);
 assert.match(html, />3</);
 assert.doesNotMatch(html, /3\.00/);
 assert.match(html, /待填写/);
@@ -92,6 +92,8 @@ assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
 assert.match(html, /resource-toolbar/);
 assert.doesNotMatch(html, /100000|100008|100009/);
 assert.match(html, /class="icon-frame resource-icon"/);
+assert.match(styles, /\.gift-box-inventory\s*\{/);
+assert.match(styles, /\.gift-box-input\s*\{/);
 assert.equal((html.match(/data-resource-icon="schedule"/g) ?? []).length, 2, "Schedule and cafe relationship resources must share the schedule icon marker");
 assert.equal((html.match(/src="\.\/assets\/ui\/schedule-favor\.png"/g) ?? []).length, 2, "Schedule and cafe relationship resources must share the schedule icon asset");
 assert.doesNotMatch(html, /data-resource-icon="cafe"/);
@@ -125,9 +127,11 @@ const customFloorHtml = renderResourcesWorkspace({
   },
   locale: "zh",
   evidence: { sources: [], rows: [] },
+  openResourceId: "monthly-unlimited-assault-gift-boxes",
 });
 assert.match(customFloorHtml, /<option value="custom" selected>/, "custom floor mode must keep the custom option selected after rerender");
 assert.match(customFloorHtml, /data-resource-amount="monthly-unlimited-assault-gift-boxes" value="107"/, "custom floor input must remain visible with the entered value");
+assert.match(customFloorHtml, /<details class="resource-details" open>/, "the configured resource section must stay open while editing a custom floor");
 
 const evidenceExplanationHtml = renderResourcesWorkspace({
   data: { giftBoxes: [], unlimitedAssaultRewards: null },
@@ -159,5 +163,34 @@ const evidenceExplanationHtml = renderResourcesWorkspace({
 assert.match(evidenceExplanationHtml, /活动商店按每月约2次活动折算，每个活动可获得2个随机紫色礼物盒，合计4个\/月/);
 assert.match(evidenceExplanationHtml, /来源 ↗/);
 assert.doesNotMatch(evidenceExplanationHtml, /已确认|用户确认|已计入|预填值/);
+
+const naturalConfirmedExplanationHtml = renderResourcesWorkspace({
+  data: { giftBoxes: [], unlimitedAssaultRewards: null },
+  state: {
+    periodDays: 30,
+    forecastDays: 30,
+    students: [],
+    giftBoxes: {},
+    resources: [{
+      id: "monthly-synthesis-stones",
+      cadence: "monthly",
+      unit: "synthesis_stone_gold",
+      amount: 70,
+    }],
+  },
+  locale: "zh_cn",
+  evidence: {
+    sources: [],
+    rows: [{
+      resource_id: "monthly-synthesis-stones",
+      status: "user_confirmed",
+      candidate_value: 70,
+      candidate_unit_zh_cn: "个/月",
+      candidate_text_zh_cn: "每月70个：商店兑换50个，爬塔奖励20个。",
+    }],
+  },
+});
+assert.match(naturalConfirmedExplanationHtml, /每月70个：商店兑换50个，爬塔奖励20个/);
+assert.doesNotMatch(naturalConfirmedExplanationHtml, /商店50 \+ 爬塔20|盒子 ID|用户确认/);
 
 console.log("resource view tests passed");

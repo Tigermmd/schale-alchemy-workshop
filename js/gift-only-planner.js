@@ -1,6 +1,6 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v64";
-import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260817-gift-clean-v64";
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-gift-clean-v64";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -46,6 +46,27 @@ function sumConcreteExp(state, giftValues) {
   }, 0);
 }
 
+function synthesisExpFromInventory(state, giftById, giftValues, choiceBoxExp, synthesisStones) {
+  if (!giftById?.get || choiceBoxExp <= 0 || synthesisStones <= 0) return { expectedExp: 0, count: 0 };
+  const values = Object.entries(state?.inventory ?? {})
+    .flatMap(([giftId, count]) => {
+      if (giftById.get(String(giftId))?.rarity !== "SR") return [];
+      const available = Math.max(0, integerOr(count) - integerOr(state?.giftReservations?.[giftId]));
+      return Array.from({ length: available }, () => numberOr(giftValues[String(giftId)]));
+    })
+    .sort((left, right) => left - right);
+  const maxCount = Math.min(integerOr(synthesisStones), Math.floor(values.length / 2));
+  let expectedExp = 0;
+  let count = 0;
+  for (let index = 0; index < maxCount; index += 1) {
+    const netExp = choiceBoxExp - values[index * 2] - values[index * 2 + 1];
+    if (netExp <= 0) break;
+    expectedExp += netExp;
+    count += 1;
+  }
+  return { expectedExp, count };
+}
+
 function positiveGap(requiredExp, coveredExp) {
   return Math.max(0, requiredExp - coveredExp);
 }
@@ -80,12 +101,14 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
     if (resource?.amount === null || resource?.amount === undefined || resource?.amount === "") continue;
     if (state?.resourcePostingHistory?.some((item) => item.active !== false && item.postingKey === `${resource.id}:${periodDays}`)) continue;
     const multiplier = cadenceMultiplier(resource, periodDays);
-    const amount = numberOr(resource.amount) * multiplier;
+    const effectiveAmount = calculatePeriodicResourceAmount(resource, resource.amount, state?.resources ?? []);
+    const amount = numberOr(effectiveAmount) * multiplier;
     if (resource.input_kind === "floor") {
       const summary = summarizeUnlimitedAssaultRewards(rewardSnapshot, resource.amount);
       if (!summary) continue;
       forecast.choiceBoxes += numberOr(summary.goldSelectableGifts) * multiplier;
       forecast.randomPurpleBoxes += numberOr(summary.purpleRandomGifts) * multiplier;
+      forecast.synthesisStones += numberOr(summary.synthesisStones) * multiplier;
       continue;
     }
     if (resource.unit === "gift_equivalent") {
@@ -124,13 +147,16 @@ function sourceSummary({
   randomGoldExp,
   randomPurpleExp,
   manufacturingExpectedPerStone,
-  synthesisNetExpPerStone,
 }) {
   const choiceExp = choiceBoxes * choiceBoxExp;
   const randomGoldExpectedExp = randomGoldBoxes * randomGoldExp;
   const randomPurpleExpectedExp = randomPurpleBoxes * randomPurpleExp;
   const manufacturingExpectedExp = manufacturingStones * manufacturingExpectedPerStone;
-  const synthesisExpectedExp = numberOr(synthesisStones) * synthesisNetExpPerStone;
+  // Synthesis stones are conditional materials, not gifts.  Without two
+  // concrete gold gifts available to consume, they cannot contribute EXP.
+  // The gift-only forecast has no concrete allocation for future stones, so
+  // keep the quantity visible but do not turn it into relationship EXP.
+  const synthesisExpectedExp = 0;
   return {
     choiceBoxes,
     randomGoldBoxes,
@@ -149,21 +175,82 @@ function sourceSummary({
 const PAID_GIFT_MIN_EXP = Object.freeze({ gold: 20, purple: 120 });
 
 /**
- * Keep only packages that are usable for the selected future student. Generic
- * monthly/anniversary packages remain available; student-bound packages need
- * an explicit target ID so a Koyuki package cannot be counted for Mika.
+ * A gold synthesis stone is valued as a choice gift made from two spare
+ * 20-EXP gold gifts.  The two inputs account for 40 EXP, so only the
+ * selectable gift's excess value is credited.  This is intentionally an
+ * approximation for package comparison; actual inventory synthesis keeps
+ * its exact two-gift allocation logic elsewhere.
+ */
+export function calculateSynthesisStoneEquivalentExp(student) {
+  const bestGoldGiftExp = Math.max(
+    0,
+    ...(student?.gift_values ?? [])
+      .filter((gift) => Number(gift?.gift_id) >= 5000 && Number(gift?.gift_id) <= 5034)
+      .map((gift) => numberOr(gift?.relationship_exp)),
+  );
+  return Math.max(0, bestGoldGiftExp - 40);
+}
+
+function isEligibleStudentLaunchTarget(student) {
+  return student?.future_only === true && student?.launch_package_eligibility === "limited_or_fes";
+}
+
+function launchPackageDisplayNames(item) {
+  const isStudentSpecific = item?.gift_binding?.type === "student_specific_favorites";
+  const isManufacturing = item?.category === "manufacturing";
+  const names = isStudentSpecific
+    ? {
+      name_zh_cn: "限定/FES学生专属礼物礼包",
+      name_en: "Limited/FES Student Favorite Gift Package",
+      name_ja: "限定/FES生徒専用贈り物パック",
+    }
+    : isManufacturing
+      ? {
+        name_zh_cn: "限定/FES学生制造礼包",
+        name_en: "Limited/FES Student Manufacturing Package",
+        name_ja: "限定/FES生徒製造パック",
+      }
+      : {
+        name_zh_cn: "限定/FES学生礼物礼包",
+        name_en: "Limited/FES Student Gift Package",
+        name_ja: "限定/FES生徒贈り物パック",
+      };
+  return { ...item, ...names };
+}
+
+function materializeStudentLaunchTemplate(template, student) {
+  const studentId = Number(student?.student_id);
+  const id = `${template.id}@${studentId}-launch`;
+  return launchPackageDisplayNames({
+    ...template,
+    id,
+    plan_id: id,
+    catalog_id: template.id,
+    timeline_id: "mika-launch",
+    availability_phase: "student_launch",
+    launch_student_ids: [studentId],
+    status: "forecast",
+    gift_binding: {
+      ...template.gift_binding,
+      target_student_ids: [studentId],
+      target_student_id: studentId,
+    },
+  });
+}
+
+/**
+ * Student-specific packages are forecast packages for an unreleased
+ * limited/FES student only. They must never leak into a released permanent
+ * student's package list, even when the catalog row is marked as the current
+ * banner. Generic packages remain available to every target.
  */
 export function filterGiftPackagesForStudent(packages = [], student) {
   const studentId = Number(student?.student_id);
   return packages.filter((item) => {
     if (["expired", "template"].includes(item?.status)) return false;
-    // A package explicitly marked as the current banner is available now
-    // regardless of whose favorite gifts it contains. Those gifts can still
-    // be used for the selected planning target; the banner package simply
-    // must not be cloned into the future student's launch phase.
-    if (item?.current_banner_for_planning === true) return true;
     const binding = item?.gift_binding;
     if (binding?.type === "student_specific_favorites") {
+      if (!isEligibleStudentLaunchTarget(student)) return false;
       const targetIds = Array.isArray(binding.target_student_ids)
         ? binding.target_student_ids.map(Number)
         : binding.target_student_id === null || binding.target_student_id === undefined
@@ -171,6 +258,9 @@ export function filterGiftPackagesForStudent(packages = [], student) {
           : [Number(binding.target_student_id)];
       return targetIds.includes(studentId);
     }
+    // Current-banner flags are valid for generic packages only. A generic
+    // package can be compared for any planned student; a student-specific
+    // package was handled above and is intentionally not allowed through.
     return true;
   });
 }
@@ -184,24 +274,44 @@ export function filterGiftPackagesForStudent(packages = [], student) {
 export function partitionGiftPackagesForTimeline(packages = [], student) {
   const studentId = Number(student?.student_id);
   const eligible = filterGiftPackagesForStudent(packages, student);
-  const current = eligible.filter((item) => !["student_launch", "mika_launch"].includes(item?.availability_phase));
-  const mikaLaunch = eligible
-    .filter((item) => ["student_launch", "mika_launch"].includes(item?.availability_phase)
-      && (!Array.isArray(item?.launch_student_ids) || item.launch_student_ids.map(Number).includes(studentId)))
-    .map((item) => ({ ...item, plan_id: item.plan_id ?? item.id, timeline_id: "mika-launch", catalog_id: item.id }));
-  for (const item of current) {
-    if (!item?.launch_reoffer) continue;
-    mikaLaunch.push({
-      ...item,
-      id: `${item.id}@mika-launch`,
-      plan_id: `${item.id}@mika-launch`,
-      timeline_id: "mika-launch",
-      catalog_id: item.id,
-      availability_phase: "student_launch",
-      name_zh_cn: `${item.name_zh_cn}（未花上线）`,
-      name_en: `${item.name_en} (Mika launch)`,
-      name_ja: `${item.name_ja ?? item.name_en}（未花実装時）`,
+  const current = eligible.filter((item) => (
+    !["student_launch", "mika_launch"].includes(item?.availability_phase)
+      && item?.gift_binding?.type !== "student_specific_favorites"
+  ));
+  // A launch phase belongs to an unreleased planner target. Without this
+  // guard, the generic `launch_reoffer` flag is also copied into the already
+  // released base Mika (10059), making the package page look as if her
+  // swimsuit launch bundle were available for the original student.
+  const canShowLaunchPackages = isEligibleStudentLaunchTarget(student);
+  let mikaLaunch = [];
+  if (canShowLaunchPackages) {
+    mikaLaunch = eligible
+      .filter((item) => ["student_launch", "mika_launch"].includes(item?.availability_phase)
+        && (!Array.isArray(item?.launch_student_ids) || item.launch_student_ids.map(Number).includes(studentId)))
+      .map((item) => launchPackageDisplayNames({ ...item, plan_id: item.plan_id ?? item.id, timeline_id: "mika-launch", catalog_id: item.id }));
+    for (const item of current) {
+      if (!item?.launch_reoffer) continue;
+      mikaLaunch.push(launchPackageDisplayNames({
+        ...item,
+        id: `${item.id}@mika-launch`,
+        plan_id: `${item.id}@mika-launch`,
+        timeline_id: "mika-launch",
+        catalog_id: item.id,
+        availability_phase: "student_launch",
+      }));
+    }
+    const hasStudentSpecificLaunchPackage = mikaLaunch.some((item) => {
+      const targetIds = item?.gift_binding?.target_student_ids ?? [];
+      return Array.isArray(targetIds) && targetIds.map(Number).includes(studentId);
     });
+    const template = packages.find((item) => (
+      item?.status === "template"
+      && item?.gift_binding?.type === "student_specific_favorites"
+      && item?.gift_binding?.repeat_rule === "one_per_limited_or_fes_student"
+    ));
+    if (template && !hasStudentSpecificLaunchPackage) {
+      mikaLaunch.push(materializeStudentLaunchTemplate(template, student));
+    }
   }
   return {
     current,
@@ -232,11 +342,34 @@ function emptyPackageContentExp() {
   return { expectedExp: 0, giftExp: 0, goldGiftExp: 0, purpleGiftExp: 0, bouquetExp: 0, boxExp: 0, choiceBoxExp: 0, randomBoxExp: 0, manufacturingExp: 0, synthesisExp: 0, manufacturingStones: 0, synthesisStones: 0 };
 }
 
-function packageContentExp(content, giftValues, { choiceBoxExp, randomGoldBoxExp, randomPurpleBoxExp, manufacturingExpectedPerStone, synthesisNetExpPerStone }) {
+const PACKAGE_GIFT_RANGES = Object.freeze({
+  purple: [5100, 5112],
+  gold: [5000, 5034],
+});
+
+export function resolveStudentFavoriteGiftId(student, giftColor) {
+  const explicitId = Number(student?.package_favorite_gifts?.[giftColor]);
+  if (Number.isFinite(explicitId) && explicitId > 0) return explicitId;
+  const range = PACKAGE_GIFT_RANGES[giftColor];
+  if (!range) return null;
+  return (student?.gift_values ?? [])
+    .filter((gift) => Number(gift?.gift_id) >= range[0] && Number(gift?.gift_id) <= range[1])
+    .sort((left, right) => numberOr(right.relationship_exp) - numberOr(left.relationship_exp) || Number(left.gift_id) - Number(right.gift_id))[0]
+    ?.gift_id ?? null;
+}
+
+function resolveStudentFavoriteContent(content, student) {
+  if (content?.kind !== "student_favorite_gift") return content;
+  const resolvedId = resolveStudentFavoriteGiftId(student, content.gift_color);
+  if (resolvedId === null || resolvedId === undefined || resolvedId === "") return content;
+  return { ...content, item_id: resolvedId };
+}
+
+function packageContentExp(content, giftValues, { choiceBoxExp, randomGoldBoxExp, randomPurpleBoxExp, manufacturingExpectedPerStone, synthesisStoneEquivalentExp }) {
   const quantity = numberOr(content?.quantity);
   if (!quantity) return emptyPackageContentExp();
   if (content?.kind === "student_favorite_gift") {
-    const giftExp = PAID_GIFT_MIN_EXP[content.gift_color] ?? 0;
+    const giftExp = giftValues[String(content.item_id)] ?? PAID_GIFT_MIN_EXP[content.gift_color] ?? 0;
     return { ...emptyPackageContentExp(), expectedExp: quantity * giftExp, giftExp: quantity * giftExp, goldGiftExp: content.gift_color === "gold" ? quantity * giftExp : 0, purpleGiftExp: content.gift_color === "purple" ? quantity * giftExp : 0 };
   }
   const itemId = String(content?.item_id ?? "");
@@ -244,7 +377,10 @@ function packageContentExp(content, giftValues, { choiceBoxExp, randomGoldBoxExp
   if (itemId === "100000") return { ...emptyPackageContentExp(), expectedExp: quantity * randomGoldBoxExp, boxExp: quantity * randomGoldBoxExp, randomBoxExp: quantity * randomGoldBoxExp };
   if (itemId === "100009") return { ...emptyPackageContentExp(), expectedExp: quantity * randomPurpleBoxExp, boxExp: quantity * randomPurpleBoxExp, randomBoxExp: quantity * randomPurpleBoxExp };
   if (itemId === "3") return { ...emptyPackageContentExp(), expectedExp: quantity * manufacturingExpectedPerStone, manufacturingExp: quantity * manufacturingExpectedPerStone, manufacturingStones: quantity };
-  if (itemId === "82") return { ...emptyPackageContentExp(), expectedExp: quantity * synthesisNetExpPerStone, synthesisExp: quantity * synthesisNetExpPerStone, synthesisStones: quantity };
+  if (itemId === "82") {
+    const synthesisExp = quantity * numberOr(synthesisStoneEquivalentExp);
+    return { ...emptyPackageContentExp(), expectedExp: synthesisExp, synthesisExp, synthesisStones: quantity };
+  }
   const isGold = content?.gift_color === "gold" || (Number(itemId) >= 5000 && Number(itemId) <= 5034);
   const isPurple = content?.gift_color === "purple" || (Number(itemId) >= 5100 && Number(itemId) <= 5112);
   const giftExp = isGold ? PAID_GIFT_MIN_EXP.gold : isPurple ? PAID_GIFT_MIN_EXP.purple : (itemId === "5997" ? 240 : giftValues[itemId] ?? 0);
@@ -259,15 +395,12 @@ export function calculatePaidGiftPackageExp({
   packagePurchases = {},
   periodDays = 60,
   manufacturingExpectedPerStone = 0,
-  synthesisNetExpPerStone = null,
 }) {
   const giftValues = valuesForStudent(student);
+  const synthesisStoneEquivalentExp = calculateSynthesisStoneEquivalentExp(student);
   const choiceBoxExp = boxExpectedExp(giftBoxes, "100008", giftValues);
   const randomGoldBoxExp = boxExpectedExp(giftBoxes, "100000", giftValues);
   const randomPurpleBoxExp = boxExpectedExp(giftBoxes, "100009", giftValues);
-  const netSynthesisExp = synthesisNetExpPerStone === null
-    ? Math.max(0, choiceBoxExp - 2 * PAID_GIFT_MIN_EXP.gold)
-    : numberOr(synthesisNetExpPerStone);
   return packages.map((item) => {
     const plan = packagePlans ? packagePlanFor(packagePlans, item) : { purchased: integerOr(packagePurchases[item.id], 0), planned: 0 };
     const maxPurchases = packagePurchaseLimit(item, periodDays);
@@ -276,12 +409,12 @@ export function calculatePaidGiftPackageExp({
     const planned = Math.min(Math.max(0, maxPurchases - purchased), plan.planned);
     const expectedPurchases = Math.max(0, purchased - inInventory) + planned;
     const breakdown = (item.contents ?? []).reduce((sum, content) => {
-      const unit = packageContentExp(content, giftValues, {
+      const unit = packageContentExp(resolveStudentFavoriteContent(content, student), giftValues, {
         choiceBoxExp,
         randomGoldBoxExp,
         randomPurpleBoxExp,
         manufacturingExpectedPerStone,
-        synthesisNetExpPerStone: netSynthesisExp,
+        synthesisStoneEquivalentExp,
       });
       return {
         expectedExp: sum.expectedExp + unit.expectedExp * expectedPurchases,
@@ -299,12 +432,12 @@ export function calculatePaidGiftPackageExp({
       };
     }, emptyPackageContentExp());
     const perPackageBreakdown = (item.contents ?? []).reduce((sum, content) => {
-      const unit = packageContentExp(content, giftValues, {
+      const unit = packageContentExp(resolveStudentFavoriteContent(content, student), giftValues, {
         choiceBoxExp,
         randomGoldBoxExp,
         randomPurpleBoxExp,
         manufacturingExpectedPerStone,
-        synthesisNetExpPerStone: netSynthesisExp,
+        synthesisStoneEquivalentExp,
       });
       return {
         expectedExp: sum.expectedExp + unit.expectedExp,
@@ -466,7 +599,6 @@ export function calculateGiftOnlyProjection({
   packagePlans = {},
   periodDays = 60,
   manufacturingExpectedPerStone = 81.879452,
-  synthesisNetExpPerStone = null,
   paidPackages,
 }) {
   const giftValues = valuesForStudent(student);
@@ -490,9 +622,9 @@ export function calculateGiftOnlyProjection({
   const currentManufacturingStones = currentStockResources.manufacturing_stone ?? 0;
   const currentSynthesisStones = currentStockResources.synthesis_stone_gold ?? 0;
   const currentRandomExpectedExp = currentRandomGoldBoxes * randomGoldBoxExp + currentRandomPurpleBoxes * randomPurpleBoxExp;
-  const synthesisNet = synthesisNetExpPerStone === null ? Math.max(0, choiceBoxExp - 2 * PAID_GIFT_MIN_EXP.gold) : numberOr(synthesisNetExpPerStone);
   const currentManufacturingExpectedExp = currentManufacturingStones * numberOr(manufacturingExpectedPerStone);
-  const currentSynthesisExpectedExp = currentSynthesisStones * synthesisNet;
+  const inventorySynthesis = synthesisExpFromInventory(state, giftById, giftValues, choiceBoxExp, currentSynthesisStones);
+  const currentSynthesisExpectedExp = inventorySynthesis.expectedExp;
   const currentStockExpectedExp = currentManufacturingExpectedExp + currentSynthesisExpectedExp;
   const currentTotalExpectedExp = concreteExp + currentRandomExpectedExp + currentChoiceBoxes * choiceBoxExp + currentStockExpectedExp;
   const currentDirectExp = concreteExp + currentRandomExpectedExp + currentStockExpectedExp;
@@ -506,12 +638,11 @@ export function calculateGiftOnlyProjection({
     randomGoldExp: randomGoldBoxExp,
     randomPurpleExp: randomPurpleBoxExp,
     manufacturingExpectedPerStone,
-    synthesisNetExpPerStone: synthesisNet,
   });
   const timelinePackages = partitionGiftPackagesForTimeline(packages, student);
-  const currentPackageRows = timelinePackages.current.length ? calculatePaidGiftPackageExp({ student, giftBoxes, packages: timelinePackages.current, packagePlans, periodDays, manufacturingExpectedPerStone, synthesisNetExpPerStone: synthesisNet }) : [];
+  const currentPackageRows = timelinePackages.current.length ? calculatePaidGiftPackageExp({ student, giftBoxes, packages: timelinePackages.current, packagePlans, periodDays, manufacturingExpectedPerStone }) : [];
   const launchTimelinePackages = partitionGiftPackagesForTimeline(launchPackages, student).mikaLaunch;
-  const launchPackageRows = launchTimelinePackages.length ? calculatePaidGiftPackageExp({ student, giftBoxes, packages: launchTimelinePackages, packagePlans, periodDays: 1, manufacturingExpectedPerStone, synthesisNetExpPerStone: synthesisNet }) : [];
+  const launchPackageRows = launchTimelinePackages.length ? calculatePaidGiftPackageExp({ student, giftBoxes, packages: launchTimelinePackages, packagePlans, periodDays: 1, manufacturingExpectedPerStone }) : [];
   const currentPaidSummary = summarizePaidGiftPackages(currentPackageRows);
   const launchPaidSummary = summarizePaidGiftPackages(launchPackageRows);
   const paidRows = [...currentPackageRows, ...launchPackageRows];

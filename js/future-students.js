@@ -2,19 +2,28 @@ const NORMAL_GIFT_IDS = Array.from({ length: 35 }, (_, index) => 5000 + index);
 const CRAFTABLE_PURPLE_GIFT_IDS = Array.from({ length: 13 }, (_, index) => 5100 + index);
 const SPECIAL_GIFT_IDS = [5996, 5997, 5998, 5999];
 
-// Mika (Swimsuit) reuses Mika's preference table in SchaleDB.  Keep this
-// explicit future-student snapshot so the unreleased costume can be planned
-// before it appears in the released-student directory.
+// SchaleDB `IsLimited` snapshot (2026-08-12): non-zero values are limited,
+// event-limited, or FES recruitment entries. This metadata is kept separate
+// from the Mika gift override so every future student can use the same
+// package rule without making ordinary future students eligible by default.
+export const LIMITED_OR_FES_STUDENT_TYPES = Object.freeze({
+  10099: 3, 10117: 1, 10118: 1, 16017: 2, 10123: 1, 10124: 1,
+  26015: 2, 20048: 3, 10122: 3, 20051: 1, 10129: 1, 16018: 2,
+  10133: 1, 16019: 2, 20054: 1, 10134: 3, 10135: 3, 10139: 1,
+  10140: 1, 16020: 2, 10146: 1, 10147: 1, 26016: 2, 10148: 3,
+  20060: 3,
+});
+
+// Mika (Swimsuit) has a different FavorItemTags/FavorItemUniqueTags table
+// from the original Mika.  Keep the CN SchaleDB snapshot explicit so this
+// unreleased costume never inherits the original student's gift list.
 const GIFT_EXP = Object.freeze({
-  5005: 40,
-  5006: 60,
+  5005: 60,
+  5006: 40,
   5007: 40,
-  5008: 40,
-  5012: 40,
-  5013: 40,
-  5026: 40,
+  5034: 60,
   5102: 180,
-  5104: 240,
+  5106: 240,
   5996: 240,
   5997: 240,
   5998: 60,
@@ -58,8 +67,10 @@ function giftValueEntry(giftId) {
 const giftValues = ALL_GIFT_IDS.map(giftValueEntry);
 const preferredGifts = giftValues.filter((gift) => gift.is_student_preference);
 
-// SchaleDB CN lists this future costume as ID 10122. It is deliberately kept
-// out of the released student directory, but remains selectable in planning.
+// Special overrides only. The complete student directory comes from the
+// SchaleDB snapshot; this list must not be used as the future-student catalog.
+// At present the only override is the distinct gift reaction table for Mika
+// (Swimsuit), which is merged onto the full snapshot row by data-loader.js.
 export const FUTURE_STUDENTS = Object.freeze([
   {
     student_id: 10122,
@@ -73,12 +84,14 @@ export const FUTURE_STUDENTS = Object.freeze([
     is_released: [true, true, false],
     future_only: true,
     future_note_zh_cn: "国服未实装；本规划只计算礼物，不计入日程与咖啡厅摸头。",
+    launch_package_eligibility: "limited_or_fes",
     favor_item_tags: ["Bb", "ar", "CX", "Cx"],
     favor_item_unique_tags: ["HK", "Hk"],
     gift_values: Object.freeze(giftValues),
     preferred_gifts: Object.freeze(preferredGifts),
-    most_favorite_gifts: [5104],
-    universal_gifts: CRAFTABLE_PURPLE_GIFT_IDS.filter((giftId) => ![5102, 5104].includes(giftId)),
+    most_favorite_gifts: [5106],
+    package_favorite_gifts: Object.freeze({ purple: 5106, gold: 5034 }),
+    universal_gifts: CRAFTABLE_PURPLE_GIFT_IDS.filter((giftId) => ![5102, 5106].includes(giftId)),
     no_matching_gift_in_source: false,
   },
 ]);

@@ -1,5 +1,5 @@
-import { summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260817-gift-clean-v64";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v64";
+import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold"];
 // In SchaleDB's gift catalog SR is the gold-gift tier; SSR is purple.
@@ -95,17 +95,19 @@ function emptyMappedResources() {
   };
 }
 
-export function mapPeriodicResource(resource, { periodDays = 30, rewardSnapshot } = {}) {
+export function mapPeriodicResource(resource, { periodDays = 30, rewardSnapshot, resources = [] } = {}) {
   if (!resource || resource.amount === null || resource.amount === undefined || resource.amount === "") return null;
   const multiplier = periodMultiplier(resource, periodDays);
   const mapped = emptyMappedResources();
-  const amount = numberOr(resource.amount) * multiplier;
+  const effectiveAmount = calculatePeriodicResourceAmount(resource, resource.amount, resources);
+  const amount = numberOr(effectiveAmount) * multiplier;
 
   if (resource.input_kind === "floor") {
     const summary = summarizeUnlimitedAssaultRewards(rewardSnapshot, resource.amount);
     if (!summary) return null;
     mapped.giftBoxes["100008"] = summary.goldSelectableGifts * multiplier;
     mapped.giftBoxes["100009"] = summary.purpleRandomGifts * multiplier;
+    mapped.stockResources.synthesis_stone_gold = summary.synthesisStones * multiplier;
     return mapped;
   }
 
@@ -138,11 +140,27 @@ export function postPeriodicResource(state, resourceId, options = {}) {
   const next = createInventoryState(state);
   const resource = next.resources.find((item) => item.id === String(resourceId));
   const periodDays = numberOr(options.periodDays, next.periodDays || 30);
-  const mapped = mapPeriodicResource(resource, { periodDays, rewardSnapshot: options.rewardSnapshot });
+  if (periodDays <= 0) return next;
+  const mapped = mapPeriodicResource(resource, { periodDays, rewardSnapshot: options.rewardSnapshot, resources: next.resources });
   if (!mapped) return next;
   const key = `${String(resourceId)}:${periodDays}`;
-  if (next.resourcePostingHistory.some((item) => item.active !== false && item.postingKey === key)) return next;
-  const previousCount = next.resourcePostingHistory.filter((item) => item.postingKey?.startsWith(`${key}:`)).length;
+  const timestamp = options.timestamp ?? new Date().toISOString();
+  const previousPeriods = next.resourcePostingHistory.filter((item) => item.active !== false
+    && item.resourceId === String(resourceId)
+    && Number(item.periodDays) !== Number(periodDays));
+  let prepared = next;
+  for (const previous of previousPeriods) prepared = adjustIncoming(prepared, previous.mapped, -1);
+  if (previousPeriods.length) {
+    const replacedIds = new Set(previousPeriods.map((item) => String(item.id)));
+    prepared = {
+      ...prepared,
+      resourcePostingHistory: prepared.resourcePostingHistory.map((item) => replacedIds.has(String(item.id))
+        ? { ...item, active: false, replacedAt: timestamp }
+        : item),
+    };
+  }
+  if (prepared.resourcePostingHistory.some((item) => item.active !== false && item.postingKey === key)) return prepared;
+  const previousCount = prepared.resourcePostingHistory.filter((item) => item.postingKey?.startsWith(`${key}:`)).length;
   const id = String(options.postingId ?? `${key}:${previousCount + 1}`);
   const historyEntry = {
     id,
@@ -151,10 +169,10 @@ export function postPeriodicResource(state, resourceId, options = {}) {
     amount: numberOr(resource.amount),
     periodDays,
     mapped,
-    postedAt: options.timestamp ?? new Date().toISOString(),
+    postedAt: timestamp,
     active: true,
   };
-  const withIncoming = adjustIncoming(next, mapped, 1);
+  const withIncoming = adjustIncoming(prepared, mapped, 1);
   return { ...withIncoming, resourcePostingHistory: [...withIncoming.resourcePostingHistory, historyEntry] };
 }
 
@@ -327,7 +345,7 @@ export function calculateInventorySummary(state) {
   return { gifts, stocks, giftBoxes, equivalentGiftPools, relationshipExp: copyMap(next.incomingResources.relationshipExp) };
 }
 
-export function reserveGiftAllocation(state, assignments = []) {
+export function reserveGiftAllocation(state, assignments = [], { synthesisGiftIds = [] } = {}) {
   const next = createInventoryState(state);
   const reservations = {};
   for (const assignment of assignments) {
@@ -336,8 +354,14 @@ export function reserveGiftAllocation(state, assignments = []) {
     if (!giftId || quantity <= 0) continue;
     reservations[giftId] = integerOr(reservations[giftId]) + quantity;
   }
+  const synthesisReservations = [];
+  for (let index = 0; index + 1 < synthesisGiftIds.length; index += 2) {
+    const pair = [String(synthesisGiftIds[index]), String(synthesisGiftIds[index + 1])];
+    synthesisReservations.push(pair);
+    for (const giftId of pair) reservations[giftId] = integerOr(reservations[giftId]) + 1;
+  }
   const invalid = Object.entries(reservations).some(([giftId, quantity]) => quantity > integerOr(next.inventory[giftId]));
-  return invalid ? next : { ...next, giftReservations: reservations };
+  return invalid ? next : { ...next, giftReservations: reservations, synthesisReservations };
 }
 
 export function getAvailableGiftInventory(state) {
@@ -350,16 +374,56 @@ export function getAvailableGiftInventory(state) {
 }
 
 export function releaseGiftReservations(state) {
-  return { ...createInventoryState(state), giftReservations: {} };
+  return { ...createInventoryState(state), giftReservations: {}, synthesisReservations: [] };
 }
 
 export function confirmGiftReservations(state) {
   const next = createInventoryState(state);
   const inventory = { ...next.inventory };
-  for (const [giftId, quantity] of Object.entries(next.giftReservations)) {
-    inventory[giftId] = Math.max(0, integerOr(inventory[giftId]) - integerOr(quantity));
+  const reserved = { ...next.giftReservations };
+  const synthesisPairs = [...(next.synthesisReservations ?? [])];
+  const synthesisGiftCounts = {};
+  for (const [firstGiftId, secondGiftId] of synthesisPairs) {
+    synthesisGiftCounts[firstGiftId] = integerOr(synthesisGiftCounts[firstGiftId]) + 1;
+    synthesisGiftCounts[secondGiftId] = integerOr(synthesisGiftCounts[secondGiftId]) + 1;
   }
-  return { ...next, inventory, giftReservations: {} };
+
+  // Direct assignments are consumed immediately. Future synthesis pairs stay
+  // reserved until a synthesis stone is available instead of being lost.
+  for (const [giftId, quantity] of Object.entries(reserved)) {
+    const directQuantity = Math.max(0, integerOr(quantity) - integerOr(synthesisGiftCounts[giftId]));
+    inventory[giftId] = Math.max(0, integerOr(inventory[giftId]) - directQuantity);
+    reserved[giftId] = Math.max(0, integerOr(quantity) - directQuantity);
+  }
+
+  let synthesisStones = numberOr(next.stockResources.synthesis_stone_gold);
+  const remainingPairs = [];
+  for (const pair of synthesisPairs) {
+    const [firstGiftId, secondGiftId] = pair;
+    const firstAvailable = integerOr(inventory[firstGiftId]);
+    const secondAvailable = integerOr(inventory[secondGiftId]) - (firstGiftId === secondGiftId ? 1 : 0);
+    if (synthesisStones < 1 || firstAvailable < 1 || secondAvailable < 1) {
+      remainingPairs.push(pair);
+      continue;
+    }
+    inventory[firstGiftId] = Math.max(0, firstAvailable - 1);
+    inventory[secondGiftId] = Math.max(0, integerOr(inventory[secondGiftId]) - 1);
+    synthesisStones -= 1;
+    reserved[firstGiftId] = Math.max(0, integerOr(reserved[firstGiftId]) - 1);
+    reserved[secondGiftId] = Math.max(0, integerOr(reserved[secondGiftId]) - 1);
+  }
+  const remainingReservations = Object.fromEntries(Object.entries(reserved).filter(([, quantity]) => quantity > 0));
+  const synthesizedCount = synthesisPairs.length - remainingPairs.length;
+  return {
+    ...next,
+    inventory,
+    stockResources: { ...next.stockResources, synthesis_stone_gold: synthesisStones },
+    giftBoxes: synthesizedCount > 0
+      ? { ...next.giftBoxes, "100008": numberOr(next.giftBoxes["100008"]) + synthesizedCount }
+      : next.giftBoxes,
+    giftReservations: remainingReservations,
+    synthesisReservations: remainingPairs,
+  };
 }
 
 export function synthesizeGoldGift(state, firstGiftId, secondGiftId, giftById) {
@@ -372,7 +436,9 @@ export function synthesizeGoldGift(state, firstGiftId, secondGiftId, giftById) {
     return { ok: false, reason: "gold_gifts_only", state: next };
   }
   const firstRequired = first === second ? 2 : 1;
-  if (synthesisStones < 1 || integerOr(next.inventory[first]) < firstRequired || integerOr(next.inventory[second]) < 1) {
+  const firstAvailable = integerOr(next.inventory[first]) - integerOr(next.giftReservations[first]);
+  const secondAvailable = integerOr(next.inventory[second]) - integerOr(next.giftReservations[second]);
+  if (synthesisStones < 1 || firstAvailable < firstRequired || secondAvailable < 1) {
     return { ok: false, reason: "insufficient_materials", state: next };
   }
   const inventory = { ...next.inventory };

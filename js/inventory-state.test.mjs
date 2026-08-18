@@ -4,6 +4,7 @@ import {
   confirmGiftReservations,
   createInventoryState,
   mapPaidPackageContentsToInventory,
+  mapPeriodicResource,
   migrateLegacyAutoPostedPackageContents,
   postPeriodicResource,
   releaseGiftReservations,
@@ -20,16 +21,16 @@ import { createEmptyPlannerState, setInventoryCount } from "./planner-state.js";
 
 const empty = createInventoryState();
 assert.deepEqual(empty.stockResources, {
-  manufacturing_stone: 50,
-  synthesis_stone_gold: 100,
+  manufacturing_stone: 0,
+  synthesis_stone_gold: 0,
 });
 assert.deepEqual(empty.incomingResources.stockResources, {
   manufacturing_stone: 0,
   synthesis_stone_gold: 0,
 });
 assert.deepEqual(createInventoryState({ stockResources: { gold_manufacturing_stone: 99 } }).stockResources, {
-  manufacturing_stone: 50,
-  synthesis_stone_gold: 100,
+  manufacturing_stone: 0,
+  synthesis_stone_gold: 0,
 }, "Unused gold manufacturing stones must be discarded from inventory state");
 assert.deepEqual(createInventoryState({ incomingResources: { stockResources: { gold_manufacturing_stone: 99 } } }).incomingResources.stockResources, {
   manufacturing_stone: 0,
@@ -61,6 +62,15 @@ const postedGrandPurple = postPeriodicResource(postedGrandGold, "monthly-grand-a
 assert.equal(postedGrandPurple.incomingResources.giftBoxes["100008"], 7.5);
 assert.equal(postedGrandPurple.incomingResources.giftBoxes["100009"], 1.5);
 assert.equal(postedGrandPurple.resourcePostingHistory.length, 4);
+const postedAt30 = postPeriodicResource(empty, "monthly-total-assault-gift-boxes", { periodDays: 30 });
+const postedAt60 = postPeriodicResource(postedAt30, "monthly-total-assault-gift-boxes", { periodDays: 60 });
+assert.equal(postedAt60.incomingResources.giftBoxes["100008"], 6, "switching to a 60-day period must replace, not add to, the 30-day posting");
+assert.equal(postedAt60.resourcePostingHistory.filter((item) => item.resourceId === "monthly-total-assault-gift-boxes" && item.active !== false).length, 1);
+const zeroDayPost = postPeriodicResource(createInventoryState({ periodDays: 0 }), "monthly-total-assault-gift-boxes", { periodDays: 0 });
+assert.equal(zeroDayPost.resourcePostingHistory.length, 0, "a zero-day current-only window must not post a periodic resource");
+const rewardSnapshot = JSON.parse((await import("node:fs")).readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8"));
+const towerMapping = mapPeriodicResource({ id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 60, input_kind: "floor", unit: "gift_box" }, { periodDays: 30, rewardSnapshot });
+assert.equal(towerMapping.stockResources.synthesis_stone_gold, 20, "tower synthesis stones must enter the synthesis-stone bucket");
 const undone = undoPeriodicResource(postedGrandPurple, postedGrandPurple.resourcePostingHistory[0].id);
 assert.equal(undone.incomingResources.stockResources.manufacturing_stone, 0);
 assert.equal(undone.resourcePostingHistory.find((item) => item.resourceId === "weekly-manufacturing-stones").active, false);
@@ -83,6 +93,19 @@ assert.equal(confirmed.inventory["5000"], 1);
 assert.equal(confirmed.inventory["5001"], 0);
 assert.deepEqual(confirmed.giftReservations, {});
 
+const reservedSynthesisPlan = reserveGiftAllocation(
+  setStockResourceCount(setInventoryCount(setInventoryCount(empty, "5000", 1), "5001", 1), "synthesis_stone_gold", 1),
+  [],
+  { synthesisGiftIds: ["5000", "5001"] },
+);
+assert.deepEqual(reservedSynthesisPlan.synthesisReservations, [["5000", "5001"]]);
+const confirmedSynthesisPlan = confirmGiftReservations(reservedSynthesisPlan);
+assert.equal(confirmedSynthesisPlan.inventory["5000"], 0, "confirming a synthesis reservation consumes the first gold gift");
+assert.equal(confirmedSynthesisPlan.inventory["5001"], 0, "confirming a synthesis reservation consumes the second gold gift");
+assert.equal(confirmedSynthesisPlan.stockResources.synthesis_stone_gold, 0, "confirming a synthesis reservation consumes one synthesis stone");
+assert.equal(confirmedSynthesisPlan.giftBoxes["100008"], 1, "confirming a synthesis reservation creates one gold choice box");
+assert.deepEqual(confirmedSynthesisPlan.synthesisReservations, []);
+
 const synthesized = synthesizeGoldGift(
   setStockResourceCount(setInventoryCount(setInventoryCount(empty, "5000", 1), "5001", 1), "synthesis_stone_gold", 1),
   "5000",
@@ -93,6 +116,14 @@ assert.equal(synthesized.state.inventory["5000"], 0);
 assert.equal(synthesized.state.inventory["5001"], 0);
 assert.equal(synthesized.state.stockResources.synthesis_stone_gold, 0);
 assert.equal(synthesized.state.giftBoxes["100008"], 1);
+
+const reservedMaterials = reserveGiftAllocation(
+  setStockResourceCount(setInventoryCount(setInventoryCount(empty, "5000", 1), "5001", 1), "synthesis_stone_gold", 1),
+  [{ giftId: "5000", quantity: 1 }, { giftId: "5001", quantity: 1 }],
+);
+const reservedSynthesis = synthesizeGoldGift(reservedMaterials, "5000", "5001");
+assert.equal(reservedSynthesis.ok, false, "synthesis must not consume gifts already reserved by the planner");
+assert.equal(reservedSynthesis.reason, "insufficient_materials");
 
 const insufficient = synthesizeGoldGift(empty, "5100", "5101");
 assert.equal(insufficient.ok, false);
@@ -170,15 +201,15 @@ let packageState = createInventoryState({
 packageState = syncPurchasedPackagesToInventory(packageState, [giftPackage, manufacturingPackage]);
 assert.equal(packageState.giftBoxes["100008"], undefined);
 assert.equal(packageState.inventory["5997"], undefined);
-assert.equal(packageState.stockResources.manufacturing_stone, 50);
-assert.equal(packageState.stockResources.synthesis_stone_gold, 100);
+assert.equal(packageState.stockResources.manufacturing_stone, 0);
+assert.equal(packageState.stockResources.synthesis_stone_gold, 0);
 assert.equal(packageState.packagePlans.gifts.inInventory, 1);
 assert.equal(packageState.packagePlans.manufacturing.inInventory, 1);
 const packageStateAgain = syncPurchasedPackagesToInventory(packageState, [giftPackage, manufacturingPackage]);
 assert.equal(packageStateAgain.giftBoxes["100008"], undefined);
 assert.equal(packageStateAgain.inventory["5997"], undefined);
-assert.equal(packageStateAgain.stockResources.manufacturing_stone, 50);
-assert.equal(packageStateAgain.stockResources.synthesis_stone_gold, 100);
+assert.equal(packageStateAgain.stockResources.manufacturing_stone, 0);
+assert.equal(packageStateAgain.stockResources.synthesis_stone_gold, 0);
 packageState = syncPurchasedPackagesToInventory({ ...packageState, packagePlans: { ...packageState.packagePlans, gifts: { purchased: 2, inInventory: 1 } } }, [giftPackage, manufacturingPackage]);
 assert.equal(packageState.giftBoxes["100008"], undefined);
 assert.equal(packageState.inventory["5997"], undefined);

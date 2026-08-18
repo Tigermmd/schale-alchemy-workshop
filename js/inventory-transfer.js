@@ -1,4 +1,4 @@
-import { createInventoryState } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v64";
+import { createInventoryState } from "./inventory-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 export const INVENTORY_TRANSFER_FORMAT = "schale-relationship-inventory";
 export const INVENTORY_TRANSFER_SCHEMA_VERSION = 1;
@@ -108,6 +108,7 @@ export function createInventoryExportPayload(state, { exportedAt = new Date().to
     },
     equivalentGiftPools: cloneMap(normalized.equivalentGiftPools),
     giftReservations: cloneMap(normalized.giftReservations),
+    synthesisReservations: normalized.synthesisReservations.map((pair) => [...pair]),
     packageInventoryPostings: cloneMap(normalized.packageInventoryPostings),
     resourcePostingHistory: normalized.resourcePostingHistory.map((item) => ({
       ...item,
@@ -194,7 +195,7 @@ export function parseInventoryImport(input, { giftIds, giftBoxIds } = {}) {
   if (incomingStock.error || incomingBoxes.error || incomingPools.error || incomingExp.error) {
     return { ok: false, reason: incomingStock.error || incomingBoxes.error || incomingPools.error || incomingExp.error };
   }
-  if (payload.periodDays !== undefined && (!Number.isInteger(payload.periodDays) || payload.periodDays < 1 || payload.periodDays > 366)) return { ok: false, reason: "periodDays_must_be_between_1_and_366" };
+  if (payload.periodDays !== undefined && (!Number.isInteger(payload.periodDays) || payload.periodDays < 0 || payload.periodDays > 366)) return { ok: false, reason: "periodDays_must_be_between_0_and_366" };
   const resources = normalizeResources(payload.resources);
   if (resources.error) return { ok: false, reason: resources.error };
   const resourcePostingHistory = normalizePostingHistory(payload.resourcePostingHistory);
@@ -231,12 +232,14 @@ export function applyInventoryImport(currentState, importedState, { preserveStoc
   return {
     ...current,
     periodDays: imported.periodDays,
+    forecastDays: imported.periodDays,
     inventory: imported.inventory,
     giftBoxes: imported.giftBoxes,
     stockResources: preserveStockResources ? current.stockResources : imported.stockResources,
     incomingResources: imported.incomingResources,
     equivalentGiftPools: imported.equivalentGiftPools,
     giftReservations: imported.giftReservations,
+    synthesisReservations: imported.synthesisReservations,
     packageInventoryPostings: preservePackageInventoryPostings ? current.packageInventoryPostings : imported.packageInventoryPostings,
     resourcePostingHistory: imported.resourcePostingHistory,
     resources: imported.resources,

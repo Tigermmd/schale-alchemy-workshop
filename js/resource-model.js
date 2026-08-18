@@ -21,6 +21,7 @@ export function summarizeUnlimitedAssaultRewards(snapshot, floor) {
     floor: selectedFloor,
     goldSelectableGifts: 0,
     purpleRandomGifts: 0,
+    synthesisStones: 0,
   };
   for (const reward of snapshot?.floor_rewards ?? []) {
     const rewardFloor = Number(reward?.[0]);
@@ -29,6 +30,7 @@ export function summarizeUnlimitedAssaultRewards(snapshot, floor) {
       const amount = asNumber(quantity);
       if (name === "金色礼物自选") summary.goldSelectableGifts += amount;
       if (name === "紫色礼物随机") summary.purpleRandomGifts += amount;
+      if (name === "金色合成石") summary.synthesisStones += amount;
     }
   }
   return summary;
@@ -41,10 +43,27 @@ function periodMultiplier(resource, periodDays) {
   return 0;
 }
 
-export function calculateResourceForecast(resource, amount, periodDays, rewardSnapshot) {
+export function calculatePeriodicResourceAmount(resource, amount, resources = []) {
+  const baseAmount = Number(amount);
+  if (!Number.isFinite(baseAmount)) return null;
+  return Math.max(0, baseAmount);
+}
+
+export function calculateResourceForecast(resource, amount, periodDays, rewardSnapshot, { resources = [] } = {}) {
   if (amount === null || amount === undefined || amount === "") return null;
   if (resource.input_kind === "floor") {
-    return { kind: "unlimited_assault", summary: summarizeUnlimitedAssaultRewards(rewardSnapshot, amount) };
+    const summary = summarizeUnlimitedAssaultRewards(rewardSnapshot, amount);
+    if (!summary) return { kind: "unlimited_assault", summary: null };
+    const multiplier = periodMultiplier(resource, Number(periodDays || 0));
+    return {
+      kind: "unlimited_assault",
+      summary: {
+        ...summary,
+        goldSelectableGifts: summary.goldSelectableGifts * multiplier,
+        purpleRandomGifts: summary.purpleRandomGifts * multiplier,
+        synthesisStones: summary.synthesisStones * multiplier,
+      },
+    };
   }
   if (resource.input_kind === "daily_count") {
     return {
@@ -54,6 +73,6 @@ export function calculateResourceForecast(resource, amount, periodDays, rewardSn
   }
   return {
     kind: "quantity",
-    value: Number(amount) * periodMultiplier(resource, Number(periodDays || 0)),
+    value: calculatePeriodicResourceAmount(resource, amount, resources) * periodMultiplier(resource, Number(periodDays || 0)),
   };
 }

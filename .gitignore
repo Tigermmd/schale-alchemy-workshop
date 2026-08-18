@@ -13,3 +13,6 @@ __pycache__/
 # Optional JavaScript tooling/build output
 node_modules/
 dist/
+
+# Local brainstorming/runtime state; never publish it with the source tree.
+.superpowers/

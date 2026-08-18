@@ -106,7 +106,7 @@ const escapeCsv = (value) => {
 const csvText = sheet
   .getUsedRange()
   .values.map((row) => row.map(escapeCsv).join(","))
-  .join("\r\n") + "\r\n";
+  .join("\n") + "\n";
 await fs.writeFile(outputPath, csvText, "utf8");
 
 const preview = await workbook.render({
@@ -126,7 +126,7 @@ await fs.writeFile(giftPreviewPath, new Uint8Array(await giftPreview.arrayBuffer
 
 const imported = await Workbook.fromCSV(csvText, { sheetName: "Imported" });
 const importedValues = imported.worksheets.getItem("Imported").getUsedRange().values;
-if (importedValues.length !== 258 || importedValues[0].length !== headers.length) {
+if (importedValues.length !== rows.length + 1 || importedValues[0].length !== headers.length) {
   throw new Error(`CSV round-trip shape mismatch: ${importedValues.length}x${importedValues[0]?.length}`);
 }
 

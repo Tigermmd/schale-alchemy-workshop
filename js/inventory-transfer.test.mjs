@@ -45,6 +45,11 @@ assert.equal(roundTrip.state.stockResources.manufacturing_stone, 4.5);
 assert.equal(roundTrip.state.giftReservations["5000"], 1);
 assert.deepEqual(roundTrip.warnings, []);
 
+const zeroDayPayload = createInventoryExportPayload(createInventoryState({ periodDays: 0 }));
+const zeroDayImport = parseInventoryImport(JSON.stringify(zeroDayPayload));
+assert.equal(zeroDayImport.ok, true, "inventory export must preserve a zero-day planner window");
+assert.equal(zeroDayImport.state.periodDays, 0);
+
 const current = createInventoryState({
   students: [{ studentId: 10063, currentLevel: 1, targetLevel: 2 }],
   packages: [{ id: "package-draft", name: "keep me" }],
@@ -57,8 +62,8 @@ assert.equal(applied.inventory["5000"], 3);
 assert.equal(applied.inventory["5100"], undefined);
 
 const preservedArona = applyInventoryImport(current, roundTrip.state, { preserveStockResources: true, preservePackageInventoryPostings: true });
-assert.equal(preservedArona.stockResources.manufacturing_stone, 50);
-assert.equal(preservedArona.stockResources.synthesis_stone_gold, 100);
+assert.equal(preservedArona.stockResources.manufacturing_stone, 0);
+assert.equal(preservedArona.stockResources.synthesis_stone_gold, 0);
 
 const unknown = parseInventoryImport(JSON.stringify({
   format: "schale-relationship-inventory",

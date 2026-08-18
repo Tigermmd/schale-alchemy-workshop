@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { FUTURE_STUDENTS } from "./future-students.js";
-import { calculateGiftOnlyForecast, calculateGiftOnlyProjection, calculatePaidGiftPackageExp, filterGiftPackagesForStudent, partitionGiftPackagesForTimeline, recommendGiftPackagePurchases } from "./gift-only-planner.js";
+import { calculateGiftOnlyForecast, calculateGiftOnlyProjection, calculatePaidGiftPackageExp, calculateSynthesisStoneEquivalentExp, filterGiftPackagesForStudent, partitionGiftPackagesForTimeline, recommendGiftPackagePurchases } from "./gift-only-planner.js";
 import { calculateGiftBoxExpectedExp } from "./gift-box-state.js";
 
 const gifts = JSON.parse(fs.readFileSync(new URL("../relationship_data/gifts.json", import.meta.url), "utf8")).gifts;
@@ -13,6 +13,10 @@ const boxById = new Map(boxes.map((box) => [String(box.id), box]));
 const student = FUTURE_STUDENTS.find((item) => item.student_id === 10122);
 const craftingSnapshot = JSON.parse(fs.readFileSync(new URL("../relationship_data/crafting_expected_relationship.json", import.meta.url), "utf8"));
 const baseMikaCrafting = craftingSnapshot.students.find((item) => item.student_id === 10059);
+
+assert.equal(calculateSynthesisStoneEquivalentExp({ gift_values: [{ gift_id: 5000, relationship_exp: 20 }] }), 0);
+assert.equal(calculateSynthesisStoneEquivalentExp({ gift_values: [{ gift_id: 5000, relationship_exp: 60 }] }), 20);
+assert.equal(calculateSynthesisStoneEquivalentExp({ gift_values: [{ gift_id: 5000, relationship_exp: 80 }] }), 40);
 
 const towerForecast = calculateGiftOnlyForecast({
   resources: [{
@@ -29,7 +33,7 @@ assert.deepEqual(towerForecast, {
   randomGoldBoxes: 0,
   randomPurpleBoxes: 6,
   manufacturingStones: 0,
-  synthesisStones: 0,
+  synthesisStones: 40,
 });
 
 const twoMonthForecast = calculateGiftOnlyForecast({
@@ -49,6 +53,22 @@ assert.deepEqual(twoMonthForecast, {
   manufacturingStones: 0,
   synthesisStones: 0,
 });
+
+const synthesisForecastLowTower = calculateGiftOnlyForecast({
+  resources: [
+    { id: "monthly-synthesis-stones", cadence: "monthly", amount: 50, value_source: "default", unit: "synthesis_stone_gold" },
+    { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 49, input_kind: "floor", unit: "gift_box" },
+  ],
+}, { periodDays: 60, rewardSnapshot: JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8")) });
+assert.equal(synthesisForecastLowTower.synthesisStones, 100, "a low tower must not add the 20 tower synthesis stones");
+
+const synthesisForecastHighTower = calculateGiftOnlyForecast({
+  resources: [
+    { id: "monthly-synthesis-stones", cadence: "monthly", amount: 50, value_source: "default", unit: "synthesis_stone_gold" },
+    { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 99, input_kind: "floor", unit: "gift_box" },
+  ],
+}, { periodDays: 60, rewardSnapshot: JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8")) });
+assert.equal(synthesisForecastHighTower.synthesisStones, 140, "a high tower adds 20 synthesis stones per month");
 
 const specialPackage = {
   id: "special",
@@ -76,11 +96,12 @@ const paidPackageExp = calculatePaidGiftPackageExp({
   },
   manufacturingExpectedPerStone: 81.879452,
 });
-assert.equal(paidPackageExp.find((item) => item.id === "special").expectedExp, 1400);
-assert.equal(paidPackageExp.find((item) => item.id === "special").goldGiftExpPerPackage, 200);
-assert.equal(paidPackageExp.find((item) => item.id === "special").purpleGiftExpPerPackage, 720);
+assert.equal(paidPackageExp.find((item) => item.id === "special").expectedExp, 2520);
+assert.equal(paidPackageExp.find((item) => item.id === "special").goldGiftExpPerPackage, 600);
+assert.equal(paidPackageExp.find((item) => item.id === "special").purpleGiftExpPerPackage, 1440);
 assert.equal(paidPackageExp.find((item) => item.id === "special").bouquetExpPerPackage, 480);
-assert.equal(paidPackageExp.find((item) => item.id === "manufacture").expectedExp, 2137.58904);
+assert.equal(paidPackageExp.find((item) => item.id === "manufacture").expectedExp, 2137.58904, "gold synthesis stones should use the 20-EXP-gift approximation");
+assert.equal(paidPackageExp.find((item) => item.id === "manufacture").synthesisExpPerPackage, 500, "25 gold synthesis stones should add 25 × (best gold gift EXP - 40)");
 
 const genericPackage = { id: "generic", contents: [{ kind: "item", item_id: 100008, quantity: 1 }] };
 const unrelatedPackage = {
@@ -106,13 +127,13 @@ const currentStudentPackage = {
   gift_binding: { type: "student_specific_favorites", target_student_ids: [10063] },
   contents: [],
 };
-assert.deepEqual(filterGiftPackagesForStudent([genericPackage, currentStudentPackage], student).map((item) => item.id), ["generic", "current-student-package"]);
+assert.deepEqual(filterGiftPackagesForStudent([genericPackage, currentStudentPackage], student).map((item) => item.id), ["generic"], "a released student's package cannot be reused for swimsuit Mika");
 const timeline = partitionGiftPackagesForTimeline([
   { ...genericPackage, id: "current-generic" },
   { ...mikaPackage, id: "mika-launch", availability_phase: "mika_launch" },
   { ...unrelatedPackage, id: "current-unrelated", current_banner_for_planning: true },
 ], student);
-assert.deepEqual(timeline.current.map((item) => item.id), ["current-generic", "current-unrelated"]);
+assert.deepEqual(timeline.current.map((item) => item.id), ["current-generic"]);
 assert.deepEqual(timeline.mikaLaunch.map((item) => item.id), ["mika-launch"]);
 
 const activeCatalogForMika = paidPackagesCatalog.filter((item) => item.status === "active" || ["cn-monthly-manufacturing-98", "cn-monthly-gifts-78"].includes(item.id));
@@ -121,11 +142,54 @@ assert.ok(catalogTimeline.current.some((item) => item.id === "cn-third-anniversa
 assert.ok(catalogTimeline.current.some((item) => item.id === "cn-third-anniversary-manufacturing-156"));
 assert.ok(catalogTimeline.current.some((item) => item.id === "cn-monthly-manufacturing-98"));
 assert.ok(catalogTimeline.current.some((item) => item.id === "cn-monthly-gifts-78"));
-assert.ok(catalogTimeline.current.some((item) => item.id === "cn-third-anniversary-special-ii-98"));
+assert.equal(catalogTimeline.current.some((item) => item.id === "cn-third-anniversary-special-ii-98"), false, "Koyuki's student-specific package must not be shown for swimsuit Mika");
 assert.ok(catalogTimeline.mikaLaunch.some((item) => item.id === "cn-third-anniversary-special-i-98"));
 assert.ok(catalogTimeline.mikaLaunch.some((item) => item.id === "cn-third-anniversary-gifts-98@mika-launch"));
 assert.ok(catalogTimeline.mikaLaunch.some((item) => item.id === "cn-third-anniversary-manufacturing-156@mika-launch"));
 assert.equal(catalogTimeline.mikaLaunch.some((item) => item.id === "cn-third-anniversary-special-ii-98@mika-launch"), false);
+const mikaLaunchGiftPackage = catalogTimeline.mikaLaunch.find((item) => item.id === "cn-third-anniversary-gifts-98@mika-launch");
+assert.equal(mikaLaunchGiftPackage.name_zh_cn, "限定/FES学生礼物礼包", "未来上线参考礼包不能假设复刻周年名称");
+assert.equal(mikaLaunchGiftPackage.name_en, "Limited/FES Student Gift Package");
+assert.equal(mikaLaunchGiftPackage.name_ja, "限定/FES生徒贈り物パック");
+assert.doesNotMatch(mikaLaunchGiftPackage.name_zh_cn, /周年/);
+assert.doesNotMatch(mikaLaunchGiftPackage.name_zh_cn, /未花（泳装）上线/, "目标学生不能被拼进正式礼包名称");
+
+const baseMika = JSON.parse(fs.readFileSync(new URL("../relationship_data/student_gift_preferences.json", import.meta.url), "utf8"))
+  .students.find((item) => item.student_id === 10059);
+const baseMikaTimeline = partitionGiftPackagesForTimeline(activeCatalogForMika, baseMika);
+assert.equal(baseMikaTimeline.mikaLaunch.length, 0, "原皮未花已经实装，不应显示未花上线礼包");
+const koyuki = JSON.parse(fs.readFileSync(new URL("../relationship_data/student_gift_preferences.json", import.meta.url), "utf8"))
+  .students.find((item) => item.student_id === 10063);
+const koyukiTimeline = partitionGiftPackagesForTimeline(activeCatalogForMika, koyuki);
+assert.equal(koyukiTimeline.current.some((item) => item.id === "cn-third-anniversary-special-ii-98"), false, "常驻且已实装的小雪不应显示学生专属礼包");
+assert.equal(koyukiTimeline.mikaLaunch.length, 0, "常驻且已实装的小雪不应显示预测上线礼包");
+const nonLimitedFutureTimeline = partitionGiftPackagesForTimeline(activeCatalogForMika, { student_id: 99999, future_only: true });
+assert.equal(nonLimitedFutureTimeline.mikaLaunch.length, 0, "未标记为限定/FES的未来学生不应显示上线礼包");
+
+const futureFes = {
+  ...student,
+  student_id: 10099,
+  name_zh_cn: "星野（武装）",
+  name_en: "Hoshino (Armed)",
+  future_only: true,
+  launch_package_eligibility: "limited_or_fes",
+  package_favorite_gifts: undefined,
+};
+const templatePackage = paidPackagesCatalog.find((item) => item.id === "cn-limited-fes-student-favorite-98-template");
+const futureFesTimeline = partitionGiftPackagesForTimeline([
+  ...activeCatalogForMika,
+  templatePackage,
+], futureFes);
+assert.ok(futureFesTimeline.mikaLaunch.some((item) => item.id === "cn-limited-fes-student-favorite-98-template@10099-launch"), "另一个未实装FES学生也必须生成上线礼物礼包");
+const futureFesPackage = futureFesTimeline.mikaLaunch.find((item) => item.id === "cn-limited-fes-student-favorite-98-template@10099-launch");
+assert.equal(futureFesPackage.contents.find((item) => item.gift_color === "purple")?.item_id, undefined, "模板内容保留语义，由目标学生反应动态解析");
+const futureFesPackageExp = calculatePaidGiftPackageExp({
+  student: futureFes,
+  giftBoxes: boxById,
+  packages: [futureFesPackage],
+  packagePlans: {},
+});
+assert.ok(futureFesPackageExp[0].expectedExpPerPackage > 0, "生成的学生礼包必须能计算期望好感");
 
 const phaseProjection = calculateGiftOnlyProjection({
   student,
@@ -142,9 +206,9 @@ const phaseProjection = calculateGiftOnlyProjection({
     "mika-launch-special": { purchased: 0, planned: 1 },
   },
 });
-assert.equal(phaseProjection.paidPackages.current.expectedExp, 1400);
-assert.equal(phaseProjection.paidPackages.mikaLaunch.expectedExp, 1400);
-assert.equal(phaseProjection.paidPackages.expectedExp, 2800);
+assert.equal(phaseProjection.paidPackages.current.expectedExp, 2520);
+assert.equal(phaseProjection.paidPackages.mikaLaunch.expectedExp, 2520);
+assert.equal(phaseProjection.paidPackages.expectedExp, 5040);
 const recommendation = recommendGiftPackagePurchases([
   { id: "value", purchased: 1, maxPurchases: 3, expectedExpPerPackage: 1500, price: 98 },
   { id: "middle", purchased: 1, maxPurchases: 2, expectedExpPerPackage: 1000, price: 100 },
@@ -161,14 +225,18 @@ assert.equal(incompleteRecommendation.usedAllAvailable, true);
 assert.equal(incompleteRecommendation.remainingGap, 60);
 
 assert.ok(student, "Mika (Swimsuit) should be available as a future planner target");
+assert.equal(student.launch_package_eligibility, "limited_or_fes");
 assert.equal(baseMikaCrafting.relationship_exp_per_manufacturing_stone, 83.638734);
-assert.equal(student.gift_values.find((item) => item.gift_id === 5104).relationship_exp, 240);
-assert.equal(student.gift_values.find((item) => item.gift_id === 5106).relationship_exp, 120);
+assert.equal(student.gift_values.find((item) => item.gift_id === 5104).relationship_exp, 120);
+assert.equal(student.gift_values.find((item) => item.gift_id === 5106).relationship_exp, 240);
 assert.equal(student.gift_values.find((item) => item.gift_id === 5102).relationship_exp, 180);
-assert.equal(student.gift_values.find((item) => item.gift_id === 5005).relationship_exp, 40);
-assert.equal(student.gift_values.find((item) => item.gift_id === 5006).relationship_exp, 60);
-assert.equal(student.gift_values.find((item) => item.gift_id === 5034).relationship_exp, 20);
+assert.equal(student.gift_values.find((item) => item.gift_id === 5005).relationship_exp, 60);
+assert.equal(student.gift_values.find((item) => item.gift_id === 5006).relationship_exp, 40);
+assert.equal(student.gift_values.find((item) => item.gift_id === 5034).relationship_exp, 60);
 assert.equal(student.gift_values.find((item) => item.gift_id === 5000).relationship_exp, 20);
+assert.equal(student.gift_values.find((item) => item.gift_id === 5008).relationship_exp, 20);
+assert.deepEqual(student.most_favorite_gifts, [5106]);
+assert.deepEqual(student.package_favorite_gifts, { purple: 5106, gold: 5034 });
 
 const studentGiftValues = Object.fromEntries(student.gift_values.map((item) => [String(item.gift_id), item.relationship_exp]));
 const choiceBox = boxById.get("100008");
@@ -180,7 +248,7 @@ assert.equal(randomGoldBox.outcomes.some((outcome) => outcome.gift_id === 5106),
 assert.equal(randomPurpleBox.outcomes.some((outcome) => outcome.gift_id === 5106), true);
 const choiceBoxResult = calculateGiftBoxExpectedExp(choiceBox, studentGiftValues, { policy: "best_for_student" });
 assert.equal(choiceBoxResult.expectedExp, 60);
-assert.deepEqual(choiceBoxResult.selectedGiftIds, ["5006"]);
+assert.deepEqual(choiceBoxResult.selectedGiftIds, ["5005", "5034"]);
 assert.equal(choiceBoxResult.selectableGiftCount, 35);
 assert.ok(Math.abs(calculateGiftBoxExpectedExp(randomPurpleBox, studentGiftValues).expectedExp - 133.84615384615384) < 1e-9);
 
@@ -210,20 +278,36 @@ const projection = calculateGiftOnlyProjection({
 });
 
 assert.equal(projection.requiredExp, 240225);
-assert.equal(projection.current.concreteExp, 300);
+assert.equal(projection.current.concreteExp, 400);
 assert.equal(projection.current.choiceBoxes, 1);
 assert.equal(projection.current.choiceBoxExp, 60);
-assert.deepEqual(projection.current.choiceBoxSelection.selectedGiftIds, ["5006"]);
+assert.deepEqual(projection.current.choiceBoxSelection.selectedGiftIds, ["5005", "5034"]);
 assert.equal(projection.current.choiceBoxSelection.selectableGiftCount, 35);
-assert.equal(projection.current.totalExpectedExp, 360);
-assert.equal(projection.current.minimumChoiceBoxesNeeded, 3999);
+assert.equal(projection.current.totalExpectedExp, 460);
+assert.equal(projection.current.minimumChoiceBoxesNeeded, 3998);
 assert.equal(projection.twoMonthFree.choiceBoxes, 2);
 assert.equal(projection.twoMonthFree.randomGoldBoxes, 1);
 assert.equal(projection.twoMonthFree.randomPurpleBoxes, 1);
-assert.ok(Math.abs(projection.twoMonthFree.randomGoldExpectedExp - 24.571428571428573) < 1e-9);
+assert.ok(Math.abs(projection.twoMonthFree.randomGoldExpectedExp - 23.428571428571438) < 1e-9);
 assert.ok(Math.abs(projection.twoMonthFree.randomPurpleExpectedExp - 133.84615384615384) < 1e-9);
-assert.equal(projection.twoMonthFree.minimumChoiceBoxesNeededWithoutCurrentChoiceBoxes, 3995);
-assert.equal(projection.twoMonthFree.additionalChoiceBoxesNeeded, 3994);
-assert.ok(Math.abs(projection.twoMonthWithPaid.gap - 239586.58241758242) < 1e-9);
+assert.equal(projection.twoMonthFree.minimumChoiceBoxesNeededWithoutCurrentChoiceBoxes, 3993);
+assert.equal(projection.twoMonthFree.additionalChoiceBoxesNeeded, 3992);
+assert.ok(Math.abs(projection.twoMonthWithPaid.gap - 239487.72527472526) < 1e-9);
+
+const futureSynthesisOnlyProjection = calculateGiftOnlyProjection({
+  student,
+  thresholds,
+  currentLevel: 1,
+  currentProgress: 0,
+  targetLevel: 2,
+  gifts,
+  giftById,
+  giftBoxes: boxById,
+  state: { inventory: {}, giftBoxes: {}, equivalentGiftPools: {}, incomingResources: {}, giftReservations: {} },
+  forecast: { synthesisStones: 1 },
+});
+assert.equal(futureSynthesisOnlyProjection.twoMonthFree.synthesisStones, 1);
+assert.equal(futureSynthesisOnlyProjection.twoMonthFree.synthesisExpectedExp, 0, "future synthesis stones need concrete gold gifts before they can contribute");
+assert.equal(futureSynthesisOnlyProjection.twoMonthFree.totalExpectedExp, 0, "future synthesis stones alone must not create relationship EXP");
 
 console.log("gift-only planner tests passed");

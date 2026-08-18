@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { applyPlanningProposal, buildAgentContext, canReuseConfiguredProxy, extractConversationFacts, validatePlanningProposal } from "./agent-state.js";
+import { applyPlanningProposal, buildAgentContext, calculateResourceContribution, canReuseConfiguredProxy, extractConversationFacts, validatePlanningProposal } from "./agent-state.js";
 import { buildReleaseTimeline, calculateRelationshipSourceForecast, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js";
 import { createEmptyPlannerState } from "./planner-state.js";
 import { getGiftOnlyPlanningStudents } from "./planner-view.js";
@@ -86,7 +86,7 @@ const giftOnlyContext = buildAgentContext(
   data,
   { message: "未来两个月只按礼物规划", conversation: [{ role: "user", content: "未来两个月只按礼物规划" }] },
 );
-assert.deepEqual(giftOnlyContext.dataQuality.relevantMissingUserInputs.map((item) => item.id), []);
+assert.deepEqual(giftOnlyContext.dataQuality.relevantMissingUserInputs.map((item) => item.id), ["unlimited-assault-floor"]);
 assert.equal(giftOnlyContext.confirmedFacts.plannedStudents[0].release.status, "unreleased");
 assert.equal(giftOnlyContext.confirmedFacts.plannedStudents[0].relationshipSources.included, false);
 assert.ok(giftOnlyContext.calculatedResults.giftPlanning.projections[0].projection);
@@ -108,13 +108,59 @@ const releasedFullContext = buildAgentContext(
 assert.deepEqual(releasedFullContext.dataQuality.relevantMissingUserInputs.map((item) => item.id), [
   "daily-schedule-count",
   "daily-cafe-count",
+  "unlimited-assault-floor",
 ]);
 
 const releasedContext = buildAgentContext(releasedState, {}, data);
 assert.deepEqual(releasedContext.dataQuality.missingUserInputs.map((item) => item.id), [
   "daily-schedule-count",
   "daily-cafe-count",
+  "unlimited-assault-floor",
 ]);
+
+const dailyConfiguredState = {
+  ...releasedState,
+  resources: releasedState.resources.map((resource) => resource.id === "daily-schedule-exp"
+    ? { ...resource, amount: 1 }
+    : resource.id === "daily-cafe-exp"
+      ? { ...resource, amount: 1 }
+      : resource),
+};
+const dailyConfiguredContext = buildAgentContext(dailyConfiguredState, {}, data);
+const dailyProjection = dailyConfiguredContext.calculatedResults.giftPlanning.projections[0].combined;
+assert.equal(dailyProjection.relationshipExp, 60 * (31.25 + 15));
+assert.equal(dailyProjection.giftExp + dailyProjection.relationshipExp, dailyProjection.totalExpectedExp, "Agent EXP fields must partition total EXP without double counting");
+
+const postedForecastContext = buildAgentContext({
+  ...dailyConfiguredState,
+  students: [{ studentId: 10001, currentLevel: 1, currentProgress: 0, targetLevel: 100 }],
+  mainTargetStudentId: 10001,
+  resources: [{ id: "monthly-total-assault-gift-boxes", cadence: "monthly", amount: 3, unit: "gift_box", gift_box_id: "100008" }],
+  incomingResources: { giftBoxes: { "100008": 6 }, stockResources: {}, equivalentGiftPools: {}, relationshipExp: {} },
+  resourcePostingHistory: [{
+    id: "posted-choice-60",
+    postingKey: "monthly-total-assault-gift-boxes:60",
+    resourceId: "monthly-total-assault-gift-boxes",
+    periodDays: 60,
+    active: true,
+    mapped: { giftBoxes: { "100008": 6 }, stockResources: {}, equivalentGiftPools: {}, relationshipExp: {} },
+  }],
+}, {}, {
+  ...data,
+  giftBoxes: [{ id: "100008", type: "choice", selectable_gift_ids: [5000] }],
+});
+assert.equal(postedForecastContext.calculatedResults.giftPlanning.forecast.choiceBoxes, 15, "Agent forecast must merge the current-period posting with the other free resources instead of dropping the posted resource");
+
+const multiStudentDailyState = {
+  ...dailyConfiguredState,
+  mainTargetStudentId: 10001,
+  students: [
+    { studentId: 10001, currentLevel: 1, currentProgress: 0, targetLevel: 100 },
+    { studentId: 10002, currentLevel: 1, currentProgress: 0, targetLevel: 100 },
+  ],
+};
+assert.equal(calculateResourceContribution({ state: multiStudentDailyState, studentId: 10001, data }).totalExp, 60 * (31.25 + 15));
+assert.equal(calculateResourceContribution({ state: multiStudentDailyState, studentId: 10002, data }).totalExp, 0, "shared daily EXP must belong to the main target only");
 
 const directRequestContext = buildAgentContext(
   { ...createEmptyPlannerState(), cnProgress: progress },
@@ -125,6 +171,7 @@ const directRequestContext = buildAgentContext(
 assert.deepEqual(directRequestContext.dataQuality.relevantMissingUserInputs.map((item) => item.id), [
   "daily-schedule-count",
   "daily-cafe-count",
+  "unlimited-assault-floor",
 ]);
 assert.equal(directRequestContext.confirmedFacts.plannedStudents.length, 1);
 assert.equal(directRequestContext.confirmedFacts.plannedStudents[0].studentId, 10001);
@@ -136,12 +183,16 @@ const proposal = { type: "planning_proposal", summary: "目标", changes: [
   { kind: "set_forecast_days", value: 60 },
 ] };
 assert.equal(validatePlanningProposal(proposal, { state, data }).ok, true);
+assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_forecast_days", value: 0 }] }, { state, data }).ok, true);
 const applied = applyPlanningProposal(state, proposal, { data });
 assert.equal(applied.ok, true);
 assert.equal(applied.state.students[0].studentId, 10122);
 assert.equal(applied.state.students[0].targetLevel, 100);
 assert.deepEqual(applied.state.packagePlans, state.packagePlans);
 assert.equal(applied.state.inventory["5000"], undefined);
+const appliedZeroDay = applyPlanningProposal(state, { ...proposal, changes: [{ kind: "set_forecast_days", value: 0 }] }, { data });
+assert.equal(appliedZeroDay.state.forecastDays, 0);
+assert.equal(appliedZeroDay.state.periodDays, 0);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_inventory", giftId: 5000, count: 999 }] }, { state, data }).ok, false);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_forecast_days", value: 60, inventory: {} }] }, { state, data }).ok, false);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_package_plan", packageId: "p-1", planned: 1 }] }, { state, data }).ok, false);

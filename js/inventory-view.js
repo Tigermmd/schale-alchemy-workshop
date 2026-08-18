@@ -1,7 +1,7 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260817-gift-clean-v64";
-import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v64";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v64";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v64";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculateInventorySummary, mapPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -98,7 +98,7 @@ function periodicInputText(resource, locale) {
 export function renderPeriodicResources({ data, state, locale }) {
   const rewardSnapshot = data.unlimitedAssaultRewards;
   return `<section class="inventory-section" aria-labelledby="inventory-periodic-title"><div class="section-heading compact"><h2 id="inventory-periodic-title">${escapeHtml(t(locale, "inventoryPeriodicTitle"))}</h2><span class="inventory-periodic-period">${escapeHtml(t(locale, "inventoryPeriodicPeriod", state.periodDays))}</span></div><details class="inventory-details"><summary>${escapeHtml(t(locale, "inventoryShowPeriodic"))} · ${formatSmartQuantity(state.resources.length, locale)}</summary><div class="inventory-periodic-list"><div class="inventory-periodic-list-head"><span>${escapeHtml(t(locale, "inventoryPeriodicResource"))}</span><span>${escapeHtml(t(locale, "inventoryPeriodicPreview"))}</span><span class="sr-only">${escapeHtml(t(locale, "inventoryPeriodicActions"))}</span></div>${state.resources.map((resource) => {
-    const mapped = mapPeriodicResource(resource, { periodDays: state.periodDays, rewardSnapshot });
+    const mapped = mapPeriodicResource(resource, { periodDays: state.periodDays, rewardSnapshot, resources: state.resources });
     const postingKey = `${resource.id}:${state.periodDays}`;
     const active = state.resourcePostingHistory.find((item) => item.active !== false && item.postingKey === postingKey);
     return `<article class="inventory-periodic-row ${active ? "is-posted" : ""}"><div class="inventory-periodic-copy"><div class="inventory-periodic-title"><strong>${escapeHtml(t(locale, "inventoryPeriodicName", resource.id))}</strong><span>${escapeHtml(t(locale, "resourceCadence", resource.cadence))}</span></div><small>${escapeHtml(periodicInputText(resource, locale))}</small></div><div class="inventory-periodic-preview">${mappedPreview(mapped, locale)}</div><div class="inventory-periodic-actions">${active ? `<span class="inventory-posted-badge">${escapeHtml(t(locale, "inventoryPosted"))}</span><button type="button" class="text-button" data-undo-posting="${escapeHtml(active.id)}">${escapeHtml(t(locale, "inventoryUndoPost"))}</button>` : `<button type="button" class="secondary-button" data-post-resource="${escapeHtml(resource.id)}" ${mapped ? "" : "disabled"}>${escapeHtml(t(locale, "inventoryPostResource"))}</button>`}</div></article>`;
@@ -184,7 +184,7 @@ export function refreshInventoryGiftRows({ container, data, state, locale, local
 }
 
 function renderSynthesis({ data, state, locale, localization }) {
-  const goldGifts = data.gifts.filter((gift) => gift.rarity === "SSR");
+  const goldGifts = data.gifts.filter((gift) => gift.rarity === "SR");
   const options = goldGifts.map((gift) => `<option value="${gift.id}">${escapeHtml(localizedName(gift, "gift", locale, localization))} · ${formatSmartQuantity(state.inventory[String(gift.id)] ?? 0, locale)}</option>`).join("");
   return `<section class="inventory-section inventory-synthesis" aria-labelledby="inventory-synthesis-title"><div class="section-heading compact"><h2 id="inventory-synthesis-title">${escapeHtml(t(locale, "inventorySynthesisTitle"))}</h2></div><details class="inventory-details"><summary>${escapeHtml(t(locale, "inventoryShowSynthesis"))}</summary><form id="inventory-synthesis-form" class="inventory-synthesis-form"><label><span>${escapeHtml(t(locale, "inventoryFirstGift"))}</span><select name="firstGiftId" required>${options}</select></label><span class="inventory-plus" aria-hidden="true">+</span><label><span>${escapeHtml(t(locale, "inventorySecondGift"))}</span><select name="secondGiftId" required>${options}</select></label><span class="inventory-synthesis-cost">${escapeHtml(t(locale, "inventorySynthesisCost", formatSmartQuantity(state.stockResources.synthesis_stone_gold, locale)))}</span><button type="submit" class="primary-button">${escapeHtml(t(locale, "inventorySynthesize"))}</button></form></details></section>`;
 }

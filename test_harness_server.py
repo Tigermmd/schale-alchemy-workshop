@@ -31,9 +31,16 @@ class HarnessContractTests(unittest.TestCase):
             "https://user:pass@example.test",
             "https://example.test?token=secret",
             "https://example.test#fragment",
+            "http://model.example.test",
         ):
             with self.assertRaises(ValueError):
                 harness_server.validate_base_url(value)
+
+    def test_base_url_allows_https_and_loopback_http(self):
+        self.assertEqual(harness_server.validate_base_url("https://model.example.test"), "https://model.example.test")
+        self.assertEqual(harness_server.validate_base_url("http://127.0.0.1:1234"), "http://127.0.0.1:1234")
+        self.assertEqual(harness_server.validate_base_url("http://[::1]:1234"), "http://[::1]:1234")
+        self.assertEqual(harness_server.validate_base_url("http://localhost:1234"), "http://localhost:1234")
 
     def test_proposal_sanitizer_drops_untrusted_shape(self):
         proposal = harness_server.sanitize_proposal({

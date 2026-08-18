@@ -1,8 +1,8 @@
-import { addStudentPlan, normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v64";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260817-gift-clean-v64";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260817-gift-clean-v64";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v64";
-import { text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v64";
+import { addStudentPlan, normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 const ALLOWED_CHANGE_KINDS = new Set(["set_student_target", "set_forecast_days", "set_cn_cutoff_student"]);
 const ALLOWED_CHANGE_FIELDS = Object.freeze({
@@ -83,7 +83,7 @@ export function extractConversationFacts(conversation = []) {
 }
 
 function hasPlanningScope(text = "") {
-  return /(?:规划|计划|怎么|如何|提升|需要多少|缺多少|raise|plan|need|how can)/i.test(text);
+  return /(?:规划|计划|怎么|如何|提升|需要多少|缺多少|(?<![不未])计入|未来.{0,12}(?:天|周|个月)|\d+\s*(?:天|周|个月)|raise|plan|need|how can)/i.test(text);
 }
 
 function requestsGiftOnly(text = "") {
@@ -164,12 +164,17 @@ function effectiveStateFromConversation(state, facts, data, requestedStudentIds 
 }
 
 function buildCalculatedResults(normalizedState, data) {
-  const giftBoxes = new Map((data?.giftBoxes ?? data?.snapshots?.giftBoxes?.boxes ?? []).map((box) => [String(box.id), box]));
-  const forecast = calculateGiftOnlyForecast(normalizedState, {
+  const rawForecast = calculateGiftOnlyForecast(normalizedState, {
     periodDays: normalizedState.forecastDays,
     rewardSnapshot: data?.snapshots?.unlimitedAssaultRewards,
   });
   const summary = calculatePlanningSummary({ state: normalizedState, targets: normalizedState.students, mainTargetId: normalizedState.mainTargetStudentId, forecastDays: normalizedState.forecastDays, data });
+  // The summary is the canonical path for the current period: it merges
+  // already-posted incoming resources with resources that are still forecast.
+  // Reusing its main-target forecast keeps the Agent context from showing a
+  // smaller raw number than the planning page after a manual posting.
+  const mainProjection = summary.students.find((item) => item.isMainTarget);
+  const forecast = mainProjection?.sourceBreakdown?.free?.forecast ?? rawForecast;
   const projections = (normalizedState.students ?? []).map((plan) => {
     const item = summary.students.find((candidate) => Number(candidate.studentId) === Number(plan.studentId));
     const student = data?.studentById?.get(String(plan.studentId));
@@ -184,7 +189,7 @@ function buildCalculatedResults(normalizedState, data) {
         requiredExp: item.requiredExp,
         totalExpectedExp: item.totalExpectedExp,
         relationshipExp: item.sourceBreakdown?.free?.daily?.totalExp ?? 0,
-        giftExp: item.currentExp + item.freeExp,
+        giftExp: Math.max(0, item.totalExpectedExp - (item.sourceBreakdown?.free?.daily?.totalExp ?? 0)),
         gap: item.gapWithinPeriod,
         complete: item.gapWithinPeriod <= 0,
       },
@@ -228,7 +233,12 @@ export function calculateStudentPlan({ state, studentId, data } = {}) {
 
 export function calculateResourceContribution({ state, studentId, data } = {}) {
   const normalizedState = normalizePlannerState(state);
-  return calculateRelationshipSourceForecast({ state: normalizedState, studentId, cnProgress: normalizedState.cnProgress, timeline: data?.releaseTimeline ?? [], periodDays: normalizedState.forecastDays });
+  const result = calculateRelationshipSourceForecast({ state: normalizedState, studentId, cnProgress: normalizedState.cnProgress, timeline: data?.releaseTimeline ?? [], periodDays: normalizedState.forecastDays });
+  const hasMainTarget = normalizedState.students.length > 0 && normalizedState.mainTargetStudentId !== null;
+  if (hasMainTarget && Number(normalizedState.mainTargetStudentId) !== Number(studentId)) {
+    return { ...result, scheduleExp: 0, cafeExp: 0, totalExp: 0, shared: false };
+  }
+  return { ...result, shared: true };
 }
 
 export function calculatePackageNeed({ projection } = {}) {
@@ -390,7 +400,7 @@ export function validatePlanningProposal(proposal, { state, data } = {}) {
       if (change.currentLevel !== undefined && (integerOr(change.currentLevel, 0) < 1 || integerOr(change.currentLevel, 0) > 100)) errors.push(`changes[${index}].currentLevel must be 1–100`);
       if (change.currentProgress !== undefined && numberOr(change.currentProgress, -1) < 0) errors.push(`changes[${index}].currentProgress must be non-negative`);
     }
-    if (change.kind === "set_forecast_days" && (integerOr(change.value, 0) < 1 || integerOr(change.value, 0) > 366)) errors.push(`changes[${index}].value must be 1–366`);
+    if (change.kind === "set_forecast_days" && (integerOr(change.value, 0) < 0 || integerOr(change.value, 0) > 366)) errors.push(`changes[${index}].value must be 0–366`);
     if (change.kind === "set_cn_cutoff_student" && !cutoffStudentIds.has(Number(change.studentId))) errors.push(`changes[${index}] references an unknown cutoff student`);
   });
   return errors.length ? { ok: false, errors } : { ok: true, proposal };
@@ -412,7 +422,8 @@ export function applyPlanningProposal(state, proposal, { data } = {}) {
         targetLevel: change.targetLevel,
       });
     } else if (change.kind === "set_forecast_days") {
-      next = { ...next, forecastDays: integerOr(change.value, next.forecastDays) };
+      const days = integerOr(change.value, next.forecastDays);
+      next = { ...next, forecastDays: days, periodDays: days };
     } else if (change.kind === "set_cn_cutoff_student") {
       const entry = timeline.find((candidate) => Number(candidate.studentId) === Number(change.studentId));
       if (entry) next = { ...next, cnProgress: normalizeCnProgress({ cutoffStudentId: entry.studentId, cutoffRank: entry.jpRank }, timeline, students) };

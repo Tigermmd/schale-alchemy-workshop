@@ -143,9 +143,13 @@ def make_student_preferences(
     result = []
     for student in students_en_by_id.values():
         released = student.get("IsReleased", [False, False, False])
-        if not released[region_index]:
-            continue
+        # Keep the complete SchaleDB student catalog in the snapshot.  CN
+        # release state is data on each row, not a generation-time filter;
+        # the UI needs unreleased students for gift planning and future
+        # package previews while release-state logic decides whether daily
+        # schedule/cafe EXP is eligible.
         student_zh_cn = students_zh_cn_by_id[student["Id"]]
+        cn_released = bool(released[REGION_INDEX["cn"]])
         student_tags = set(student.get("FavorItemTags") or [])
         unique_tags = set(student.get("FavorItemUniqueTags") or [])
         match_tags = student_tags | unique_tags | set(COMMON_FAVOR_TAGS)
@@ -189,6 +193,10 @@ def make_student_preferences(
                 "path_name": student.get("PathName"),
                 "default_order": student.get("DefaultOrder"),
                 "is_released": released,
+                "is_limited": student.get("IsLimited", [0, 0, 0]),
+                "cn_released": cn_released,
+                "future_only": not cn_released,
+                "release_status": "released" if cn_released else "unreleased",
                 "favor_item_tags": sorted(student_tags),
                 "favor_item_unique_tags": sorted(unique_tags),
                 "favor_alts": student.get("FavorAlts", []),
@@ -273,9 +281,11 @@ def main() -> None:
                 "language": "bilingual",
                 "languages": {"en": "en", "zh_cn": "cn"},
                 "student_region_index": REGION_INDEX[args.server],
+                "catalog": "complete_student_catalog",
             },
             "source": source,
             "student_count": len(preferences),
+            "cn_released_student_count": sum(1 for student in preferences if student["cn_released"]),
             "common_premium_tags": COMMON_FAVOR_TAGS,
             "reaction_labels_en": {str(k): v for k, v in REACTION_LABELS_EN.items()},
             "reaction_labels_zh_cn": {str(k): v for k, v in REACTION_LABELS_ZH_CN.items()},

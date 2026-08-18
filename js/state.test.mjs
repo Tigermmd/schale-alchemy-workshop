@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { boostedGiftGroups, boostedGiftValues, filterStudents, getCraftingMechanismSummary, giftValuesForFilter, readSelectedStudentId } from "./dashboard-state.js";
+import { boostedGiftGroups, boostedGiftValues, filterStudents, getCraftingMechanismSummary, giftValuesForFilter, readPackageTargetStudentId, readSelectedStudentId } from "./dashboard-state.js";
 import { localizedName, normalizeLocale, readStoredLocale, text, writeStoredLocale } from "./i18n.js";
 import { renderResourcesWorkspace } from "./resource-view.js";
 import { formatExp, formatPercent, formatQuantity, formatSmartQuantity, probabilityOfNodeAppearing } from "./render.js";
@@ -14,6 +14,10 @@ const students = [
 assert.deepEqual(filterStudents(students, "aru").map((student) => student.student_id), [10000]);
 assert.equal(readSelectedStudentId("?student=10001", students), "10001");
 assert.equal(readSelectedStudentId("?student=99999", students), "10000");
+const packageStudents = [...students, { student_id: 10122, name_zh_cn: "未花（泳装）" }, { student_id: 10059, name_zh_cn: "未花" }];
+assert.equal(readPackageTargetStudentId("?view=packages&student=10122", packageStudents, 10059), "10122");
+assert.equal(readPackageTargetStudentId("?view=packages&packageStudent=10122&student=10059", packageStudents, 10059), "10122");
+assert.equal(readPackageTargetStudentId("?view=packages&student=99999", packageStudents, 10059), "10059");
 
 const giftFilterStudent = {
   preferred_gifts: [{ gift_id: 1, relationship_exp: 60 }],
@@ -156,8 +160,8 @@ const configuredResourceHtml = renderResourcesWorkspace({
 });
 assert.match(configuredResourceHtml, /选择通关层数/);
 assert.match(configuredResourceHtml, /通关至 99 层/);
-assert.match(configuredResourceHtml, /金色礼物自选 ×6/);
-assert.match(configuredResourceHtml, /紫色礼物随机 ×3/);
+assert.match(configuredResourceHtml, /金色礼物自选 ×12/);
+assert.match(configuredResourceHtml, /紫色礼物随机 ×6/);
 assert.doesNotMatch(configuredResourceHtml, /每月制约解除决战礼物盒[\s\S]{0,500}未知/);
 
 const touchCountState = setResourceAmount(setResourceAmount(createEmptyPlannerState(), "daily-schedule-exp", 7), "daily-cafe-exp", 8);

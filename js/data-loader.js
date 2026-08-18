@@ -1,20 +1,63 @@
-import { FUTURE_STUDENTS } from "./future-students.js?v=dashboard-20260817-gift-clean-v64";
-import { buildReleaseTimeline } from "./release-state.js?v=dashboard-20260817-gift-clean-v64";
-import { getCnGiftPackageCatalog } from "./package-catalog.js?v=dashboard-20260817-gift-clean-v64";
+import { FUTURE_STUDENTS, LIMITED_OR_FES_STUDENT_TYPES } from "./future-students.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { buildReleaseTimeline } from "./release-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+
+import { getCnGiftPackageCatalog } from "./package-catalog.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 const DATA_ROOT = "./relationship_data";
 
+export function buildStudentCatalog(students = [], overrides = FUTURE_STUDENTS) {
+  const overrideById = new Map((overrides ?? []).map((student) => [String(student.student_id), student]));
+  const buildStudentRecord = (student, override) => {
+    const cnReleased = student.cn_released ?? Boolean(student.is_released?.[2]);
+    const studentId = Number(student.student_id);
+    const limitedType = student.is_limited
+      ?? override?.is_limited
+      ?? (LIMITED_OR_FES_STUDENT_TYPES[studentId] ? [
+        LIMITED_OR_FES_STUDENT_TYPES[studentId],
+        LIMITED_OR_FES_STUDENT_TYPES[studentId],
+        LIMITED_OR_FES_STUDENT_TYPES[studentId],
+      ] : undefined);
+    const launchPackageEligibility = student.launch_package_eligibility
+      ?? override?.launch_package_eligibility
+      ?? (!cnReleased && LIMITED_OR_FES_STUDENT_TYPES[studentId] ? "limited_or_fes" : undefined);
+    return {
+      ...student,
+      ...(override ?? {}),
+      // The snapshot's release flags are authoritative. An override may add
+      // gift reactions and package metadata, but cannot release a CN student.
+      is_released: student.is_released ?? override?.is_released ?? [false, false, false],
+      cn_released: cnReleased,
+      future_only: !cnReleased,
+      release_status: cnReleased ? "released" : "unreleased",
+      ...(limitedType ? { is_limited: limitedType } : {}),
+      ...(launchPackageEligibility ? { launch_package_eligibility: launchPackageEligibility } : {}),
+    };
+  };
+  const catalog = (students ?? []).map((student) => {
+    return buildStudentRecord(student, overrideById.get(String(student.student_id)));
+  });
+  const catalogIds = new Set(catalog.map((student) => String(student.student_id)));
+  // Backward compatibility for an old local snapshot.  This is only a
+  // migration fallback; the normal source is the complete SchaleDB snapshot.
+  return [
+    ...catalog,
+    ...(overrides ?? [])
+      .filter((student) => !catalogIds.has(String(student.student_id)))
+      .map((student) => buildStudentRecord(student, undefined)),
+  ];
+}
+
 export const DATA_PATHS = Object.freeze({
-  gifts: `${DATA_ROOT}/gifts.json?v=dashboard-20260817-gift-clean-v64`,
-  preferences: `${DATA_ROOT}/student_gift_preferences.json?v=dashboard-20260817-gift-clean-v64`,
-  crafting: `${DATA_ROOT}/crafting_expected_relationship.json?v=dashboard-20260817-gift-clean-v64`,
-  thresholds: `${DATA_ROOT}/relationship_thresholds.json?v=dashboard-20260817-gift-clean-v64`,
-  packages: `${DATA_ROOT}/paid_packages_cn.json?v=dashboard-20260817-gift-clean-v64`,
-  giftBoxes: `${DATA_ROOT}/gift_boxes_cn.json?v=dashboard-20260817-gift-clean-v64`,
-  unlimitedAssaultRewards: `${DATA_ROOT}/unlimited_assault_rewards_cn.json?v=dashboard-20260817-gift-clean-v64`,
-  resourceEvidence: `${DATA_ROOT}/resource_evidence_cn.json?v=dashboard-20260817-gift-clean-v64`,
-  localization: `${DATA_ROOT}/localization.json?v=dashboard-20260817-gift-clean-v64`,
-  releaseTimeline: `${DATA_ROOT}/jp_release_timeline.json?v=dashboard-20260817-gift-clean-v64`,
+  gifts: `${DATA_ROOT}/gifts.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  preferences: `${DATA_ROOT}/student_gift_preferences.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  crafting: `${DATA_ROOT}/crafting_expected_relationship.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  thresholds: `${DATA_ROOT}/relationship_thresholds.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  packages: `${DATA_ROOT}/paid_packages_cn.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  giftBoxes: `${DATA_ROOT}/gift_boxes_cn.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  unlimitedAssaultRewards: `${DATA_ROOT}/unlimited_assault_rewards_cn.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  resourceEvidence: `${DATA_ROOT}/resource_evidence_cn.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  localization: `${DATA_ROOT}/localization.json?v=dashboard-20260818-relationship-zero-day-v96`,
+  releaseTimeline: `${DATA_ROOT}/jp_release_timeline.json?v=dashboard-20260818-relationship-zero-day-v96`,
 });
 
 async function fetchJson(path) {
@@ -46,12 +89,12 @@ export async function loadDashboardData() {
     fetchJson(DATA_PATHS.resourceEvidence),
     fetchJson(DATA_PATHS.localization),
     fetchJson(DATA_PATHS.releaseTimeline),
-    fetchOptionalJson("./assets/manifest.json?v=dashboard-20260817-gift-clean-v64"),
+    fetchOptionalJson("./assets/manifest.json?v=dashboard-20260818-relationship-zero-day-v96"),
   ]);
 
   const gifts = giftSnapshot.gifts;
-  const students = preferenceSnapshot.students;
-  const plannerStudents = [...students, ...FUTURE_STUDENTS.filter((future) => !students.some((student) => student.student_id === future.student_id))];
+  const plannerStudents = buildStudentCatalog(preferenceSnapshot.students);
+  const students = plannerStudents;
   const releaseTimeline = (releaseTimelineSnapshot?.students ?? []).map((entry) => ({
     ...entry,
     studentId: Number(entry.studentId),
@@ -93,7 +136,8 @@ export async function loadDashboardData() {
     plannerStudents,
     releaseTimeline,
     packageCatalog: getCnGiftPackageCatalog(packageSnapshot),
-    futureStudents: FUTURE_STUDENTS,
+    cnReleasedStudents: students.filter((student) => student.cn_released),
+    futureStudents: students.filter((student) => student.future_only),
     craftingById,
     snapshots: {
       gift: giftSnapshot,

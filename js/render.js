@@ -1,10 +1,10 @@
-import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v64";
+import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 import {
   localizedName,
   localizedReactionLabel,
   localeTag,
   text as t,
-} from "./i18n.js?v=dashboard-20260817-gift-clean-v64";
+} from "./i18n.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 const STAGES = ["1", "2", "3"];
 
@@ -78,10 +78,10 @@ function getImageSource(manifest, key, fallbackLocal, fallbackRemote) {
   };
 }
 
-function imageMarkup({ manifest, key, local, remote, alt, className = "" }) {
+function imageMarkup({ manifest, key, local, remote, alt, className = "", loading = "lazy" }) {
   const source = getImageSource(manifest, key, local, remote);
   return `<div class="icon-frame image-frame ${className}" data-image-frame>
-    <img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote)}" alt="${escapeHtml(alt)}" loading="lazy" />
+    <img src="${escapeHtml(source.local)}" data-fallback="${escapeHtml(source.remote)}" alt="${escapeHtml(alt)}" loading="${escapeHtml(loading)}" />
     <span class="image-fallback" aria-hidden="true">${escapeHtml(String(alt).slice(0, 1))}</span>
   </div>`;
 }
@@ -141,6 +141,7 @@ function nodeImage(node, manifest, locale, localization) {
     remote: node.icon_url ?? "",
     alt: localizedName(node, "node", locale, localization),
     className: "node-image",
+    loading: "eager",
   });
 }
 
@@ -228,7 +229,7 @@ function localizedNodeGiftNames(node, locale, localization, giftsById) {
   return (node.gift_names_en ?? []).map((name) => japaneseByEnglish.get(name) ?? name);
 }
 
-function renderNodeOptionRows(stageModel, manifest, optionCount, locale, localization, giftsById) {
+export function renderNodeOptionRows(stageModel, manifest, optionCount, locale, localization, giftsById) {
   const options = [...(stageModel.nodeExpectations ?? [])]
     .sort((a, b) => b.expected_relationship_exp - a.expected_relationship_exp || b.probability - a.probability || a.node_id - b.node_id)
     .slice(0, 5);
@@ -251,7 +252,7 @@ function renderNodeOptionRows(stageModel, manifest, optionCount, locale, localiz
       <span class="node-option-exp"><strong>${formatExp(node.expected_relationship_exp, locale)}</strong><small>${t(locale, "expectedExp")}</small></span>
     </div>`;
     };
-  return `<ol class="node-option-list" aria-label="${t(locale, "nodeListAria")}"><li class="node-option-primary">${renderOption(options[0], 0)}</li><li class="node-more-details"><details><summary>${escapeHtml(t(locale, "showMoreNodes", Math.max(0, options.length - 1)))}</summary><div class="node-option-more">${options.slice(1).map((node, index) => `<div class="node-option-primary">${renderOption(node, index + 1)}</div>`).join("")}</div></details></li></ol>`;
+  return `<ol class="node-option-list" aria-label="${t(locale, "nodeListAria")}">${options.map((node, index) => `<li class="node-option-primary">${renderOption(node, index)}</li>`).join("")}</ol>`;
 }
 
 function renderNodeProbabilityRows(stageModel, optionCount, locale, localization) {
@@ -266,7 +267,7 @@ function renderNodeProbabilityRows(stageModel, optionCount, locale, localization
     .join("");
 }
 
-function renderCraftingPath(crafting, mechanism, manifest, locale, localization, giftsById) {
+export function renderCraftingPath(crafting, mechanism, manifest, locale, localization, giftsById) {
   return `<section class="panel crafting-panel" aria-labelledby="crafting-title">
     <div class="section-heading"><h2 id="crafting-title">${t(locale, "craftingTitle")}</h2></div>
     <div class="stage-path">
@@ -274,14 +275,11 @@ function renderCraftingPath(crafting, mechanism, manifest, locale, localization,
         const stageModel = mechanism.stages.find((entry) => entry.id === stageId);
         const nodeCount = stageModel.nodeCount;
         const giftNodes = stageModel.giftCapableNodes ?? [];
-        const stageArea = { "1": 1, "2": 3, "3": 5 }[stageId] ?? Number(stageId);
-        const stageNormal = getImageSource(manifest, `ui:stage-mission-${stageArea}-normal`, `./assets/ui/stages/mission_${stageArea}_0.webp`, `https://schaledb.com/images/stage/mission_${stageArea}_0.webp`);
-        const stageAlternate = getImageSource(manifest, `ui:stage-mission-${stageArea}-alternate`, `./assets/ui/stages/mission_${stageArea}_1.webp`, `https://schaledb.com/images/stage/mission_${stageArea}_1.webp`);
         const stageNote = stageId === "1" ? t(locale, "stageStart") : stageId === "2" ? t(locale, "stageMiddle") : t(locale, "stageEnd");
         const stageCost = stageId === "1" ? t(locale, "stageStone") : t(locale, "stageContinue");
         return `<article class="stage-card stage-card-${stageId}">
           <div class="stage-card-top"><span class="stage-index">0${stageId}</span><div><strong>${t(locale, "stage", stageId)}</strong><small>${stageNote} · ${stageCost}</small></div></div>
-          <div class="stage-card-visual" aria-hidden="true"><div class="stage-card-scene"><img src="${escapeHtml(stageNormal.local)}" data-fallback="${escapeHtml(stageNormal.remote)}" alt="" loading="lazy"><img src="${escapeHtml(stageAlternate.local)}" data-fallback="${escapeHtml(stageAlternate.remote)}" alt="" loading="lazy"></div><img class="stage-card-visual-border" src="./assets/ui/craft-node-border.png" alt=""><span>${stageModel.nodeExpectations?.[0] ? nodeImage({ id: stageModel.nodeExpectations[0].node_id, node_id: stageModel.nodeExpectations[0].node_id, name_en: stageModel.nodeExpectations[0].name_en, name_zh_cn: stageModel.nodeExpectations[0].name_zh_cn }, manifest, locale, localization) : ""}</span></div>
+          <div class="stage-card-visual" aria-hidden="true"><img class="stage-card-visual-border" src="./assets/ui/craft-node-border.png" alt=""><span>${stageModel.nodeExpectations?.[0] ? nodeImage({ id: stageModel.nodeExpectations[0].node_id, node_id: stageModel.nodeExpectations[0].node_id, name_en: stageModel.nodeExpectations[0].name_en, name_zh_cn: stageModel.nodeExpectations[0].name_zh_cn }, manifest, locale, localization) : ""}</span></div>
           <div class="node-copy"><h3>${escapeHtml(t(locale, "availableNodes"))}</h3><span>${escapeHtml(t(locale, "nodeCount", nodeCount))}</span></div>
           ${renderNodeOptionRows(stageModel, manifest, mechanism.optionCount, locale, localization, giftsById)}
           <dl class="node-stats"><div><dt>${t(locale, "expectedIncrease")}</dt><dd>${formatExp(stageModel.expectedExp, locale)}</dd></div><div><dt>${t(locale, "expectedGiftQuantity")}</dt><dd>${formatQuantity(stageModel.expectedGiftQuantity, locale)}</dd></div><div><dt>${t(locale, "noPositiveGift")}</dt><dd>${formatPercent(stageModel.noPositiveProbability, locale)}</dd></div></dl>

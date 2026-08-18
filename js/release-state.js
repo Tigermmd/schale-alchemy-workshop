@@ -1,4 +1,4 @@
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v64";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 export const CN_PROGRESS_VERSION = 1;
 
@@ -29,7 +29,9 @@ export function buildReleaseTimeline(students = []) {
 }
 
 export function getDefaultCnProgress(timeline = [], students = []) {
-  const releasedIds = new Set((students ?? []).filter((student) => !student.future_only).map((student) => Number(student.student_id)));
+  const releasedIds = new Set((students ?? [])
+    .filter((student) => student.cn_released ?? !student.future_only)
+    .map((student) => Number(student.student_id)));
   const released = timeline.filter((entry) => releasedIds.has(Number(entry.studentId)));
   const last = released.at(-1) ?? timeline.at(-1);
   return {
@@ -87,7 +89,7 @@ export function getEligibleRelationshipSources(studentId, cnProgress, timeline =
 
 export function calculateRelationshipSourceForecast({ state, studentId, cnProgress, timeline = [], periodDays = 60 } = {}) {
   const release = getEligibleRelationshipSources(studentId, cnProgress, timeline);
-  const days = Math.min(366, Math.max(1, integerOr(periodDays, 60)));
+  const days = Math.min(366, Math.max(0, integerOr(periodDays, 60)));
   const result = { ...release, periodDays: days, scheduleExp: 0, cafeExp: 0, totalExp: 0 };
   if (!release.includeSchedule && !release.includeCafe) return result;
   for (const resource of state?.resources ?? []) {

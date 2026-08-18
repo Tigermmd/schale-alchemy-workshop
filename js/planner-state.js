@@ -1,15 +1,15 @@
 export const PLANNER_STORAGE_KEY = "schale-relationship-planner-v1";
-export const PLANNER_STATE_VERSION = 5;
+export const PLANNER_STATE_VERSION = 6;
 
 export const RESOURCE_DEFINITIONS = Object.freeze([
   { id: "weekly-manufacturing-stones", cadence: "weekly", category: "free", unit: "manufacturing_stone", default_amount: 17 },
-  { id: "monthly-synthesis-stones", cadence: "monthly", category: "free", unit: "synthesis_stone_gold", default_amount: 70 },
+  { id: "monthly-synthesis-stones", cadence: "monthly", category: "free", unit: "synthesis_stone_gold", default_amount: 50 },
   { id: "monthly-total-assault-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 3, gift_box_id: "100008" },
   { id: "monthly-grand-assault-gold-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 4.5, gift_box_id: "100008" },
   { id: "monthly-grand-assault-purple-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 1.5, gift_box_id: "100009" },
   { id: "monthly-event-shop-gold-gift-boxes", cadence: "monthly", category: "free", unit: "gift_equivalent", default_amount: 80, equivalent_box_id: "100000" },
   { id: "monthly-event-shop-purple-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 4, gift_box_id: "100009" },
-  { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", input_kind: "floor", default_amount: 99, floor_options: [24, 49, 74, 99, 106, 124], max_floor: 124 },
+  { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", input_kind: "floor", floor_options: [24, 49, 74, 99, 106, 124], max_floor: 124 },
   { id: "daily-schedule-exp", cadence: "daily", category: "free", unit: "relationship_exp", input_kind: "daily_count", expected_per_count: 31.25 },
   { id: "daily-cafe-exp", cadence: "daily", category: "free", unit: "relationship_exp", input_kind: "daily_count", expected_per_count: 15 },
 ]);
@@ -41,6 +41,13 @@ function normalizeNumberMap(value, fallback = {}, integer = false) {
   );
 }
 
+function normalizeSynthesisReservations(value) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((pair) => Array.isArray(pair) && pair.length === 2 && pair.every((giftId) => String(giftId).trim()))
+    .map((pair) => pair.map((giftId) => String(giftId)));
+}
+
 function migrateLegacyGrandAssaultResources(resourcesById) {
   const legacy = resourcesById.get("monthly-grand-assault-gift-boxes");
   if (!legacy) return new Map();
@@ -58,6 +65,66 @@ function migrateLegacyGrandAssaultResources(resourcesById) {
       enabled: legacy.enabled !== false,
     }],
   ]);
+}
+
+function emptyMappedResources() {
+  return { stockResources: {}, giftBoxes: {}, equivalentGiftPools: {}, relationshipExp: {} };
+}
+
+function splitLegacyGrandAssaultPosting(item) {
+  const mapped = item?.mapped ?? emptyMappedResources();
+  const total = numberOr(item?.amount, 0);
+  const periodMultiplier = Number(item?.periodDays) > 0 ? Number(item.periodDays) / 30 : 1;
+  const gold = numberOr(mapped.giftBoxes?.["100008"], total * 0.75 * periodMultiplier);
+  const purple = numberOr(mapped.giftBoxes?.["100009"], total * 0.25 * periodMultiplier);
+  const makeEntry = (resourceId, amount, giftBoxId, suffix) => ({
+    ...item,
+    id: `${String(item.id)}:${suffix}`,
+    postingKey: `${resourceId}:${item.periodDays}`,
+    resourceId,
+    amount: total * (giftBoxId === "100008" ? 0.75 : 0.25),
+    mapped: {
+      ...emptyMappedResources(),
+      giftBoxes: { [giftBoxId]: amount },
+    },
+  });
+  return [
+    makeEntry("monthly-grand-assault-gold-gift-boxes", gold, "100008", "gold"),
+    makeEntry("monthly-grand-assault-purple-gift-boxes", purple, "100009", "purple"),
+  ];
+}
+
+function migrateLegacyGrandAssaultPostingHistory(history) {
+  const activePostingKeys = new Set((history ?? [])
+    .filter((item) => item?.active !== false)
+    .map((item) => String(item.postingKey ?? "")));
+  return (history ?? []).flatMap((item) => {
+    if (item?.resourceId !== "monthly-grand-assault-gift-boxes") return [item];
+    return splitLegacyGrandAssaultPosting(item).map((migrated) => activePostingKeys.has(String(migrated.postingKey))
+      ? { ...migrated, active: false, migratedDuplicate: true, needsIncomingReconciliation: true }
+      : migrated);
+  });
+}
+
+function reconcileGrandAssaultIncomingResources(incomingResources, history) {
+  const duplicateTotals = { "100008": 0, "100009": 0 };
+  for (const item of history ?? []) {
+    if (item?.needsIncomingReconciliation !== true) continue;
+    for (const [giftBoxId, amount] of Object.entries(item.mapped?.giftBoxes ?? {})) {
+      if (Object.prototype.hasOwnProperty.call(duplicateTotals, String(giftBoxId))) duplicateTotals[String(giftBoxId)] += numberOr(amount, 0);
+    }
+  }
+  if (!Object.values(duplicateTotals).some((amount) => amount > 0)) return incomingResources;
+  return {
+    ...incomingResources,
+    giftBoxes: {
+      ...incomingResources.giftBoxes,
+      ...Object.fromEntries(Object.entries(duplicateTotals).map(([id, amount]) => [
+        id,
+        Math.max(0, numberOr(incomingResources.giftBoxes[id]) - amount),
+      ])),
+    },
+  };
 }
 
 function normalizeStockResources(value, fallback = { manufacturing_stone: 0, synthesis_stone_gold: 0 }) {
@@ -118,7 +185,7 @@ export function createEmptyPlannerState() {
     version: PLANNER_STATE_VERSION,
     server: "cn",
     cnProgress: null,
-    periodDays: 30,
+    periodDays: 60,
     forecastDays: 60,
     mainTargetStudentId: null,
     students: [],
@@ -126,8 +193,8 @@ export function createEmptyPlannerState() {
     inventory: {},
     giftBoxes: {},
     stockResources: {
-      manufacturing_stone: 50,
-      synthesis_stone_gold: 100,
+      manufacturing_stone: 0,
+      synthesis_stone_gold: 0,
     },
     incomingResources: {
       stockResources: {
@@ -140,6 +207,7 @@ export function createEmptyPlannerState() {
     },
     equivalentGiftPools: { "random-gold": 0 },
     giftReservations: {},
+    synthesisReservations: [],
     resourcePostingHistory: [],
     resources: DEFAULT_RESOURCE_ROWS.map((resource) => ({ ...resource })),
     packages: [],
@@ -162,7 +230,15 @@ export function normalizePlannerState(input) {
       && Number(source.version ?? 0) < PLANNER_STATE_VERSION
       && (saved?.amount === null || saved?.amount === undefined);
     const savedHasUserValue = saved?.value_source === "user";
-    const savedAmount = savedHasUserValue
+    const legacyDefaultSynthesis = resource.id === "monthly-synthesis-stones"
+      && !savedHasUserValue
+      && Number(saved?.amount) === 70;
+    const legacyDefaultTower = resource.id === "monthly-unlimited-assault-gift-boxes"
+      && !savedHasUserValue
+      && Number(saved?.amount) === 99;
+    const savedAmount = legacyDefaultSynthesis || legacyDefaultTower
+      ? resource.amount
+      : savedHasUserValue
       ? (saved.amount === null || saved.amount === undefined ? null : normalizeResourceAmount(resource, saved.amount, 0))
       : saved?.amount === null || saved?.amount === undefined
         ? resource.amount
@@ -189,12 +265,7 @@ export function normalizePlannerState(input) {
   const sourceStock = source.stockResources && typeof source.stockResources === "object"
     ? source.stockResources
     : null;
-  const legacyStockWasUnset = sourceVersion < PLANNER_STATE_VERSION
-    && (!sourceStock || Object.values(sourceStock).every((value) => Number(value) === 0));
-  const stockResources = legacyStockWasUnset
-    ? { ...base.stockResources }
-    : normalizeStockResources(sourceStock, base.stockResources);
-  const incomingResources = normalizeIncomingResources(source.incomingResources);
+  const stockResources = normalizeStockResources(sourceStock, base.stockResources);
   const equivalentGiftPools = normalizeNumberMap(source.equivalentGiftPools, base.equivalentGiftPools);
   const giftReservations = normalizeNumberMap(source.giftReservations, {}, true);
   const packageInventoryPostings = normalizePackageInventoryPostings(source.packageInventoryPostings);
@@ -210,9 +281,27 @@ export function normalizePlannerState(input) {
         active: item.active !== false,
       }))
     : [];
+  const migratedResourcePostingHistory = migrateLegacyGrandAssaultPostingHistory(resourcePostingHistory);
+  const incomingResources = reconcileGrandAssaultIncomingResources(
+    normalizeIncomingResources(source.incomingResources),
+    migratedResourcePostingHistory,
+  );
+  // The duplicate marker is only a migration-time accounting signal. Keep
+  // the inactive migrated rows for history, but remove the marker before
+  // persisting the normalized state so a second normalize cannot subtract the
+  // same legacy amount again.
+  const stableResourcePostingHistory = migratedResourcePostingHistory.map((item) => {
+    if (item?.migratedDuplicate !== true && item?.needsIncomingReconciliation !== true) return item;
+    const { migratedDuplicate, needsIncomingReconciliation, ...stableItem } = item;
+    return stableItem;
+  });
   const students = Array.isArray(source.students)
     ? source.students.map(normalizeStudentPlan).filter((student) => student.studentId > 0)
     : [];
+  const requestedPeriodDays = sourceVersion < PLANNER_STATE_VERSION && source.forecastDays !== undefined
+    ? source.forecastDays
+    : source.periodDays ?? source.forecastDays ?? base.periodDays;
+  const normalizedPeriodDays = Math.min(366, Math.max(0, integerOr(requestedPeriodDays, base.periodDays)));
   const studentDrafts = Object.fromEntries(
     Object.entries(source.studentDrafts && typeof source.studentDrafts === "object" ? source.studentDrafts : {})
       .map(([studentId, plan]) => [String(studentId), normalizeStudentPlan({ ...plan, studentId })])
@@ -220,8 +309,8 @@ export function normalizePlannerState(input) {
   );
   return {
     ...base,
-    periodDays: Math.min(366, Math.max(1, integerOr(source.periodDays, base.periodDays))),
-    forecastDays: Math.min(366, Math.max(1, integerOr(source.forecastDays, base.forecastDays))),
+    periodDays: normalizedPeriodDays,
+    forecastDays: normalizedPeriodDays,
     mainTargetStudentId: integerOr(source.mainTargetStudentId, 0)
       || students[0]?.studentId
       || null,
@@ -243,8 +332,9 @@ export function normalizePlannerState(input) {
     incomingResources,
     equivalentGiftPools,
     giftReservations,
+    synthesisReservations: normalizeSynthesisReservations(source.synthesisReservations),
     packageInventoryPostings,
-    resourcePostingHistory,
+    resourcePostingHistory: stableResourcePostingHistory,
     resources,
     packages: Array.isArray(source.packages) ? source.packages : [],
     packagePlans: {
@@ -343,7 +433,9 @@ export function setResourceAmount(state, resourceId, amount, options = {}) {
           : undefined;
         return {
           ...resource,
-          amount: isCustomMarker || amount === null || amount === "" ? null : normalizeResourceAmount(resource, amount, 0),
+          amount: isCustomMarker
+            ? resource.amount === null || resource.amount === undefined ? null : resource.amount
+            : amount === null || amount === "" ? null : normalizeResourceAmount(resource, amount, 0),
           ...(isFloor ? { floor_mode: floorMode } : {}),
           value_source: "user",
         };
@@ -404,6 +496,102 @@ function chooseBetterAction(current, candidate) {
   return String(candidate.giftId).localeCompare(String(current.giftId)) < 0 ? candidate : current;
 }
 
+function cloneAssignmentMap(assignments) {
+  return new Map([...assignments.entries()].map(([key, assignment]) => [key, { ...assignment }]));
+}
+
+function assignmentKey(studentId, giftId) {
+  return `${String(studentId)}:${String(giftId)}`;
+}
+
+function addAssignmentUnit(assignments, studentId, giftId, giftValuesByStudent) {
+  const relationshipExp = numberOr(giftValuesByStudent.get(String(studentId))?.[String(giftId)], 0);
+  if (relationshipExp <= 0) return false;
+  const key = assignmentKey(studentId, giftId);
+  const previous = assignments.get(key) ?? {
+    studentId: String(studentId),
+    giftId: String(giftId),
+    quantity: 0,
+    relationshipExp,
+    effectiveExp: 0,
+  };
+  previous.quantity += 1;
+  previous.relationshipExp = relationshipExp;
+  assignments.set(key, previous);
+  return true;
+}
+
+function removeAssignmentUnit(assignments, studentId, giftId) {
+  const key = assignmentKey(studentId, giftId);
+  const previous = assignments.get(key);
+  if (!previous) return false;
+  if (previous.quantity <= 1) assignments.delete(key);
+  else assignments.set(key, { ...previous, quantity: previous.quantity - 1 });
+  return true;
+}
+
+function assignmentScore(assignments, students, giftValuesByStudent) {
+  const totals = new Map(students.map((student) => [String(student.id), 0]));
+  for (const assignment of assignments.values()) {
+    const relationshipExp = numberOr(giftValuesByStudent.get(String(assignment.studentId))?.[String(assignment.giftId)], 0);
+    totals.set(String(assignment.studentId), (totals.get(String(assignment.studentId)) ?? 0) + relationshipExp * assignment.quantity);
+  }
+  return students.reduce((sum, student) => sum + Math.min(numberOr(student.requiredExp, 0), totals.get(String(student.id)) ?? 0), 0);
+}
+
+function assignmentUnits(assignments) {
+  // Exchange optimisation only needs one representative unit per assignment
+  // type. Expanding a quantity of 250 gifts into 250 objects made the planner
+  // freeze for multi-student inventories; the exchange itself still removes
+  // exactly one unit and can be repeated by the bounded improvement loop.
+  return [...assignments.values()].map((assignment) => ({
+    studentId: String(assignment.studentId),
+    giftId: String(assignment.giftId),
+  }));
+}
+
+/**
+ * Greedy allocation is a good first pass, but one gift can be valuable to a
+ * second student while another gift is the better fit for the first. Apply
+ * improving one-for-one exchanges until stable so that this common conflict
+ * does not produce an avoidable global deficit.
+ */
+function improveAllocation(assignments, remainingInventory, students, giftValuesByStudent) {
+  let currentScore = assignmentScore(assignments, students, giftValuesByStudent);
+  for (let iteration = 0; iteration < 100; iteration += 1) {
+    let best = null;
+    for (const [newGiftId, count] of Object.entries(remainingInventory)) {
+      if (count <= 0) continue;
+      for (const targetStudent of students) {
+        const newValue = numberOr(giftValuesByStudent.get(String(targetStudent.id))?.[String(newGiftId)], 0);
+        if (newValue <= 0) continue;
+        const direct = cloneAssignmentMap(assignments);
+        if (addAssignmentUnit(direct, targetStudent.id, newGiftId, giftValuesByStudent)) {
+          const score = assignmentScore(direct, students, giftValuesByStudent);
+          if (score > currentScore && (!best || score > best.score)) best = { score, assignments: direct, newGiftId };
+        }
+        for (const existing of assignmentUnits(assignments)) {
+          for (const destinationStudent of students) {
+            if (String(destinationStudent.id) === String(existing.studentId)) continue;
+            if (numberOr(giftValuesByStudent.get(String(destinationStudent.id))?.[String(existing.giftId)], 0) <= 0) continue;
+            const exchanged = cloneAssignmentMap(assignments);
+            if (!removeAssignmentUnit(exchanged, existing.studentId, existing.giftId)) continue;
+            if (!addAssignmentUnit(exchanged, targetStudent.id, newGiftId, giftValuesByStudent)) continue;
+            if (!addAssignmentUnit(exchanged, destinationStudent.id, existing.giftId, giftValuesByStudent)) continue;
+            const score = assignmentScore(exchanged, students, giftValuesByStudent);
+            if (score > currentScore && (!best || score > best.score)) best = { score, assignments: exchanged, newGiftId };
+          }
+        }
+      }
+    }
+    if (!best) break;
+    assignments.clear();
+    for (const [key, value] of best.assignments) assignments.set(key, value);
+    remainingInventory[best.newGiftId] -= 1;
+    currentScore = best.score;
+  }
+}
+
 export function planGiftAllocation({ students = [], inventory = {}, giftById, giftValuesByStudent = new Map() }) {
   const remaining = new Map(students.map((student) => [String(student.id), Math.max(0, numberOr(student.requiredExp, 0))]));
   const remainingInventory = Object.fromEntries(Object.entries(inventory).map(([giftId, count]) => [String(giftId), integerOr(count, 0)]));
@@ -450,13 +638,15 @@ export function planGiftAllocation({ students = [], inventory = {}, giftById, gi
     assignmentMap.set(key, previous);
   }
 
+  improveAllocation(assignmentMap, remainingInventory, students, giftValuesByStudent);
+
   const assignments = [...assignmentMap.values()];
   const studentResults = students.map((student) => {
     const studentId = String(student.id);
     const allocated = assignments.filter((assignment) => assignment.studentId === studentId);
-    const effectiveExp = allocated.reduce((sum, assignment) => sum + assignment.effectiveExp, 0);
     const potentialExp = allocated.reduce((sum, assignment) => sum + assignment.relationshipExp * assignment.quantity, 0);
     const requiredExp = Math.max(0, numberOr(student.requiredExp, 0));
+    const effectiveExp = Math.min(requiredExp, potentialExp);
     return {
       ...student,
       effectiveExp,
@@ -467,6 +657,8 @@ export function planGiftAllocation({ students = [], inventory = {}, giftById, gi
     };
   });
 
+  totalPotentialExp = assignments.reduce((sum, assignment) => sum + assignment.relationshipExp * assignment.quantity, 0);
+  totalEffectiveExp = studentResults.reduce((sum, student) => sum + student.effectiveExp, 0);
   return {
     assignments,
     students: studentResults,

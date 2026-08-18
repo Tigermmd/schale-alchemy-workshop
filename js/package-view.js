@@ -1,6 +1,7 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260817-gift-clean-v64";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260817-gift-clean-v64";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260817-gift-clean-v64";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -21,6 +22,26 @@ function contentName(item, locale) {
   if (locale === "en") return item?.name_en ?? item?.name_zh_cn ?? "";
   if (locale === "ja") return item?.name_ja ?? item?.name_en ?? item?.name_zh_cn ?? "";
   return item?.name_zh_cn ?? item?.name_en ?? "";
+}
+
+function resolveStudentFavoriteContents(item, student, data) {
+  const packageFavorites = student?.package_favorite_gifts ?? {};
+  const giftById = data?.giftById;
+  return (item?.contents ?? []).map((content) => {
+    if (content?.kind !== "student_favorite_gift") return content;
+    const resolvedId = packageFavorites[content.gift_color]
+      ?? resolveStudentFavoriteGiftId(student, content.gift_color)
+      ?? content.item_id;
+    const gift = giftById?.get?.(String(resolvedId));
+    if (!gift) return { ...content, item_id: resolvedId };
+    return {
+      ...content,
+      item_id: gift.id,
+      name_zh_cn: gift.name_zh_cn ?? content.name_zh_cn,
+      name_en: gift.name_en ?? content.name_en,
+      name_ja: gift.name_ja ?? content.name_ja,
+    };
+  });
 }
 
 function packageNote(item, locale) {
@@ -93,7 +114,14 @@ function breakdownHtml(row, locale) {
     : `<span>${escapeHtml(t(locale, "packageNoGiftExp"))}</span>`;
 }
 
-function packageRow({ row, item, locale, rank = null, data }) {
+function packageRow({ row, item, locale, rank = null, data, student }) {
+  const displayItem = {
+    ...item,
+    contents: resolveStudentFavoriteContents(item, student, data),
+    name_zh_cn: row.name_zh_cn ?? item?.name_zh_cn,
+    name_en: row.name_en ?? item?.name_en,
+    name_ja: row.name_ja ?? item?.name_ja,
+  };
   const available = Number(row.availablePurchases ?? 0);
   const limit = Number(row.purchaseLimit ?? 0);
   const purchased = Number(row.purchasedCount ?? 0);
@@ -101,7 +129,7 @@ function packageRow({ row, item, locale, rank = null, data }) {
   return `<article class="package-efficiency-row">
     <div class="package-efficiency-head">
       ${rank ? `<span class="package-rank" aria-label="#${rank}">#${rank}</span>` : ""}
-      <div><strong>${escapeHtml(packageName(item, locale) || row.name)}</strong><small>${escapeHtml(phaseLabel(row, locale))} · ${escapeHtml(t(locale, "packageCategoryName", item?.category ?? "gifts"))}</small></div>
+      <div><strong>${escapeHtml(packageName(displayItem, locale) || row.name)}</strong><small>${escapeHtml(phaseLabel(row, locale))} · ${escapeHtml(t(locale, "packageCategoryName", displayItem?.category ?? "gifts"))}</small></div>
       <span class="package-efficiency-rate"><b>${escapeHtml(efficiency)}</b><small>${escapeHtml(t(locale, "packageExpPerYuan"))}</small></span>
     </div>
     <div class="package-efficiency-kpis" aria-label="${escapeHtml(t(locale, "packageDetails"))}">
@@ -110,17 +138,18 @@ function packageRow({ row, item, locale, rank = null, data }) {
       <div><span>${escapeHtml(t(locale, "packageAvailable"))}</span><b>${formatQuantity(available, locale)} / ${formatQuantity(limit, locale)}</b></div>
       <div><span>${escapeHtml(t(locale, "packagePurchased"))}</span><b>${formatQuantity(purchased, locale)}</b></div>
     </div>
-    <details class="package-details"><summary>${escapeHtml(t(locale, "packageDetails"))}</summary><div class="package-contents">${contentsHtml(item, locale, data)}</div><div class="package-efficiency-breakdown">${breakdownHtml(row, locale)}</div>
-    ${packageNote(item, locale) ? `<p class="package-catalog-note">${escapeHtml(packageNote(item, locale))}</p>` : ""}
-    <div class="package-catalog-actions">${item?.source ? `<a href="${escapeHtml(item.source)}" target="_blank" rel="noreferrer">${escapeHtml(t(locale, "packageSource"))} ↗</a>` : ""}<span class="package-snapshot-date">${escapeHtml(t(locale, "packageAsOf", row.asOf ?? "—"))}</span></div></details>
+    <details class="package-details"><summary>${escapeHtml(t(locale, "packageDetails"))}</summary><div class="package-contents">${contentsHtml(displayItem, locale, data)}</div><div class="package-efficiency-breakdown">${breakdownHtml(row, locale)}</div>
+    ${packageNote(displayItem, locale) ? `<p class="package-catalog-note">${escapeHtml(packageNote(displayItem, locale))}</p>` : ""}
+    <div class="package-catalog-actions">${displayItem?.source ? `<a href="${escapeHtml(displayItem.source)}" target="_blank" rel="noreferrer">${escapeHtml(t(locale, "packageSource"))} ↗</a>` : ""}<span class="package-snapshot-date">${escapeHtml(t(locale, "packageAsOf", row.asOf ?? "—"))}</span></div></details>
   </article>`;
 }
 
-function renderPackageGroup({ title, rows, catalogItems, locale, data }) {
+function renderPackageGroup({ title, rows, catalogItems, locale, data, student, launchForecast = false }) {
   if (!rows.length) return "";
   const topRows = rows.slice(0, 3);
   const remainingRows = rows.slice(3);
-  return `<section class="package-efficiency-section package-group" aria-label="${escapeHtml(title)}"><div class="package-section-heading"><h2>${escapeHtml(title)}</h2><span>${escapeHtml(t(locale, "packageTopTitle"))}</span></div><div class="package-efficiency-list">${topRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 1, data })).join("")}</div>${remainingRows.length ? `<details class="package-all-details"><summary>${escapeHtml(t(locale, "packageAllTitle"))} · ${remainingRows.length}</summary><div class="package-efficiency-list">${remainingRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 4, data })).join("")}</div></details>` : ""}</section>`;
+  const targetName = localizedName(student, "student", locale, data?.localization);
+  return `<section class="package-efficiency-section package-group" aria-label="${escapeHtml(title)}"><div class="package-section-heading"><h2>${escapeHtml(title)}</h2><span>${escapeHtml(t(locale, "packageTopTitle"))}</span></div>${launchForecast ? `<p class="package-forecast-notice" role="note"><strong>${escapeHtml(t(locale, "packageLaunchForecastNotice", targetName))}</strong></p>` : ""}<div class="package-efficiency-list">${topRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 1, data, student })).join("")}</div>${remainingRows.length ? `<details class="package-all-details"><summary>${escapeHtml(t(locale, "packageAllTitle"))} · ${remainingRows.length}</summary><div class="package-efficiency-list">${remainingRows.map((row, index) => packageRow({ row, item: catalogItems.get(String(row.packageId)), locale, rank: index + 4, data, student })).join("")}</div></details>` : ""}</section>`;
 }
 
 export function renderPackagesWorkspace({ data = {}, state = {}, locale, localization, selectedStudentId = null }) {
@@ -148,7 +177,7 @@ export function renderPackagesWorkspace({ data = {}, state = {}, locale, localiz
     : "";
   return `<section class="package-workspace panel" aria-labelledby="package-title">
     <div class="section-heading package-page-heading"><div><h2 id="package-title">${escapeHtml(t(locale, "packagesTitle"))}</h2>${targetPicker}</div></div>
-    ${!targetStudent ? `<div class="planner-empty" role="status"><div class="planner-empty-copy"><strong>${escapeHtml(t(locale, "packageNoTarget"))}</strong></div><button type="button" class="primary-button" data-go-planner>${escapeHtml(t(locale, "packageGoPlanner"))}</button></div>` : `${renderPackageGroup({ title: t(locale, "packageCurrentPhase"), rows: currentRows, catalogItems, locale, data })}${renderPackageGroup({ title: t(locale, "packageLaunchPhase"), rows: launchRows, catalogItems, locale, data })}`}
+    ${!targetStudent ? `<div class="planner-empty" role="status"><div class="planner-empty-copy"><strong>${escapeHtml(t(locale, "packageNoTarget"))}</strong></div><button type="button" class="primary-button" data-go-planner>${escapeHtml(t(locale, "packageGoPlanner"))}</button></div>` : `${renderPackageGroup({ title: t(locale, "packageCurrentPhase"), rows: currentRows, catalogItems, locale, data, student: targetStudent })}${renderPackageGroup({ title: t(locale, "packageLaunchPhase"), rows: launchRows, catalogItems, locale, data, student: targetStudent, launchForecast: true })}`}
     ${targetStudent && !rows.length ? `<div class="planner-empty" role="status">${escapeHtml(t(locale, "packageNoRows"))}</div>` : ""}
   </section>`;
 }

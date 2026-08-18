@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import ipaddress
 import os
 import re
 import sys
@@ -45,6 +46,16 @@ def validate_base_url(value: object) -> str:
         parsed.port
     except ValueError as exc:
         raise ValueError("Base URL 端口无效") from exc
+    if parsed.scheme == "http":
+        hostname = (parsed.hostname or "").lower().rstrip(".")
+        is_loopback = hostname == "localhost"
+        if not is_loopback:
+            try:
+                is_loopback = ipaddress.ip_address(hostname).is_loopback
+            except ValueError:
+                is_loopback = False
+        if not is_loopback:
+            raise ValueError("外部 Base URL 必须使用 HTTPS；HTTP 仅允许连接本机地址")
     return base_url
 
 
@@ -271,10 +282,15 @@ class HarnessHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Referrer-Policy", "no-referrer")
         self.end_headers()
         self.wfile.write(body)
+
+    def end_headers(self) -> None:
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Content-Security-Policy", "default-src 'self'; img-src 'self' https://schaledb.com https://*.schaledb.com https://kivo.wiki https://arona.icu https://webcnstatic.yostar.net data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
+        super().end_headers()
 
     def do_OPTIONS(self) -> None:
         self.send_response(204)

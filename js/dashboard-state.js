@@ -19,6 +19,16 @@ export function readSelectedStudentId(search, students) {
   return exists ? requested : String(students[0]?.student_id ?? "");
 }
 
+export function readPackageTargetStudentId(search, students, fallbackId = null) {
+  const params = new URLSearchParams(search);
+  const requested = params.get("packageStudent")
+    ?? (params.get("view") === "packages" ? params.get("student") : null);
+  const available = new Set((students ?? []).map((student) => String(student.student_id)));
+  if (requested && available.has(requested)) return requested;
+  const fallback = fallbackId === null || fallbackId === undefined ? null : String(fallbackId);
+  return fallback && available.has(fallback) ? fallback : null;
+}
+
 export function writeSelectedStudentId(studentId) {
   const url = new URL(window.location.href);
   url.searchParams.set("student", studentId);

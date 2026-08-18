@@ -118,6 +118,22 @@ const overviewHtml = emptyInventoryHtml.slice(emptyInventoryHtml.indexOf("class=
 assert.equal((overviewHtml.match(/<article/g) ?? []).length, 2, "Inventory overview should keep only current and remaining totals");
 assert.doesNotMatch(overviewHtml, /金色礼物自选盒|紫色礼物随机盒|金色随机礼物池/);
 
+const synthesisHtml = renderInventoryWorkspace({
+  data: {
+    gifts: [
+      { id: 5000, name_zh_cn: "金礼物", name_en: "Gold gift", rarity: "SR", base_exp: 20 },
+      { id: 5100, name_zh_cn: "紫礼物", name_en: "Purple gift", rarity: "SSR", base_exp: 60 },
+    ],
+    giftById: new Map([["5000", { id: 5000, name_zh_cn: "金礼物", rarity: "SR" }], ["5100", { id: 5100, name_zh_cn: "紫礼物", rarity: "SSR" }]]),
+    giftBoxes: [],
+  },
+  state: { periodDays: 30, students: [], giftBoxes: {}, resources: [], inventory: {}, giftReservations: {}, stockResources: { manufacturing_stone: 0, synthesis_stone_gold: 0 }, incomingResources: { stockResources: {}, giftBoxes: {}, equivalentGiftPools: {}, relationshipExp: {} }, equivalentGiftPools: {}, resourcePostingHistory: [] },
+  locale: "zh_cn",
+  filters: { query: "", rarity: "all", exp: "all", onlyOwned: false },
+});
+assert.match(synthesisHtml, /option value="5000"/);
+assert.doesNotMatch(synthesisHtml, /option value="5100"/);
+
 const expandedEmptyInventoryHtml = renderInventoryWorkspace({
   data: {
     gifts: [{ id: 5000, name_zh_cn: "测试礼物", name_en: "Test Gift", rarity: "SSR", base_exp: 60 }],

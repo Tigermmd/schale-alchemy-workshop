@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260817-gift-clean-v64";
-import { filterStudents, getCraftingMechanismSummary, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260817-gift-clean-v64";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260817-gift-clean-v64";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260817-gift-clean-v64";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260817-gift-clean-v64";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260817-gift-clean-v64";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260817-gift-clean-v64";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260817-gift-clean-v64";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260817-gift-clean-v64";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260817-gift-clean-v64";
-import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260817-gift-clean-v64";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260817-gift-clean-v64";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260817-gift-clean-v64";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260817-gift-clean-v64";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260817-gift-clean-v64";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { filterStudents, getCraftingMechanismSummary, readPackageTargetStudentId, readSelectedStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-zero-day-v96";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-zero-day-v96";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -51,6 +51,23 @@ function writeWorkbench(workbench) {
   window.history.replaceState({}, "", url);
 }
 
+function writePackageTargetStudentId(studentId) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("packageStudent", String(studentId));
+  window.history.replaceState({}, "", url);
+}
+
+function normalizePlanningDays(value, fallback) {
+  const numeric = Number(value);
+  return Math.min(366, Math.max(0, Number.isFinite(numeric) ? Math.floor(numeric) : fallback));
+}
+
+function commitPlanningDays(value, fallback) {
+  const days = normalizePlanningDays(value, fallback);
+  state.planner = writePlannerState(window.localStorage, { ...state.planner, periodDays: days, forecastDays: days });
+  renderActiveWorkbench();
+}
+
 const state = {
   selectedId: "",
   query: "",
@@ -61,6 +78,7 @@ const state = {
   inventoryFilters: { query: "", rarity: "all", exp: "all", onlyOwned: true },
   inventoryNotice: "",
   packageTargetStudentId: null,
+  plannerNotice: "",
   agent: { baseUrl: "", model: "", configured: false, messages: [], proposal: null, busy: false, notice: "" },
 };
 
@@ -135,14 +153,16 @@ function renderDetails() {
     const fallbackName = localizedStudentName.slice(0, 1);
     avatarSlot.innerHTML = `<div class="hero-avatar">${fallbackName}</div>`;
     const heroImage = document.createElement("img");
-    const collectionLocal = data.assetManifest?.entries?.[`student-collection:${student.student_id}`]?.local
-      ?? (data.students.some((candidate) => String(candidate.student_id) === String(student.student_id))
-        ? `./assets/students/collection/${student.student_id}.webp`
-        : null);
-    heroImage.src = collectionLocal
-      ?? data.assetManifest?.entries?.[`student:${student.student_id}`]?.local
+    const collectionEntry = data.assetManifest?.entries?.[`student-collection:${student.student_id}`];
+    const studentEntry = data.assetManifest?.entries?.[`student:${student.student_id}`];
+    heroImage.src = collectionEntry?.local
+      ?? studentEntry?.local
       ?? `./assets/students/${student.student_id}.webp`;
-    heroImage.dataset.fallback = `https://schaledb.com/images/student/icon/${student.student_id}.webp`;
+    heroImage.dataset.fallback = collectionEntry?.remote
+      ?? studentEntry?.remote
+      ?? (student.future_only === true
+        ? `https://schaledb.com/images/student/collection/${student.student_id}.webp`
+        : `https://schaledb.com/images/student/icon/${student.student_id}.webp`);
     heroImage.alt = localizedStudentName;
     heroImage.loading = "eager";
     avatarSlot.querySelector(".hero-avatar").replaceWith(heroImage);
@@ -150,7 +170,16 @@ function renderDetails() {
   wireImageFallbacks(elements.detail);
 }
 
-function renderActiveWorkbench({ resetScroll = false } = {}) {
+function focusResourceControl(resourceId) {
+  if (!resourceId) return;
+  const amountControls = [...elements.detail.querySelectorAll("[data-resource-amount]")];
+  const floorControls = [...elements.detail.querySelectorAll("[data-resource-floor]")];
+  const control = amountControls.find((candidate) => candidate.dataset.resourceAmount === resourceId)
+    ?? floorControls.find((candidate) => candidate.dataset.resourceFloor === resourceId);
+  control?.focus({ preventScroll: true });
+}
+
+function renderActiveWorkbench({ resetScroll = false, focusResourceId = null } = {}) {
   if (!data) return;
   const chrome = getWorkbenchChromeState(state.workbench);
   elements.dashboard.dataset.workbench = state.workbench;
@@ -169,7 +198,7 @@ function renderActiveWorkbench({ resetScroll = false } = {}) {
     return;
   }
   if (state.workbench === "planner") {
-    elements.detail.innerHTML = renderPlannerWorkspace({ data, state: state.planner, locale: state.locale, localization: data.localization });
+    elements.detail.innerHTML = renderPlannerWorkspace({ data, state: state.planner, locale: state.locale, localization: data.localization, notice: state.plannerNotice });
     wirePlannerImageFallbacks(elements.detail);
     return;
   }
@@ -192,7 +221,9 @@ function renderActiveWorkbench({ resetScroll = false } = {}) {
       locale: state.locale,
       localization: data.localization,
       evidence: data.snapshots.resourceEvidence,
+      openResourceId: focusResourceId,
     });
+    if (focusResourceId) requestAnimationFrame(() => focusResourceControl(focusResourceId));
     return;
   }
   if (state.workbench === "agent") {
@@ -365,7 +396,7 @@ async function bootstrap() {
   applyLocaleChrome();
   try {
     data = await loadDashboardData();
-    await refreshAgentProxyStatus();
+    if (state.workbench === "agent") await refreshAgentProxyStatus();
     state.planner = writePlannerState(window.localStorage, syncPurchasedPackagesToInventory(
       migrateLegacyAutoPostedPackageContents(state.planner, data.snapshots.packages?.packages ?? []),
       data.snapshots.packages?.packages ?? [],
@@ -374,6 +405,11 @@ async function bootstrap() {
       ? normalizeCnProgress(state.planner.cnProgress, data.releaseTimeline, data.plannerStudents)
       : getDefaultCnProgress(data.releaseTimeline, data.plannerStudents) });
     const requestedStudentId = new URLSearchParams(window.location.search).get("student");
+    state.packageTargetStudentId = readPackageTargetStudentId(
+      window.location.search,
+      data.plannerStudents,
+      state.planner.mainTargetStudentId,
+    );
     state.selectedId = requestedStudentId
       ? readSelectedStudentId(window.location.search, data.students)
       : state.planner.mainTargetStudentId && data.studentById.has(String(state.planner.mainTargetStudentId))
@@ -538,7 +574,7 @@ elements.detail.addEventListener("click", (event) => {
   const postResource = event.target.closest("[data-post-resource]");
   if (postResource) {
     state.planner = writePlannerState(window.localStorage, postPeriodicResource(state.planner, postResource.dataset.postResource, {
-      periodDays: state.planner.periodDays,
+      periodDays: state.planner.forecastDays,
       rewardSnapshot: data.snapshots.unlimitedAssaultRewards,
     }));
     renderActiveWorkbench();
@@ -557,14 +593,16 @@ elements.detail.addEventListener("click", (event) => {
     return;
   }
   if (event.target.closest("[data-confirm-reservations]")) {
-    state.planner = writePlannerState(window.localStorage, confirmGiftReservations(state.planner));
-    state.inventoryNotice = "inventoryNoticeConfirmed";
+    const confirmed = confirmGiftReservations(state.planner);
+    state.planner = writePlannerState(window.localStorage, confirmed);
+    state.inventoryNotice = confirmed.synthesisReservations?.length ? "inventoryNoticeConfirmedPartial" : "inventoryNoticeConfirmed";
     renderActiveWorkbench();
     return;
   }
   if (event.target.closest("[data-reserve-allocation]")) {
     const { allocation } = prepareAllocation(data, state.planner, data.snapshots.thresholds);
-    state.planner = writePlannerState(window.localStorage, reserveGiftAllocation(state.planner, allocation.assignments));
+    state.planner = writePlannerState(window.localStorage, reserveGiftAllocation(state.planner, allocation.reservationAssignments ?? allocation.assignments, { synthesisGiftIds: allocation.synthesisGiftIds ?? [] }));
+    state.plannerNotice = "plannerReservationPosted";
     renderActiveWorkbench();
     return;
   }
@@ -684,6 +722,7 @@ elements.detail.addEventListener("change", (event) => {
   const packageTarget = event.target.closest("[data-package-target-student]");
   if (packageTarget) {
     state.packageTargetStudentId = packageTarget.value;
+    writePackageTargetStudentId(state.packageTargetStudentId);
     renderActiveWorkbench();
     return;
   }
@@ -720,7 +759,7 @@ elements.detail.addEventListener("change", (event) => {
   const resourceInput = event.target.closest("[data-resource-amount]");
   if (resourceInput) {
     state.planner = writePlannerState(window.localStorage, setResourceAmount(state.planner, resourceInput.dataset.resourceAmount, resourceInput.value));
-    renderActiveWorkbench();
+    renderActiveWorkbench({ focusResourceId: resourceInput.dataset.resourceAmount });
     return;
   }
   const resourceFloor = event.target.closest("[data-resource-floor]");
@@ -733,7 +772,7 @@ elements.detail.addEventListener("change", (event) => {
       amount,
       { floorMode: isCustom ? "custom" : null },
     ));
-    renderActiveWorkbench();
+    renderActiveWorkbench({ focusResourceId: resourceFloor.dataset.resourceFloor });
     return;
   }
   const giftBoxInput = event.target.closest("[data-gift-box-count]");
@@ -744,14 +783,12 @@ elements.detail.addEventListener("change", (event) => {
   }
   const periodInput = event.target.closest("[data-period-days]");
   if (periodInput) {
-    state.planner = writePlannerState(window.localStorage, { ...state.planner, periodDays: periodInput.value });
-    renderActiveWorkbench();
+    commitPlanningDays(periodInput.value, state.planner.forecastDays);
     return;
   }
   const forecastDaysInput = event.target.closest("[data-planner-forecast-days]");
   if (forecastDaysInput) {
-    state.planner = writePlannerState(window.localStorage, { ...state.planner, forecastDays: forecastDaysInput.value });
-    renderActiveWorkbench();
+    commitPlanningDays(forecastDaysInput.value, state.planner.periodDays);
   }
   const inventoryFilter = event.target.closest("[data-inventory-filter]");
   if (inventoryFilter) {

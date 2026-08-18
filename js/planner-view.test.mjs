@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { filterPlannerStudents, plannerStudentLabel, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs } from "./planner-view.js";
+import { filterPlannerStudents, plannerStudentLabel, prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs } from "./planner-view.js";
 import { text } from "./i18n.js";
 import { createEmptyPlannerState } from "./planner-state.js";
 
@@ -22,6 +22,68 @@ const options = renderPlannerStudentOptions({ students, query: "mika", locale: "
 assert.match(options, /data-planner-student-option="10122"/);
 assert.match(options, /未花（泳装）/);
 assert.doesNotMatch(options, /10063/);
+const synthesisReservationData = {
+  snapshots: { thresholds: [{ level: 1, cumulative_exp_to_reach_level: 0 }, { level: 2, cumulative_exp_to_reach_level: 100 }] },
+  studentById: new Map([["1", { student_id: 1, name_en: "Student", gift_values: [{ gift_id: 5000, relationship_exp: 20 }, { gift_id: 5001, relationship_exp: 20 }, { gift_id: 5002, relationship_exp: 60 }] }]]),
+  plannerStudents: [],
+  giftById: new Map([["5000", { id: 5000, rarity: "SR" }], ["5001", { id: 5001, rarity: "SR" }]]),
+  giftBoxes: [{ id: "100008", type: "choice", selectable_gift_ids: [5002] }],
+  craftingById: new Map(),
+  releaseTimeline: [{ studentId: 1, jpRank: 1 }],
+};
+const synthesisReservationState = {
+  students: [{ id: "student-1", studentId: 1, currentLevel: 1, currentProgress: 0, targetLevel: 2 }],
+  mainTargetStudentId: 1,
+  forecastDays: 10,
+  inventory: { 5000: 1, 5001: 1 },
+  giftReservations: {},
+  giftBoxes: {},
+  stockResources: { manufacturing_stone: 0, synthesis_stone_gold: 1 },
+  incomingResources: {},
+  equivalentGiftPools: {},
+  resources: [],
+  resourcePostingHistory: [],
+  cnProgress: { cutoffRank: 1 },
+};
+const preparedSynthesisAllocation = prepareAllocation(synthesisReservationData, synthesisReservationState, synthesisReservationData.snapshots.thresholds);
+assert.deepEqual(preparedSynthesisAllocation.allocation.reservationAssignments, [], "synthesis materials use a separate reservation record");
+assert.deepEqual(preparedSynthesisAllocation.allocation.synthesisGiftIds, ["5000", "5001"], "quick reserve must retain the synthesis pair separately");
+const synthesisOnlyHtml = renderPlannerWorkspace({
+  data: { ...synthesisReservationData, plannerStudents: [synthesisReservationData.studentById.get("1")] },
+  state: synthesisReservationState,
+  locale: "zh_cn",
+  localization: {},
+});
+assert.match(synthesisOnlyHtml, /data-reserve-allocation/, "a synthesis-only plan must still expose the reserve action");
+
+const reservedSynthesisHtml = renderPlannerWorkspace({
+  data: {
+    ...synthesisReservationData,
+    plannerStudents: [synthesisReservationData.studentById.get("1")],
+  },
+  state: {
+    ...synthesisReservationState,
+    giftReservations: { "5000": 1, "5001": 1 },
+    synthesisReservations: [["5000", "5001"]],
+  },
+  locale: "zh_cn",
+  localization: {},
+});
+assert.doesNotMatch(reservedSynthesisHtml, /data-reserve-allocation/, "a reserved plan must not keep a misleading repeat-reserve button");
+assert.match(reservedSynthesisHtml, /已有预留/, "a reserved plan must show that gifts are already reserved");
+
+const reservationNoticeHtml = renderPlannerWorkspace({
+  data: {
+    ...synthesisReservationData,
+    plannerStudents: [synthesisReservationData.studentById.get("1")],
+  },
+  state: synthesisReservationState,
+  locale: "zh_cn",
+  localization: {},
+  notice: "plannerReservationPosted",
+});
+assert.match(reservationNoticeHtml, /礼物已预留，未扣库存/, "the planner must acknowledge a successful reservation");
+
 const manyStudents = Array.from({ length: 30 }, (_, index) => ({ student_id: 11000 + index, name_zh_cn: `测试学生${index}`, name_en: `Test Student ${index}`, name_ja: `テスト${index}` }));
 const allMatchingOptions = renderPlannerStudentOptions({ students: manyStudents, query: "test", locale: "zh_cn", localization: {} });
 assert.equal((allMatchingOptions.match(/data-planner-student-option=/g) ?? []).length, 30, "Planner search must keep the full matching student set");
@@ -76,5 +138,14 @@ const iconPlannerHtml = renderPlannerWorkspace({
   localization: {},
 });
 assert.match(iconPlannerHtml, /class="planner-student-photo icon-frame"/, "Planner student portraits must use the shared icon frame");
+assert.match(iconPlannerHtml, /src="\.\/assets\/students\/10122\.webp"/, "A future student without local collection art must use the local icon snapshot");
+assert.doesNotMatch(iconPlannerHtml, /src="\.\/assets\/students\/collection\/10122\.webp"/, "Planner must not emit a predictable missing collection-art URL");
+assert.match(iconPlannerHtml, /min="0"[^>]*data-planner-forecast-days/, "Planner forecast window must allow a current-only zero-day calculation");
+assert.match(iconPlannerHtml, /<summary class="planner-details-toggle">[\s\S]*planner-details-toggle-icon/, "Planner details must look and behave like an explicit disclosure control");
+assert.match(iconPlannerHtml, /<button type="button" class="planner-remove-button"[\s\S]*planner-remove-icon/, "Removing a planned student must use an explicit destructive button");
+assert.doesNotMatch(iconPlannerHtml, /class="text-button planner-remove-button"/, "Remove must not look like ordinary inline text");
+assert.match(iconPlannerHtml, /class="planner-detail-section planner-stock-detail"/, "Planner details must include a dedicated current-stock breakdown");
+assert.match(iconPlannerHtml, /class="planner-detail-section planner-periodic-detail"/, "Planner details must include a dedicated periodic-resource breakdown");
+assert.match(iconPlannerHtml, /本期手动计入|Manually added|今期手動追加/, "Planner details must distinguish one-time and cadence-based resources");
 
 console.log("planner view tests passed");

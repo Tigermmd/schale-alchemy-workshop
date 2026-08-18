@@ -267,7 +267,7 @@
         { "kind": "student_favorite_gift", "item_id": 5008, "gift_color": "gold", "name_zh_cn": "高级曲奇礼盒套装", "name_en": "Fine Cookie Set", "name_ja": "高級クッキーセット", "quantity": 10 },
         { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 2 }
       ],
-      "gift_binding": { "type": "student_specific_favorites", "target_student_ids": [10122], "target_student_id": 10122, "repeat_rule": "one_per_limited_or_fes_student", "note_zh_cn": "当前礼包对应未花（泳装）；金、紫礼物按规划器最低反应计算，美丽花束单独计算。" },
+      "gift_binding": { "type": "student_specific_favorites", "target_student_ids": [10122], "target_student_id": 10122, "repeat_rule": "one_per_limited_or_fes_student", "note_zh_cn": "当前礼包对应未花（泳装）；金、紫礼物按目标学生对礼包内实际礼物的反应计算，美丽花束单独计算。" },
       "source": "https://bluearchive-cn.com/news/1872"
     },
     {
@@ -288,7 +288,7 @@
         { "kind": "student_favorite_gift", "item_id": 5018, "gift_color": "gold", "name_zh_cn": "装扮用圈圈眼镜", "name_en": "Cosplayer Coke-Bottle Glasses", "name_ja": "コスプレ用ぐるぐるメガネ", "quantity": 10 },
         { "kind": "item", "item_id": 5997, "name_zh_cn": "美丽花束", "name_en": "Beautiful Bouquet", "quantity": 2 }
       ],
-      "gift_binding": { "type": "student_specific_favorites", "target_student_ids": [10063], "target_student_id": 10063, "repeat_rule": "one_per_limited_or_fes_student", "note_zh_cn": "当前礼包对应小雪；金、紫礼物按规划器最低反应计算，美丽花束单独计算。" },
+      "gift_binding": { "type": "student_specific_favorites", "target_student_ids": [10063], "target_student_id": 10063, "repeat_rule": "one_per_limited_or_fes_student", "note_zh_cn": "当前礼包对应小雪；金、紫礼物按目标学生对礼包内实际礼物的反应计算，美丽花束单独计算。" },
       "source": "https://bluearchive-cn.com/news/1872"
     },
     {

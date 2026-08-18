@@ -5,7 +5,7 @@
 ## 文件
 
 - `gifts.json`：当前数据源中的 52 个礼物，含英文名、SchaleDB CN 区域中文名、双语描述、SR/SSR、Quality、基础 EXP 和内部 Tags。
-- `student_gift_preferences.json`：中国服 `IsReleased[2] == true` 的 212 个学生条目，包含服装变体；每个条目既有英文名、SchaleDB CN 区域中文名，也有完整的 `gift_values`（52 个礼物对该学生的实际 EXP）和筛出的偏好礼物。
+- `student_gift_preferences.json`：SchaleDB 当前完整的学生目录（当前快照 272 人），包含已实装和未实装服装变体；每个条目既有英文名、SchaleDB CN 区域中文名，也有完整的 `gift_values`（52 个礼物对该学生的实际 EXP）和筛出的偏好礼物。`cn_released`、`future_only`、`release_status` 单独记录国服状态，不能用目录过滤替代状态判断。
 - `relationship_thresholds.json`：好感 1–100 级的单级需求与累计 EXP，以及双语礼物反应标签、礼物/咖啡点击/日程 EXP。
 - `crafting_expected_relationship.json`：完整第 1、2、3 阶段都推进时，每个学生按 SchaleDB 各阶段节点权重生成 5 个候选节点、择优选择后的期望好感 EXP。
 - `paid_packages_cn.json`：中国服官方礼包目录叠加用户确认的规划口径；当前记录每月制造/礼物礼包、限定/FES 学生礼物礼包和 156 元制造礼包的价格、限购与礼物相关内容，盒内期望使用 `gift_boxes_cn.json` 的用户确认模型。
@@ -75,7 +75,7 @@ python3 harness_server.py
 
 ## 当前数据边界
 
-当前中国服快照只保留 SchaleDB CN `IsReleased[2]` 标记已实装的学生。若某个学生没有任何礼物 Tags 与学生偏好 Tags 匹配，文件会保留该学生但将 `no_matching_gift_in_source=true`；这表示“当前数据源没有可匹配记录”，不是对游戏设计的无条件断言，尤其联动学生应在后续数据更新时复核。
+当前学生快照保留 SchaleDB 的完整目录。国服是否已实装由每条记录的 `cn_released` / `release_status` 表示；页面目录、图鉴和礼物规划可以选择未实装学生，但未实装或未知学生不会计入日程和咖啡厅摸头。若某个学生没有任何礼物 Tags 与学生偏好 Tags 匹配，文件会保留该学生但将 `no_matching_gift_in_source=true`；这表示“当前数据源没有可匹配记录”，不是对游戏设计的无条件断言，尤其联动学生应在后续数据更新时复核。
 
 ## 来源
 

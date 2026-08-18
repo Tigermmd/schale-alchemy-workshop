@@ -19,6 +19,9 @@ const i18n = read("js/i18n.js");
 
 assert.doesNotMatch(indexHtml, /id="option-count"/, "隐藏的制造节点计数不应继续留在页面壳层");
 assert.doesNotMatch(indexHtml, /id="brand-eyebrow"/, "品牌眉题不应与主标题重复");
+assert.match(indexHtml, /class="brand-glyph"[^>]*><img src="\.\/assets\/students\/10059\.webp"/, "侧栏品牌图标应使用原皮未花头像");
+assert.match(indexHtml, /class="header-mark"[^>]*><img src="\.\/assets\/students\/10059\.webp"/, "顶部品牌图标应使用原皮未花头像");
+assert.doesNotMatch(indexHtml, /class="brand-glyph"[^>]*><span>S<\/span>/, "侧栏不应继续使用 S 字母图标");
 assert.doesNotMatch(indexHtml, /placeholder="搜索中文名 \/ English \/ ID"/, "学生搜索框不应把内部 ID 作为用户入口文案");
 assert.doesNotMatch(appJs, /elements\.optionCount/, "应用层不应继续写入已移除的隐藏节点计数");
 assert.doesNotMatch(plannerView, /function renderInventory\(/, "规划器不应保留未调用的旧库存渲染接口");
