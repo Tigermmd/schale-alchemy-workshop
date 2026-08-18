@@ -1,4 +1,4 @@
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
 
 export const CN_PROGRESS_VERSION = 1;
 

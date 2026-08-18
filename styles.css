@@ -2309,6 +2309,19 @@ textarea::placeholder { color: #9aabba; }
 .agent-message > span { color: var(--muted); font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .agent-message p,
 .agent-empty { margin-top: .25rem; color: var(--ink); font-size: .7rem; line-height: 1.6; white-space: pre-wrap; }
+.agent-thinking-message { background: #f4fcfc; }
+.agent-thinking-copy { display: flex; align-items: center; gap: .42rem; color: var(--blue-deep) !important; font-weight: 800; }
+.agent-thinking-cursor { color: var(--cyan); font-size: .95rem; line-height: 1; animation: agent-thinking-pulse 1.05s ease-in-out infinite; }
+.agent-thinking-copy > span:nth-child(2) { animation: agent-thinking-text 1.8s ease-in-out infinite; }
+.agent-thinking-dots { min-width: 1.2rem; color: var(--cyan); letter-spacing: .08em; animation: agent-thinking-dots 1.2s steps(4, end) infinite; }
+@keyframes agent-thinking-pulse { 0%, 100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1); } }
+@keyframes agent-thinking-text { 0%, 100% { opacity: .62; } 50% { opacity: 1; } }
+@keyframes agent-thinking-dots { 0% { opacity: .2; } 50% { opacity: 1; } 100% { opacity: .2; } }
+@media (prefers-reduced-motion: reduce) {
+  .agent-thinking-cursor,
+  .agent-thinking-copy > span:nth-child(2),
+  .agent-thinking-dots { animation: none; }
+}
 .agent-questions { margin-top: .55rem; padding-top: .45rem; border-top: 1px solid var(--line); color: #765719; font-size: .64rem; }
 .agent-questions ol { margin: .25rem 0 0 1.1rem; list-style: decimal; }
 .agent-chat-form { display: grid; gap: .55rem; padding: .85rem; background: var(--surface); }

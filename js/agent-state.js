@@ -1,8 +1,8 @@
-import { addStudentPlan, normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { addStudentPlan, normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v100";
 
 const ALLOWED_CHANGE_KINDS = new Set(["set_student_target", "set_forecast_days", "set_cn_cutoff_student"]);
 const ALLOWED_CHANGE_FIELDS = Object.freeze({

@@ -26,4 +26,14 @@ const configuredHtml = renderAgentWorkspace({
 assert.doesNotMatch(configuredHtml, /agent-visual-anchors|momotalk\.png|arona-avatar-1\.png/);
 assert.match(configuredHtml, /class="agent-chat"/);
 
+const busyHtml = renderAgentWorkspace({
+  locale: "zh_cn",
+  state: { messages: [{ role: "user", content: "帮我规划" }], proposal: null, configured: true, baseUrl: "https://api.example.com", model: "test-model", notice: "", busy: true, activityKey: "agentActivityResources" },
+  data: { localization: {} },
+  context: { students: [], plannerState: { inventory: {}, students: [] }, calculatedResults: { giftPlanning: { projections: [] } }, disclosure: {} },
+});
+assert.match(busyHtml, /class="[^"]*agent-thinking-message[^"]*"[^>]*role="status"/, "Busy Agent should render a response placeholder immediately");
+assert.match(busyHtml, /正在计算每日可获取的好感/, "Busy Agent should expose the current request phase");
+assert.match(busyHtml, /agent-thinking-cursor/, "Busy Agent should show a lightweight animated cursor");
+
 console.log("agent view tests passed");

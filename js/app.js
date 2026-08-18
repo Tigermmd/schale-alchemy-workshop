@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-brand-avatar-v99";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-progress-v100";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -376,6 +376,15 @@ async function testAgentConnection() {
   renderActiveWorkbench();
 }
 
+function yieldToBrowser() {
+  return new Promise((resolve) => window.setTimeout(resolve, 0));
+}
+
+function updateAgentActivity(activityKey) {
+  state.agent = { ...state.agent, activityKey };
+  renderActiveWorkbench();
+}
+
 async function sendAgentMessage(form) {
   const settingsForm = elements.detail.querySelector("#agent-settings-form");
   const settings = settingsForm ? agentSettings(settingsForm) : null;
@@ -384,16 +393,25 @@ async function sendAgentMessage(form) {
   const sameConfiguredProxy = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.baseUrl, configuredModel: state.agent.model, baseUrl: settings?.baseUrl, model: settings?.model });
   if (!settings?.baseUrl || !settings?.model || (!settings?.apiKey && !sameConfiguredProxy) || !message) { state.agent.notice = t(state.locale, "agentNeedSettings"); renderActiveWorkbench(); return; }
   const nextMessages = [...state.agent.messages, { role: "user", content: message }];
-  const context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
-    message,
-    conversation: state.agent.messages,
-    locale: state.locale,
-  });
-  state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, messages: nextMessages, busy: true, notice: "" };
+  state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, messages: nextMessages, busy: true, activityKey: "agentActivityPreparing", notice: "" };
   renderActiveWorkbench();
+  let context;
   try {
+    await yieldToBrowser();
+    updateAgentActivity("agentActivityGifts");
+    await yieldToBrowser();
+    updateAgentActivity("agentActivityResources");
+    context = buildAgentContext(state.planner, { workbench: state.workbench }, data, {
+      message,
+      conversation: state.agent.messages.slice(0, -1),
+      locale: state.locale,
+    });
+    await yieldToBrowser();
+    updateAgentActivity("agentActivityRequest");
     if (settings.apiKey) await postAgent("/api/config", settings);
     const result = await postAgent("/api/chat", { message, context, conversation: nextMessages });
+    updateAgentActivity("agentActivityReview");
+    await yieldToBrowser();
     let proposal = null;
     if (result.proposal) {
       const validation = validatePlanningProposal(result.proposal, { state: state.planner, data });
@@ -409,8 +427,9 @@ async function sendAgentMessage(form) {
       }],
       proposal: result.needs_user_input === true ? null : proposal,
       busy: false,
+      activityKey: "",
     };
-  } catch (error) { state.agent = { ...state.agent, busy: false, notice: `${t(state.locale, "agentRequestFailed")}${error.message}` }; }
+  } catch (error) { state.agent = { ...state.agent, busy: false, activityKey: "", notice: `${t(state.locale, "agentRequestFailed")}${error.message}` }; }
   renderActiveWorkbench();
 }
 
