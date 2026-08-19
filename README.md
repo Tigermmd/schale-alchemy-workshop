@@ -1,8 +1,10 @@
-# Schale 养成规划工作台
+# 夏莱炼金工房
 
 面向《蔚蓝档案》玩家的国服礼物与好感规划工具。它运行在本机浏览器中，库存和规划数据保存在浏览器本地。
 
-项目提供中文、English、日本語三种界面，属于非官方玩家工具，与 NEXON、《蔚蓝档案》运营方、SchaleDB 和 arona.icu 均无隶属关系。
+项目提供中文、English、日本語三种界面。学生、礼物、制造和好感相关数据，以及部分缓存图片素材，主要参考 [SchaleDB](https://schaledb.com/) 的公开数据；库存 JSON 导入/导出、养成规划和资源管理等交互参考 [arona.icu](https://arona.icu/)；国服进度与周期资源则结合 [Kivo Wiki](https://kivo.wiki/)、国服官网公告和玩家资料整理。
+
+这是一个非官方玩家工具，与 NEXON、《蔚蓝档案》运营方、SchaleDB、arona.icu 和 Kivo Wiki 均无隶属关系。
 
 ## 功能
 
@@ -48,8 +50,8 @@ Agent 只能提出规划变更。所有变更都需要玩家确认后才会由�
 运行环境：Python 3.10 或更高版本。不需要安装 npm 依赖。
 
 ```bash
-git clone https://github.com/Tigermmd/schale-relationship-dashboard.git
-cd schale-relationship-dashboard
+git clone https://github.com/Tigermmd/schale-alchemy-workshop.git
+cd schale-alchemy-workshop
 python3 harness_server.py
 ```
 
