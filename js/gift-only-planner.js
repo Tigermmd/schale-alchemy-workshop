@@ -1,6 +1,6 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculatePeriodicResourceAmount, calculateSynthesisStoneSourceForecast, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculatePeriodicResourceAmount, calculateSynthesisStoneSourceForecast, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);

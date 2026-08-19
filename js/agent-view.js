@@ -1,5 +1,5 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
 
 export const DEFAULT_AGENT_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_AGENT_MODEL = "deepseek-v4-flash";

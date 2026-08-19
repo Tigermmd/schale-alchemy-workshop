@@ -1,8 +1,8 @@
-import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
 
 const ALLOWED_CHANGE_KINDS = new Set([
   // Kept for compatibility with older Harness responses.

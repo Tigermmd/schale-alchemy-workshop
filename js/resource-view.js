@@ -1,9 +1,9 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
 
 function escapeHtml(value) {
   return String(value ?? "")

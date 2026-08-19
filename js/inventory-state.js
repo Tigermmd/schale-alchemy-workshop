@@ -1,5 +1,5 @@
-import { calculatePeriodicResourceAmount, calculateSynthesisStoneSourceForecast, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculatePeriodicResourceAmount, calculateSynthesisStoneSourceForecast, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
 
 const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold"];
 // In SchaleDB's gift catalog SR is the gold-gift tier; SSR is purple.

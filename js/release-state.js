@@ -1,4 +1,4 @@
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
 
 export const CN_PROGRESS_VERSION = 1;
 

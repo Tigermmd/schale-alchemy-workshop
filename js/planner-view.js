@@ -1,7 +1,7 @@
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
 
 function escapeHtml(value) {
   return String(value ?? "")
