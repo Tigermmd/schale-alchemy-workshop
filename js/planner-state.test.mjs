@@ -33,7 +33,7 @@ assert.equal(empty.resources.find((resource) => resource.id === "weekly-manufact
 assert.ok(empty.resources.some((resource) => resource.id === "monthly-event-shop-gold-gift-boxes"));
 assert.ok(empty.resources.some((resource) => resource.id === "monthly-event-shop-purple-gift-boxes"));
 assert.equal(empty.resources.find((resource) => resource.id === "weekly-manufacturing-stones").amount, 17);
-assert.equal(empty.resources.find((resource) => resource.id === "monthly-synthesis-stones").amount, 50);
+assert.equal(empty.resources.find((resource) => resource.id === "monthly-synthesis-stones").amount, 70);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-total-assault-gift-boxes").amount, 3);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-grand-assault-gold-gift-boxes").amount, 4.5);
 assert.equal(empty.resources.find((resource) => resource.id === "monthly-grand-assault-purple-gift-boxes").amount, 1.5);
@@ -44,8 +44,7 @@ assert.equal(empty.resources.find((resource) => resource.id === "monthly-unlimit
 assert.deepEqual(empty.resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes").floor_options, [24, 49, 74, 99, 106, 124]);
 assert.equal(empty.resources.find((resource) => resource.id === "daily-schedule-exp").expected_per_count, 31.25);
 assert.equal(empty.resources.find((resource) => resource.id === "daily-cafe-exp").expected_per_count, 15);
-assert.deepEqual(empty.packagePlans["cn-third-anniversary-gifts-98"], { purchased: 1, inInventory: 0, planned: 0 });
-assert.deepEqual(empty.packagePlans["cn-third-anniversary-manufacturing-156"], { purchased: 1, inInventory: 0, planned: 0 });
+assert.deepEqual(empty.packagePlans, {}, "a new local planner must not contain someone else's purchase history");
 assert.equal(empty.stockResources.manufacturing_stone, 0);
 assert.equal(empty.stockResources.synthesis_stone_gold, 0);
 assert.deepEqual(empty.synthesisReservations, []);
@@ -123,6 +122,21 @@ assert.deepEqual(normalizedTwice.resourcePostingHistory, legacyGrandAssaultPosti
 const inconsistentPeriod = normalizePlannerState({ version: 6, periodDays: 30, forecastDays: 60 });
 assert.equal(inconsistentPeriod.periodDays, 30);
 assert.equal(inconsistentPeriod.forecastDays, 30, "state normalization must keep the planning period unified");
+const migratedOldSynthesisDefault = normalizePlannerState({
+  version: 6,
+  resources: [{ id: "monthly-synthesis-stones", amount: 50, value_source: "default" }],
+});
+assert.equal(migratedOldSynthesisDefault.resources.find((resource) => resource.id === "monthly-synthesis-stones").amount, 70, "the old prefilled 50/month default must migrate to the confirmed 70/month baseline");
+const migratedOldSynthesisWithoutSource = normalizePlannerState({
+  version: 6,
+  resources: [{ id: "monthly-synthesis-stones", amount: 50 }],
+});
+assert.equal(migratedOldSynthesisWithoutSource.resources.find((resource) => resource.id === "monthly-synthesis-stones").amount, 70, "an old default without a source marker must also migrate from 50 to 70");
+const preservedUserSynthesisValue = normalizePlannerState({
+  version: 6,
+  resources: [{ id: "monthly-synthesis-stones", amount: 50, value_source: "user" }],
+});
+assert.equal(preservedUserSynthesisValue.resources.find((resource) => resource.id === "monthly-synthesis-stones").amount, 50, "a player's explicit 50/month override must remain editable and preserved");
 const zeroDayPeriod = normalizePlannerState({ version: 6, periodDays: 0, forecastDays: 0 });
 assert.equal(zeroDayPeriod.periodDays, 0, "planner state should preserve an explicit zero-day window");
 assert.equal(zeroDayPeriod.forecastDays, 0, "planner state should preserve an explicit zero-day window");

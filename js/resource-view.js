@@ -1,8 +1,9 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -51,8 +52,9 @@ function renderResourceEvidence({ lead, source, locale, candidateUnit }) {
     ? `${formatSmartQuantity(lead.candidate_value, locale)} ${candidateUnit || ""}`.trim()
     : "";
   const explanation = renderEvidenceExplanation({ lead, candidateText, candidateValue, locale });
-  const sourceLink = source?.url
-    ? '<a href="' + escapeHtml(source.url) + '" target="_blank" rel="noreferrer">' + escapeHtml(t(locale, "resourceEvidenceSource")) + ' ↗</a>'
+  const sourceUrl = safeExternalUrl(source?.url);
+  const sourceLink = sourceUrl
+    ? '<a href="' + escapeHtml(sourceUrl) + '" target="_blank" rel="noreferrer">' + escapeHtml(t(locale, "resourceEvidenceSource")) + ' ↗</a>'
     : '';
   return `<div class="resource-evidence ${lead.status === "user_confirmed" ? "is-confirmed" : "is-lead"}"><span class="resource-evidence-calculation">${escapeHtml(explanation)}</span>${sourceLink}</div>`;
 }
@@ -123,6 +125,9 @@ function renderResourceForecast(resource, forecast, locale) {
 }
 
 function resourceMeta(resource, locale) {
+  if (resource.id === "monthly-synthesis-stones") {
+    return t(locale, resource.value_source === "user" ? "resourceSynthesisManualMeta" : "resourceSynthesisMeta");
+  }
   return t(locale, "resourceCadence", resource.cadence);
 }
 

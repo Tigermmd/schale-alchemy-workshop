@@ -1,8 +1,8 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { isGoldGift } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { isGoldGift } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -345,6 +345,7 @@ function currentPeriodIncoming(state, periodDays) {
   };
   const seenPostingKeys = new Set();
   const postedResourceKeys = new Set();
+  const hasActivePostingHistory = (state?.resourcePostingHistory ?? []).some((item) => item?.active !== false);
   for (const item of state?.resourcePostingHistory ?? []) {
     if (item?.active === false || Number(item.periodDays) !== Number(periodDays)) continue;
     const postingKey = String(item.postingKey ?? item.id ?? "");
@@ -357,13 +358,16 @@ function currentPeriodIncoming(state, periodDays) {
       }
     }
   }
-  // Older local states can contain confirmed incoming resources without the
-  // posting history that created them. Keep those values as a compatibility
-  // fallback, but never add them twice when a matching history row exists.
-  for (const bucket of Object.keys(result)) {
-    for (const [id, value] of Object.entries(state?.incomingResources?.[bucket] ?? {})) {
-      if (postedResourceKeys.has(`${bucket}:${String(id)}`)) continue;
-      result[bucket][String(id)] = numberOr(result[bucket][String(id)]) + numberOr(value);
+  // Older local states can contain confirmed incoming resources without any
+  // posting history. Keep that compatibility fallback only when there is no
+  // history at all; otherwise the aggregate incoming buckets may belong to a
+  // different planning period and would be counted a second time.
+  if (!hasActivePostingHistory) {
+    for (const bucket of Object.keys(result)) {
+      for (const [id, value] of Object.entries(state?.incomingResources?.[bucket] ?? {})) {
+        if (postedResourceKeys.has(`${bucket}:${String(id)}`)) continue;
+        result[bucket][String(id)] = numberOr(result[bucket][String(id)]) + numberOr(value);
+      }
     }
   }
   return result;

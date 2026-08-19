@@ -1,7 +1,8 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -125,6 +126,7 @@ function packageRow({ row, item, locale, rank = null, data, student }) {
   const limit = Number(row.purchaseLimit ?? 0);
   const purchased = Number(row.purchasedCount ?? 0);
   const efficiency = row.expPerYuan === null ? t(locale, "unknown") : formatExp(row.expPerYuan, locale);
+  const sourceUrl = safeExternalUrl(displayItem?.source);
   return `<article class="package-efficiency-row">
     <div class="package-efficiency-head">
       ${rank ? `<span class="package-rank" aria-label="#${rank}">#${rank}</span>` : ""}
@@ -139,7 +141,7 @@ function packageRow({ row, item, locale, rank = null, data, student }) {
     </div>
     <details class="package-details"><summary>${escapeHtml(t(locale, "packageDetails"))}</summary><div class="package-contents">${contentsHtml(displayItem, locale, data)}</div><div class="package-efficiency-breakdown">${breakdownHtml(row, locale)}</div>
     ${packageNote(displayItem, locale) ? `<p class="package-catalog-note">${escapeHtml(packageNote(displayItem, locale))}</p>` : ""}
-    <div class="package-catalog-actions">${displayItem?.source ? `<a href="${escapeHtml(displayItem.source)}" target="_blank" rel="noreferrer">${escapeHtml(t(locale, "packageSource"))} ↗</a>` : ""}<span class="package-snapshot-date">${escapeHtml(t(locale, "packageAsOf", row.asOf ?? "—"))}</span></div></details>
+    <div class="package-catalog-actions">${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(t(locale, "packageSource"))} ↗</a>` : ""}<span class="package-snapshot-date">${escapeHtml(t(locale, "packageAsOf", row.asOf ?? "—"))}</span></div></details>
   </article>`;
 }
 

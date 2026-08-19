@@ -17,6 +17,15 @@ assert.match(html, /<details class="agent-settings-details" open>/, "First-time 
 assert.match(html, /name="baseUrl"[^>]*value="https:\/\/api\.deepseek\.com"/, "Agent should prefill the official DeepSeek API endpoint");
 assert.match(html, /name="model"[^>]*value="deepseek-v4-flash"/, "Agent should prefill the requested Flash model");
 
+const draftHtml = renderAgentWorkspace({
+  locale: "zh_cn",
+  state: { messages: [], proposal: null, configured: false, baseUrl: "", model: "", draftBaseUrl: "http://127.0.0.1:8768", draftModel: "local-test-model", notice: "", busy: false },
+  data: { localization: {} },
+  context: { students: [], plannerState: {}, calculatedResults: { giftPlanning: { projections: [] } }, disclosure: {} },
+});
+assert.match(draftHtml, /name="baseUrl"[^>]*value="http:\/\/127\.0\.0\.1:8768"/, "Agent should keep the non-sensitive Base URL draft after a rerender");
+assert.match(draftHtml, /name="model"[^>]*value="local-test-model"/, "Agent should keep the non-sensitive Model draft after a rerender");
+
 const configuredHtml = renderAgentWorkspace({
   locale: "zh_cn",
   state: { messages: [], proposal: null, configured: true, baseUrl: "https://api.example.com", model: "test-model", notice: "", busy: false },

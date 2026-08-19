@@ -1,6 +1,6 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateRequiredRelationshipExp } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculatePeriodicResourceAmount, calculateSynthesisStoneSourceForecast, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);
@@ -97,12 +97,17 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
     manufacturingStones: 0,
     synthesisStones: 0,
   };
+  const managedSynthesisSources = (state?.resources ?? []).some((resource) => [
+    "monthly-synthesis-stones",
+    "monthly-unlimited-assault-gift-boxes",
+  ].includes(resource?.id));
+  const isPostedResource = (resource) => state?.resourcePostingHistory?.some((item) => item.active !== false && (
+    item.postingKey === `${resource.id}:${periodDays}`
+    || (excludePostedResources && item.resourceId === resource.id)
+  ));
   for (const resource of state?.resources ?? []) {
     if (resource?.amount === null || resource?.amount === undefined || resource?.amount === "") continue;
-    const isPosted = state?.resourcePostingHistory?.some((item) => item.active !== false && (
-      item.postingKey === `${resource.id}:${periodDays}`
-      || (excludePostedResources && item.resourceId === resource.id)
-    ));
+    const isPosted = isPostedResource(resource);
     if (isPosted) continue;
     const multiplier = cadenceMultiplier(resource, periodDays);
     const effectiveAmount = calculatePeriodicResourceAmount(resource, resource.amount, state?.resources ?? []);
@@ -112,7 +117,7 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
       if (!summary) continue;
       forecast.choiceBoxes += numberOr(summary.goldSelectableGifts) * multiplier;
       forecast.randomPurpleBoxes += numberOr(summary.purpleRandomGifts) * multiplier;
-      forecast.synthesisStones += numberOr(summary.synthesisStones) * multiplier;
+      if (!managedSynthesisSources) forecast.synthesisStones += numberOr(summary.synthesisStones) * multiplier;
       continue;
     }
     if (resource.unit === "gift_equivalent") {
@@ -124,7 +129,7 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
       continue;
     }
     if (resource.unit === "synthesis_stone_gold") {
-      forecast.synthesisStones += amount;
+      if (!managedSynthesisSources) forecast.synthesisStones += amount;
       continue;
     }
     if (resource.unit !== "gift_box") continue;
@@ -137,6 +142,14 @@ export function calculateGiftOnlyForecast(state, { periodDays = 60, rewardSnapsh
     if (resource.gift_box_id === "100008") forecast.choiceBoxes += amount;
     if (resource.gift_box_id === "100000") forecast.randomGoldBoxes += amount;
     if (resource.gift_box_id === "100009") forecast.randomPurpleBoxes += amount;
+  }
+  if (managedSynthesisSources) {
+    forecast.synthesisStones = calculateSynthesisStoneSourceForecast(
+      state?.resources ?? [],
+      periodDays,
+      rewardSnapshot,
+      { isResourcePosted: isPostedResource },
+    ).total;
   }
   return forecast;
 }
@@ -616,6 +629,7 @@ export function calculateGiftOnlyProjection({
   const currentPools = mapEntries(state.equivalentGiftPools);
   const currentIncomingBoxes = mapEntries(state.incomingResources?.giftBoxes);
   const currentIncomingPools = mapEntries(state.incomingResources?.equivalentGiftPools);
+  const includeIncomingResources = Number(periodDays) > 0;
   const currentChoiceBoxes = currentGiftBoxes["100008"] ?? 0;
   const currentRandomGoldBoxes = (currentGiftBoxes["100000"] ?? 0) + (currentPools["random-gold"] ?? 0);
   const currentRandomPurpleBoxes = currentGiftBoxes["100009"] ?? 0;
@@ -633,9 +647,9 @@ export function calculateGiftOnlyProjection({
   const currentTotalExpectedExp = concreteExp + currentRandomExpectedExp + currentChoiceBoxes * choiceBoxExp + currentStockExpectedExp;
   const currentDirectExp = concreteExp + currentRandomExpectedExp + currentStockExpectedExp;
   const forecastSources = sourceSummary({
-    choiceBoxes: numberOr(forecast.choiceBoxes) + currentIncomingChoiceBoxes,
-    randomGoldBoxes: numberOr(forecast.randomGoldBoxes) + currentIncomingRandomGoldBoxes,
-    randomPurpleBoxes: numberOr(forecast.randomPurpleBoxes) + currentIncomingRandomPurpleBoxes,
+    choiceBoxes: numberOr(forecast.choiceBoxes) + (includeIncomingResources ? currentIncomingChoiceBoxes : 0),
+    randomGoldBoxes: numberOr(forecast.randomGoldBoxes) + (includeIncomingResources ? currentIncomingRandomGoldBoxes : 0),
+    randomPurpleBoxes: numberOr(forecast.randomPurpleBoxes) + (includeIncomingResources ? currentIncomingRandomPurpleBoxes : 0),
     manufacturingStones: numberOr(forecast.manufacturingStones),
     synthesisStones: numberOr(forecast.synthesisStones),
     choiceBoxExp,

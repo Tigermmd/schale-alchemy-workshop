@@ -78,6 +78,22 @@ assert.equal(sixtyDaySummary.students[0].sourceBreakdown.free.incoming.totalExp,
 assert.equal(sixtyDaySummary.students[0].sourceBreakdown.free.recurring.totalExp, 60, "daily periodic resources must remain separately visible");
 assert.equal(sixtyDaySummary.students[0].estimatedDays, 940, "estimated days must subtract one-time incoming EXP before applying the recurring daily rate");
 assert.equal(ninetyDaySummary.students[0].estimatedDays, 940, "changing the forecast window must not dilute one-time resources into a lower daily rate");
+
+const postedShorterPeriodState = {
+  ...oneTimeAndDailyState,
+  resources: [{ id: "monthly-total-assault-gift-boxes", cadence: "monthly", unit: "gift_box", gift_box_id: "100008", amount: 3 }],
+  incomingResources: { stockResources: {}, giftBoxes: { "100008": 3 }, equivalentGiftPools: {}, relationshipExp: {} },
+  resourcePostingHistory: [{
+    id: "gold-boxes-30",
+    postingKey: "monthly-total-assault-gift-boxes:30",
+    resourceId: "monthly-total-assault-gift-boxes",
+    periodDays: 30,
+    mapped: { stockResources: {}, giftBoxes: { "100008": 3 }, equivalentGiftPools: {}, relationshipExp: {} },
+    active: true,
+  }],
+};
+const changedPeriodSummary = calculatePlanningSummary({ state: postedShorterPeriodState, data, forecastDays: 60 });
+assert.equal(changedPeriodSummary.students[0].sourceBreakdown.free.choiceBoxExp, 360, "a posting from another period must not be added on top of the new 60-day forecast");
 const zeroDayLongGoalSummary = calculatePlanningSummary({ state: oneTimeAndDailyState, data: longGoalData, forecastDays: 0 });
 assert.equal(zeroDayLongGoalSummary.students[0].freeExp, 0, "a zero-day window must not count future incoming resources");
 assert.equal(zeroDayLongGoalSummary.students[0].freeExpPerDay, 1, "a zero-day window must preserve the recurring daily rate");

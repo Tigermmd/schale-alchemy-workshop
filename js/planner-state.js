@@ -3,7 +3,7 @@ export const PLANNER_STATE_VERSION = 6;
 
 export const RESOURCE_DEFINITIONS = Object.freeze([
   { id: "weekly-manufacturing-stones", cadence: "weekly", category: "free", unit: "manufacturing_stone", default_amount: 17 },
-  { id: "monthly-synthesis-stones", cadence: "monthly", category: "free", unit: "synthesis_stone_gold", default_amount: 50 },
+  { id: "monthly-synthesis-stones", cadence: "monthly", category: "free", unit: "synthesis_stone_gold", default_amount: 70 },
   { id: "monthly-total-assault-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 3, gift_box_id: "100008" },
   { id: "monthly-grand-assault-gold-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 4.5, gift_box_id: "100008" },
   { id: "monthly-grand-assault-purple-gift-boxes", cadence: "monthly", category: "free", unit: "gift_box", default_amount: 1.5, gift_box_id: "100009" },
@@ -211,10 +211,7 @@ export function createEmptyPlannerState() {
     resourcePostingHistory: [],
     resources: DEFAULT_RESOURCE_ROWS.map((resource) => ({ ...resource })),
     packages: [],
-    packagePlans: {
-      "cn-third-anniversary-gifts-98": { purchased: 1, inInventory: 0, planned: 0 },
-      "cn-third-anniversary-manufacturing-156": { purchased: 1, inInventory: 0, planned: 0 },
-    },
+    packagePlans: {},
     packageInventoryPostings: {},
   };
 }
@@ -232,7 +229,7 @@ export function normalizePlannerState(input) {
     const savedHasUserValue = saved?.value_source === "user";
     const legacyDefaultSynthesis = resource.id === "monthly-synthesis-stones"
       && !savedHasUserValue
-      && Number(saved?.amount) === 70;
+      && [50, 70].includes(Number(saved?.amount));
     const legacyDefaultTower = resource.id === "monthly-unlimited-assault-gift-boxes"
       && !savedHasUserValue
       && Number(saved?.amount) === 99;
@@ -635,11 +632,22 @@ export function planGiftAllocation({ students = [], inventory = {}, giftById, gi
     }
     if (!bestAction) break;
 
-    remainingInventory[bestAction.giftId] -= 1;
-    const nextRemaining = Math.max(0, (remaining.get(bestAction.studentId) ?? 0) - bestAction.relationshipExp);
+    // Gift counts can be large (an imported inventory may contain hundreds of
+    // copies). The value of one gift is constant for a given student/gift
+    // pair, so consume a whole safe batch instead of rescanning the complete
+    // inventory once per copy. Stop at the student's remaining requirement so
+    // the result preserves the same capped-exp semantics as the unit loop.
+    const availableCount = Math.max(0, integerOr(remainingInventory[bestAction.giftId], 0));
+    const remainingExp = Math.max(0, numberOr(remaining.get(bestAction.studentId), 0));
+    const batchQuantity = Math.min(
+      availableCount,
+      Math.max(1, Math.ceil(remainingExp / bestAction.relationshipExp)),
+    );
+    remainingInventory[bestAction.giftId] -= batchQuantity;
+    const nextRemaining = Math.max(0, remainingExp - batchQuantity * bestAction.relationshipExp);
     remaining.set(bestAction.studentId, nextRemaining);
-    totalPotentialExp += bestAction.relationshipExp;
-    totalEffectiveExp += bestAction.effectiveExp;
+    totalPotentialExp += bestAction.relationshipExp * batchQuantity;
+    totalEffectiveExp += Math.min(remainingExp, bestAction.relationshipExp * batchQuantity);
     const key = `${bestAction.studentId}:${bestAction.giftId}`;
     const previous = assignmentMap.get(key) ?? {
       studentId: bestAction.studentId,
@@ -648,8 +656,8 @@ export function planGiftAllocation({ students = [], inventory = {}, giftById, gi
       relationshipExp: bestAction.relationshipExp,
       effectiveExp: 0,
     };
-    previous.quantity += 1;
-    previous.effectiveExp += bestAction.effectiveExp;
+    previous.quantity += batchQuantity;
+    previous.effectiveExp += Math.min(remainingExp, bestAction.relationshipExp * batchQuantity);
     assignmentMap.set(key, previous);
   }
 

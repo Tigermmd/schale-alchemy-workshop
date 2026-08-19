@@ -137,6 +137,10 @@
       "candidate_text_zh_cn": "每月70个：商店兑换50个，爬塔奖励20个。",
       "candidate_text_en": "70 per month: 50 from shop exchanges and 20 from tower rewards.",
       "candidate_text_ja": "月70個：ショップ交換50個、塔報酬20個。",
+      "source_breakdown": {
+        "shop_exchange": 50,
+        "unlimited_assault": 20
+      },
       "candidate_note_zh_cn": "用户确认：每月70个，其中商店兑换50个、爬塔20个；默认每月商店兑换全部额度，爬塔每月重置。新版1–124层表在55/57/60层列出金色合成石5/5/10，合计20。商店正式名称和截图仍待补，但该用户确认值会预填并允许修改。",
       "candidate_note_en": "User-confirmed: 70 per month, with 50 from the shop and 20 from the tower; assume the monthly shop quota is fully exchanged and the tower resets monthly. The 1–124 floor table lists 5/5/10 at floors 55/57/60, totaling 20. The shop name and screenshots remain pending, but this confirmed value is prefilled and editable.",
       "candidate_note_ja": "ユーザー確認：月70個（ショップ50、塔20）。毎月ショップ分は全交換し、塔は毎月リセットする前提です。1～124階表では55/57/60階に5/5/10個で合計20個。正式ショップ名とスクリーンショットは未確認ですが、確認値を初期入力し変更可能にします。",

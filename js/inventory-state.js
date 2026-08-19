@@ -1,5 +1,5 @@
-import { calculatePeriodicResourceAmount, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { calculatePeriodicResourceAmount, calculateSynthesisStoneSourceForecast, summarizeUnlimitedAssaultRewards } from "./resource-model.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { normalizePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 const STOCK_RESOURCE_IDS = ["manufacturing_stone", "synthesis_stone_gold"];
 // In SchaleDB's gift catalog SR is the gold-gift tier; SSR is purple.
@@ -99,6 +99,24 @@ export function mapPeriodicResource(resource, { periodDays = 30, rewardSnapshot,
   if (!resource || resource.amount === null || resource.amount === undefined || resource.amount === "") return null;
   const multiplier = periodMultiplier(resource, periodDays);
   const mapped = emptyMappedResources();
+  const hasManagedSynthesisSources = resources.some((item) => [
+    "monthly-synthesis-stones",
+    "monthly-unlimited-assault-gift-boxes",
+  ].includes(item?.id));
+  if (hasManagedSynthesisSources && ["monthly-synthesis-stones", "monthly-unlimited-assault-gift-boxes"].includes(resource.id)) {
+    const synthesis = calculateSynthesisStoneSourceForecast(resources, periodDays, rewardSnapshot);
+    const amount = resource.id === "monthly-synthesis-stones"
+      ? synthesis.monthlyContribution
+      : synthesis.towerContribution;
+    mapped.stockResources.synthesis_stone_gold = amount;
+    if (resource.id === "monthly-unlimited-assault-gift-boxes") {
+      const summary = summarizeUnlimitedAssaultRewards(rewardSnapshot, resource.amount);
+      if (!summary) return null;
+      mapped.giftBoxes["100008"] = summary.goldSelectableGifts * multiplier;
+      mapped.giftBoxes["100009"] = summary.purpleRandomGifts * multiplier;
+    }
+    return mapped;
+  }
   const effectiveAmount = calculatePeriodicResourceAmount(resource, resource.amount, resources);
   const amount = numberOr(effectiveAmount) * multiplier;
 

@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -89,7 +89,7 @@ const state = {
   brandStudentId: "10059",
   brandAvatarQuery: "",
   plannerNotice: "",
-  agent: { baseUrl: "", model: "", configured: false, messages: [], proposal: null, workingChanges: [], workingPlannerState: null, busy: false, notice: "" },
+  agent: { baseUrl: "", model: "", configuredBaseUrl: "", configuredModel: "", draftBaseUrl: "", draftModel: "", configured: false, messages: [], proposal: null, workingChanges: [], workingPlannerState: null, busy: false, notice: "" },
 };
 
 let data;
@@ -363,7 +363,9 @@ async function refreshAgentProxyStatus() {
     const response = await fetch("/api/health", { cache: "no-store" });
     const body = await response.json().catch(() => ({}));
     if (response.ok && body.configured === true) {
-      state.agent = { ...state.agent, configured: true, baseUrl: String(body.baseUrl || ""), model: String(body.model || "") };
+      const baseUrl = String(body.baseUrl || "");
+      const model = String(body.model || "");
+      state.agent = { ...state.agent, configured: true, baseUrl, model, configuredBaseUrl: baseUrl, configuredModel: model, draftBaseUrl: baseUrl, draftModel: model };
     }
   } catch {
     // The dashboard can still run as a static page without the optional Harness.
@@ -374,12 +376,13 @@ async function testAgentConnection() {
   const form = elements.detail.querySelector("#agent-settings-form");
   if (!form) return;
   const settings = agentSettings(form);
-  const canReuse = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.baseUrl, configuredModel: state.agent.model, baseUrl: settings.baseUrl, model: settings.model });
+  state.agent = { ...state.agent, draftBaseUrl: settings.baseUrl, draftModel: settings.model };
+  const canReuse = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.configuredBaseUrl || state.agent.baseUrl, configuredModel: state.agent.configuredModel || state.agent.model, baseUrl: settings.baseUrl, model: settings.model });
   if (!settings.baseUrl || !settings.model || (!settings.apiKey && !canReuse)) { state.agent.notice = t(state.locale, "agentNeedSettings"); renderActiveWorkbench(); return; }
   try {
     if (settings.apiKey) await postAgent("/api/config", settings);
     await postAgent("/api/config/test", {});
-    state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, notice: t(state.locale, "agentConnectionOk") };
+    state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configuredBaseUrl: settings.baseUrl, configuredModel: settings.model, draftBaseUrl: settings.baseUrl, draftModel: settings.model, configured: true, notice: t(state.locale, "agentConnectionOk") };
   } catch (error) { state.agent.notice = `${t(state.locale, "agentRequestFailed")}${error.message}`; }
   renderActiveWorkbench();
 }
@@ -398,11 +401,12 @@ async function sendAgentMessage(form) {
   const settings = settingsForm ? agentSettings(settingsForm) : null;
   const values = new FormData(form);
   const message = String(values.get("message") || "").trim();
-  const sameConfiguredProxy = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.baseUrl, configuredModel: state.agent.model, baseUrl: settings?.baseUrl, model: settings?.model });
+  state.agent = { ...state.agent, draftBaseUrl: settings?.baseUrl || state.agent.draftBaseUrl, draftModel: settings?.model || state.agent.draftModel };
+  const sameConfiguredProxy = canReuseConfiguredProxy({ configured: state.agent.configured, configuredBaseUrl: state.agent.configuredBaseUrl || state.agent.baseUrl, configuredModel: state.agent.configuredModel || state.agent.model, baseUrl: settings?.baseUrl, model: settings?.model });
   if (!settings?.baseUrl || !settings?.model || (!settings?.apiKey && !sameConfiguredProxy) || !message) { state.agent.notice = t(state.locale, "agentNeedSettings"); renderActiveWorkbench(); return; }
   const workingPlannerState = agentPlannerState();
   const nextMessages = [...state.agent.messages, { role: "user", content: message }];
-  state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configured: true, messages: nextMessages, busy: true, activityKey: "agentActivityPreparing", notice: "" };
+  state.agent = { ...state.agent, draftBaseUrl: settings.baseUrl, draftModel: settings.model, configured: true, messages: nextMessages, busy: true, activityKey: "agentActivityPreparing", notice: "" };
   renderActiveWorkbench();
   let context;
   try {
@@ -417,7 +421,10 @@ async function sendAgentMessage(form) {
     });
     await yieldToBrowser();
     updateAgentActivity("agentActivityRequest");
-    if (settings.apiKey) await postAgent("/api/config", settings);
+    if (settings.apiKey) {
+      await postAgent("/api/config", settings);
+      state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configuredBaseUrl: settings.baseUrl, configuredModel: settings.model, draftBaseUrl: settings.baseUrl, draftModel: settings.model };
+    }
     const result = await postAgent("/api/chat", { message, context, conversation: nextMessages });
     updateAgentActivity("agentActivityReview");
     await yieldToBrowser();
@@ -917,6 +924,16 @@ elements.workbenchNav.addEventListener("change", (event) => {
   writeWorkbench(state.workbench);
   if (state.workbench === "relationship" && window.matchMedia("(max-width: 820px)").matches) setDirectoryCollapsed(true);
   renderActiveWorkbench({ resetScroll: true });
+});
+
+elements.detail.addEventListener("input", (event) => {
+  const agentInput = event.target.closest("#agent-settings-form input[name=baseUrl], #agent-settings-form input[name=model]");
+  if (!agentInput) return;
+  state.agent = {
+    ...state.agent,
+    draftBaseUrl: agentInput.name === "baseUrl" ? agentInput.value : state.agent.draftBaseUrl,
+    draftModel: agentInput.name === "model" ? agentInput.value : state.agent.draftModel,
+  };
 });
 
 elements.detail.addEventListener("change", (event) => {

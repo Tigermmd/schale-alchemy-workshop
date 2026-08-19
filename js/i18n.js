@@ -9,9 +9,9 @@ export const LANGUAGE_OPTIONS = [
 const TEXT = {
   zh_cn: {
     brandEyebrow: "SCHale",
-    pageTitle: "制造与好感工具",
+    pageTitle: "养成规划工作台",
     headerKicker: "SCHALE / CN",
-    documentTitle: "Schale 制造工具",
+    documentTitle: "Schale 养成规划工作台",
     loadingTitle: "正在加载数据",
     loadingDescription: "学生、礼物、制造数据",
     errorTitle: "数据载入失败",
@@ -111,6 +111,7 @@ const TEXT = {
     agentContextSummary: (students, inventory) => `${students} 名学生 · ${inventory} 条具体礼物；另含礼物盒、周期资源和计算结果。`,
     agentDisclosureConfirmed: "已确认数据",
     agentDisclosureCalculated: (count) => `${count} 个目标已计算`,
+    agentDisclosureScope: "发送范围：规划、库存数量、礼物盒、周期资源、预留、资源记录、礼包快照、计算结果和对话。",
     agentNoCutoff: "未设置",
     agentEmpty: "连接后开始对话。",
     agentYou: "你",
@@ -329,6 +330,8 @@ const TEXT = {
     resourcesTitle: "免费资源",
     resourcesCaption: "",
     resourceCadence: (cadence) => ({ daily: "每日", weekly: "每周", monthly: "每月" }[cadence] ?? cadence),
+    resourceSynthesisMeta: "商店 50 + 制约解除决战 20",
+    resourceSynthesisManualMeta: "手动数值；选择层数后按实际奖励拆分",
     resourceAmount: "输入数量",
     resourceValue: "数量",
     resourceInputLabel: (kind, id) => ({ floor: "通关层数", daily_count: id === "daily-schedule-exp" ? "日程：每天次数" : id === "daily-cafe-exp" ? "咖啡厅：每天次数" : "每天次数" }[kind] ?? "输入数量"),
@@ -341,7 +344,7 @@ const TEXT = {
     resourceGoldSelectableGifts: (count) => `金色礼物自选 ×${count}`,
     resourcePurpleRandomGifts: (count) => `紫色礼物随机 ×${count}`,
     resourceSynthesisStones: (count) => `金色合成石 ×${count}`,
-    resourceSourceFloor: "按 1–124 层奖励表汇总",
+    resourceSourceFloor: "按 1–124 层奖励表汇总；合成石计入月度合成石来源",
     resourceSourceDailyCount: (id, perCount) => id === "daily-schedule-exp"
       ? "日程：每次 +31.25 好感"
       : "咖啡厅：每次 +15 好感",
@@ -448,9 +451,9 @@ const TEXT = {
   },
   en: {
     brandEyebrow: "SCHale",
-    pageTitle: "Manufacturing & Relationship",
+    pageTitle: "Relationship Planner Workbench",
     headerKicker: "SCHALE / CN",
-    documentTitle: "Schale Manufacturing",
+    documentTitle: "Schale Relationship Planner",
     loadingTitle: "Loading data",
     loadingDescription: "Students, gifts, and manufacturing data",
     errorTitle: "Data load failed",
@@ -550,6 +553,7 @@ const TEXT = {
     agentContextSummary: (students, inventory) => `${students} students · ${inventory} concrete gifts; boxes, periodic resources, and results included.`,
     agentDisclosureConfirmed: "Confirmed data",
     agentDisclosureCalculated: (count) => `${count} target(s) calculated`,
+    agentDisclosureScope: "Sent: plans, inventory counts, gift boxes, periodic resources, reservations, resource history, package snapshots, calculations, and chat.",
     agentNoCutoff: "Not set",
     agentEmpty: "Connect to start chatting.",
     agentYou: "You",
@@ -768,6 +772,8 @@ const TEXT = {
     resourcesTitle: "Free resources",
     resourcesCaption: "",
     resourceCadence: (cadence) => ({ daily: "Daily", weekly: "Weekly", monthly: "Monthly" }[cadence] ?? cadence),
+    resourceSynthesisMeta: "Shop 50 + Restriction Unlock 20",
+    resourceSynthesisManualMeta: "Manual value; split by actual tower rewards when a floor is selected",
     resourceAmount: "Input amount",
     resourceValue: "Amount",
     resourceInputLabel: (kind, id) => ({ floor: "Cleared floor", daily_count: id === "daily-schedule-exp" ? "Schedule: daily count" : id === "daily-cafe-exp" ? "Cafe: daily count" : "Daily count" }[kind] ?? "Input amount"),
@@ -780,7 +786,7 @@ const TEXT = {
     resourceGoldSelectableGifts: (count) => `Gold selectable gifts ×${count}`,
     resourcePurpleRandomGifts: (count) => `Random purple gifts ×${count}`,
     resourceSynthesisStones: (count) => `Gold synthesis stones ×${count}`,
-    resourceSourceFloor: "Summed from the 1–124 floor table",
+    resourceSourceFloor: "Summed from the 1–124 floor table; synthesis stones belong to the monthly synthesis-stone total",
     resourceSourceDailyCount: (id, perCount) => id === "daily-schedule-exp"
       ? "Schedule: +31.25 EXP per count"
       : "Cafe: +15 EXP per count",
@@ -887,9 +893,9 @@ const TEXT = {
   },
   ja: {
     brandEyebrow: "SCHale",
-    pageTitle: "製造・絆ツール",
+    pageTitle: "絆育成ワークベンチ",
     headerKicker: "SCHALE / CN",
-    documentTitle: "Schale 製造ツール",
+    documentTitle: "Schale 絆育成プランナー",
     loadingTitle: "データを読み込み中",
     loadingDescription: "生徒・贈り物・製造データ",
     errorTitle: "データの読み込みに失敗しました",
@@ -989,6 +995,7 @@ const TEXT = {
     agentContextSummary: (students, inventory) => `${students}人 · 具体的な贈り物${inventory}件。箱・周期資源・計算結果も含みます。`,
     agentDisclosureConfirmed: "確認済みデータ",
     agentDisclosureCalculated: (count) => `${count}件を計算済み`,
+    agentDisclosureScope: "送信内容：計画、在庫数、ギフトボックス、周期資源、予約、資源履歴、パックのスナップショット、計算結果、会話。",
     agentNoCutoff: "未設定",
     agentEmpty: "接続して会話を始めます。",
     agentYou: "あなた",
@@ -1207,6 +1214,8 @@ const TEXT = {
     resourcesTitle: "無料資源",
     resourcesCaption: "",
     resourceCadence: (cadence) => ({ daily: "毎日", weekly: "毎週", monthly: "毎月" }[cadence] ?? cadence),
+    resourceSynthesisMeta: "ショップ50 + 制約解除決戦20",
+    resourceSynthesisManualMeta: "手動値。階層選択後は実際の塔報酬で分割",
     resourceAmount: "入力数量",
     resourceValue: "数量",
     resourceInputLabel: (kind, id) => ({ floor: "到達階層", daily_count: id === "daily-schedule-exp" ? "スケジュール：1日の回数" : id === "daily-cafe-exp" ? "カフェ：1日の回数" : "1日の回数" }[kind] ?? "入力数量"),
@@ -1219,7 +1228,7 @@ const TEXT = {
     resourceGoldSelectableGifts: (count) => `金色選択贈り物 ×${count}`,
     resourcePurpleRandomGifts: (count) => `紫色ランダム贈り物 ×${count}`,
     resourceSynthesisStones: (count) => `金色合成石 ×${count}`,
-    resourceSourceFloor: "1～124階報酬表から集計",
+    resourceSourceFloor: "1～124階報酬表から集計。合成石は月間合成石合計の内訳",
     resourceSourceDailyCount: (id, perCount) => id === "daily-schedule-exp"
       ? "スケジュール：1回 +31.25絆EXP"
       : "カフェ：1回 +15絆EXP",

@@ -1,5 +1,5 @@
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 export const DEFAULT_AGENT_BASE_URL = "https://api.deepseek.com";
 export const DEFAULT_AGENT_MODEL = "deepseek-v4-flash";
@@ -92,8 +92,8 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
   const disclosure = context?.disclosure ?? {};
   const calculatedProjectionCount = context?.calculatedResults?.giftPlanning?.projections?.length ?? 0;
   const disclosureSummary = `${escapeHtml(t(locale, "agentDisclosureConfirmed"))} · ${escapeHtml(t(locale, "agentDisclosureCalculated", calculatedProjectionCount))}`;
-  const baseUrl = String(state.baseUrl || DEFAULT_AGENT_BASE_URL);
-  const model = String(state.model || DEFAULT_AGENT_MODEL);
+  const baseUrl = String(state.draftBaseUrl || state.baseUrl || DEFAULT_AGENT_BASE_URL);
+  const model = String(state.draftModel || state.model || DEFAULT_AGENT_MODEL);
   const settingsForm = `<form class="agent-settings-form" id="agent-settings-form"><label><span>${escapeHtml(t(locale, "agentBaseUrl"))}</span><input name="baseUrl" type="url" value="${escapeHtml(baseUrl)}" placeholder="https://api.example.com" autocomplete="url" required></label><label><span>${escapeHtml(t(locale, "agentModel"))}</span><input name="model" value="${escapeHtml(model)}" placeholder="model-name" autocomplete="off" required></label><label><span>${escapeHtml(t(locale, "agentApiKey"))}</span><input class="agent-api-key-input" name="apiKey" type="password" value="" placeholder="${escapeHtml(state.configured ? t(locale, "agentApiKeyReusePlaceholder") : t(locale, "agentApiKeyPlaceholder"))}" autocomplete="new-password" autocapitalize="off" spellcheck="false" inputmode="text" ${state.configured ? "" : "required"}></label><button type="button" class="secondary-button" data-agent-test>${escapeHtml(t(locale, "agentTest"))}</button><small>${escapeHtml(apiKeyHint)}</small></form>`;
   const quickQuestions = !messages.length ? `<div class="agent-quick"><strong>${escapeHtml(t(locale, "agentQuickTitle"))}</strong><div>${[1, 2, 3].map((id) => `<button type="button" class="agent-quick-button" data-agent-question="${escapeHtml(t(locale, `agentQuickQuestion${id}`))}">${escapeHtml(t(locale, `agentQuickQuestion${id}`))}</button>`).join("")}</div></div>` : "";
   const settings = `<details class="agent-settings-details"${state.configured ? "" : " open"}><summary>${escapeHtml(t(locale, state.configured ? "agentSettingsDetails" : "agentSetupCta"))}</summary>${settingsForm}</details>`;
@@ -102,5 +102,5 @@ export function renderAgentWorkspace({ locale, state, data, context }) {
     const planSummary = calculatedProjectionCount ? renderPlanSummary({ context, locale, localization: data.localization }) : "";
     return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${planSummary}<div class="agent-connection-empty" role="status"><div class="agent-connection-copy"><span class="agent-connection-mark" aria-hidden="true">✦</span><div><strong>${escapeHtml(t(locale, "agentSetupTitle"))}</strong><p>${escapeHtml(t(locale, "agentSetupPrompt"))}</p></div></div></div>${settings}${notice}</section>`;
   }
-  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${renderPlanSummary({ context, locale, localization: data.localization })}${chat}${proposalHtml}${settings}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p></details></section>`;
+  return `<section class="agent-workspace panel" aria-labelledby="agent-title"><div class="section-heading"><div><span class="workspace-kicker">${escapeHtml(t(locale, "workbenchAgent"))}</span><h2 id="agent-title">${escapeHtml(t(locale, "agentTitle"))}</h2></div></div>${renderPlanSummary({ context, locale, localization: data.localization })}${chat}${proposalHtml}${settings}${notice}<details class="agent-context-details"><summary>${escapeHtml(t(locale, "agentContextTitle"))} · ${escapeHtml(contextSummary)}</summary><p class="agent-disclosure-summary">${disclosureSummary}</p><p class="agent-disclosure-scope">${escapeHtml(t(locale, "agentDisclosureScope"))}</p></details></section>`;
 }

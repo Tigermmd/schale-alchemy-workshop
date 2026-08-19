@@ -11,8 +11,8 @@ import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+from urllib.parse import unquote, urlparse
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parent
 HOST = "127.0.0.1"
@@ -20,6 +20,19 @@ DEFAULT_PORT = 8765
 MAX_BODY_BYTES = 2 * 1024 * 1024
 CONFIG = {"base_url": "", "model": "", "api_key": ""}
 DASHBOARD_PATH = "/index.html?view=planner"
+
+
+class NoRedirectHandler(HTTPRedirectHandler):
+    """Never forward the bearer token to a different URL via an HTTP redirect."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+UPSTREAM_OPENER = build_opener(NoRedirectHandler())
+BLOCKED_STATIC_SEGMENTS = frozenset({".git", ".superpowers", "__pycache__"})
+BLOCKED_STATIC_SUFFIXES = frozenset({".key", ".log", ".p12", ".pem", ".pfx", ".py", ".pyc"})
+BLOCKED_STATIC_FILENAMES = frozenset({"harness_server.py"})
 
 
 def json_bytes(value: object) -> bytes:
@@ -67,6 +80,15 @@ def completion_url(base_url: str) -> str:
     return f"{base_url}/v1/chat/completions"
 
 
+def can_reuse_configured_key(base_url: str, model: str) -> bool:
+    """Allow an omitted key only when the configured upstream is unchanged."""
+    return bool(
+        CONFIG.get("api_key")
+        and CONFIG.get("base_url") == base_url
+        and CONFIG.get("model") == model
+    )
+
+
 def read_body(handler: SimpleHTTPRequestHandler) -> dict:
     try:
         length = int(handler.headers.get("Content-Length", "0"))
@@ -82,6 +104,35 @@ def read_body(handler: SimpleHTTPRequestHandler) -> dict:
     if not isinstance(parsed, dict):
         raise ValueError("请求体必须是 JSON 对象")
     return parsed
+
+
+def is_blocked_static_path(value: object) -> bool:
+    path = unquote(urlparse(str(value or "")).path)
+    segments = [segment for segment in path.split("/") if segment]
+    if any(segment in BLOCKED_STATIC_SEGMENTS or segment.startswith(".") for segment in segments):
+        return True
+    filename = segments[-1] if segments else ""
+    if filename in BLOCKED_STATIC_FILENAMES or re.fullmatch(r"schale-inventory-.*\.json", filename, flags=re.IGNORECASE):
+        return True
+    return Path(path).suffix.lower() in BLOCKED_STATIC_SUFFIXES
+
+
+def is_allowed_local_origin(origin: object, server_port: int) -> bool:
+    """Allow browser calls only from this localhost server instance."""
+    value = str(origin or "").strip()
+    if not value:
+        return True
+    parsed = urlparse(value)
+    if parsed.scheme != "http" or parsed.username or parsed.password or parsed.path not in {"", "/"} or parsed.query or parsed.fragment:
+        return False
+    hostname = (parsed.hostname or "").lower().rstrip(".")
+    if hostname not in {"localhost", "127.0.0.1", "::1"}:
+        return False
+    try:
+        port = parsed.port or 80
+    except ValueError:
+        return False
+    return port == int(server_port)
 
 
 def _sanitize_questions(value: object) -> list[str] | None:
@@ -264,7 +315,7 @@ def call_openai(message: str, context: object, conversation: object) -> dict:
         },
     )
     try:
-        with urlopen(request, timeout=90) as response:
+        with UPSTREAM_OPENER.open(request, timeout=90) as response:
             raw = response.read(MAX_BODY_BYTES)
     except HTTPError as exc:
         # Do not include request headers or the URL because either can contain credentials.
@@ -306,8 +357,13 @@ class HarnessHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_OPTIONS(self) -> None:
+        origin = self.headers.get("Origin", "")
+        if not is_allowed_local_origin(origin, self.server.server_address[1]):
+            self.send_error(403, "跨站来源被拒绝")
+            return
         self.send_response(204)
-        self.send_header("Access-Control-Allow-Origin", "http://127.0.0.1:8765")
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.end_headers()
@@ -329,10 +385,22 @@ class HarnessHandler(SimpleHTTPRequestHandler):
                 "model": CONFIG["model"] if CONFIG["model"] else "",
             })
             return
+        if is_blocked_static_path(self.path):
+            self.send_error(404)
+            return
         super().do_GET()
+
+    def do_HEAD(self) -> None:
+        if is_blocked_static_path(self.path):
+            self.send_error(404)
+            return
+        super().do_HEAD()
 
     def do_POST(self) -> None:
         route = self.path.split("?", 1)[0]
+        if not is_allowed_local_origin(self.headers.get("Origin", ""), self.server.server_address[1]):
+            self.send_json(403, error_payload("ORIGIN_FORBIDDEN", "只允许本机页面访问 Harness"))
+            return
         try:
             payload = read_body(self)
             if route == "/api/config":
@@ -340,13 +408,13 @@ class HarnessHandler(SimpleHTTPRequestHandler):
                 model = str(payload.get("model") or "").strip()[:200]
                 if not model:
                     raise ValueError("Model 为空")
-                api_key = str(payload.get("apiKey") or "")
+                api_key = str(payload.get("apiKey") or "").strip()
                 if api_key:
                     if len(api_key) > 4096:
                         raise ValueError("API Key 过长")
-                configured = bool(base_url and model and (api_key or CONFIG["api_key"]))
+                configured = bool(base_url and model and (api_key or can_reuse_configured_key(base_url, model)))
                 if not configured:
-                    raise ValueError("API Key 为空，且代理内存中没有已配置的 API Key")
+                    raise ValueError("更换 Base URL 或 Model 时必须重新填写 API Key")
                 CONFIG["base_url"] = base_url
                 CONFIG["model"] = model
                 if api_key:

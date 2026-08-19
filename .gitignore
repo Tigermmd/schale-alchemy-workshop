@@ -9,6 +9,14 @@ __pycache__/
 !.env.example
 *.pem
 *.key
+*.p12
+*.pfx
+*.log
+*inventory-export*.json
+schale-inventory-*.json
+*.json.bak
+*inventory*.json.bak
+screenshots/
 
 # Optional JavaScript tooling/build output
 node_modules/

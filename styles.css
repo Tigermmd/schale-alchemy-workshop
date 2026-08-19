@@ -2463,6 +2463,8 @@ textarea::placeholder { color: #9aabba; }
   .language-option { padding-inline: .5rem; }
   .profile-panel { grid-template-columns: 1fr; }
   .profile-identity { align-items: start; }
+  .profile-gift-item { min-width: 0; max-width: 100%; }
+  .profile-gift-copy { min-width: 0; overflow: hidden; }
   .hero-avatar-slot { width: 6.2rem; height: 8rem; }
   .profile-copy h2 { font-size: 1.8rem; }
   .profile-portrait-art { right: -.6rem; width: 60%; height: 11rem; opacity: .52; }
@@ -3136,7 +3138,7 @@ details > summary { color: #21679f; font-weight: 800; }
   .planner-detail-metric-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* v107: gift-box artwork must stay inside the same compact frame as other inventory icons. */
+/* v108: gift-box artwork must stay inside the same compact frame as other inventory icons. */
 .inventory-box-image {
   width: 2.5rem;
   height: 2.5rem;
@@ -3164,4 +3166,33 @@ details > summary { color: #21679f; font-weight: 800; }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* v108: long labels remain readable in box cards and stage details. */
+.inventory-box-head {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.inventory-box-head > span {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.inventory-box-identity strong,
+.inventory-pool-heading strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+}
+
+.node-option-copy .node-option-gifts {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }

@@ -42,6 +42,50 @@ class HarnessContractTests(unittest.TestCase):
         self.assertEqual(harness_server.validate_base_url("http://[::1]:1234"), "http://[::1]:1234")
         self.assertEqual(harness_server.validate_base_url("http://localhost:1234"), "http://localhost:1234")
 
+    def test_browser_origin_must_match_local_harness_port(self):
+        self.assertTrue(harness_server.is_allowed_local_origin("http://127.0.0.1:8765", 8765))
+        self.assertTrue(harness_server.is_allowed_local_origin("http://localhost:8765", 8765))
+        self.assertTrue(harness_server.is_allowed_local_origin("", 8765))
+        self.assertFalse(harness_server.is_allowed_local_origin("http://127.0.0.1:8766", 8765))
+        self.assertFalse(harness_server.is_allowed_local_origin("https://127.0.0.1:8765", 8765))
+        self.assertFalse(harness_server.is_allowed_local_origin("http://evil.example:8765", 8765))
+
+    def test_static_server_blocks_inventory_exports(self):
+        for path in (
+            "/schale-inventory-2026-08-19.json",
+            "/nested/schale-inventory-backup.json",
+        ):
+            self.assertTrue(harness_server.is_blocked_static_path(path))
+
+    def test_reusing_api_key_requires_same_upstream_and_model(self):
+        harness_server.CONFIG.update({
+            "base_url": "https://api.example.test",
+            "model": "model-a",
+            "api_key": "secret",
+        })
+        self.assertTrue(harness_server.can_reuse_configured_key("https://api.example.test", "model-a"))
+        self.assertFalse(harness_server.can_reuse_configured_key("https://other.example.test", "model-a"))
+        self.assertFalse(harness_server.can_reuse_configured_key("https://api.example.test", "model-b"))
+
+    def test_config_route_rejects_old_key_for_changed_upstream(self):
+        harness_server.CONFIG.update({
+            "base_url": "https://api.example.test",
+            "model": "model-a",
+            "api_key": "secret",
+        })
+        server = ThreadingHTTPServer(("127.0.0.1", 0), harness_server.HarnessHandler)
+        thread = Thread(target=server.handle_request, daemon=True)
+        thread.start()
+        connection = HTTPConnection("127.0.0.1", server.server_address[1], timeout=2)
+        body = json.dumps({"baseUrl": "https://other.example.test", "model": "model-a"}).encode()
+        connection.request("POST", "/api/config", body=body, headers={"Content-Type": "application/json", "Content-Length": str(len(body))})
+        response = connection.getresponse()
+        payload = json.loads(response.read())
+        connection.close()
+        server.server_close()
+        self.assertEqual(response.status, 400)
+        self.assertEqual(payload["error"]["code"], "VALIDATION_ERROR")
+
     def test_proposal_sanitizer_drops_untrusted_shape(self):
         proposal = harness_server.sanitize_proposal({
             "type": "planning_proposal",
@@ -242,6 +286,49 @@ class HarnessContractTests(unittest.TestCase):
         self.assertEqual(result["questions"], ["需要的日程次数？"])
         self.assertIsNone(result["proposal"])
 
+    def test_call_openai_does_not_follow_redirects_with_bearer_token(self):
+        received = {"authorization": None}
+
+        class DestinationHandler(SimpleHTTPRequestHandler):
+            def do_POST(self):
+                received["authorization"] = self.headers.get("Authorization")
+                self.send_response(500)
+                self.end_headers()
+
+            def log_message(self, format, *args):
+                pass
+
+        destination = ThreadingHTTPServer(("127.0.0.1", 0), DestinationHandler)
+        destination_thread = Thread(target=destination.serve_forever, daemon=True)
+        destination_thread.start()
+
+        class RedirectHandler(SimpleHTTPRequestHandler):
+            def do_POST(self):
+                self.send_response(307)
+                self.send_header("Location", f"http://127.0.0.1:{destination.server_address[1]}/chat/completions")
+                self.end_headers()
+
+            def log_message(self, format, *args):
+                pass
+
+        redirect = ThreadingHTTPServer(("127.0.0.1", 0), RedirectHandler)
+        redirect_thread = Thread(target=redirect.serve_forever, daemon=True)
+        redirect_thread.start()
+        try:
+            harness_server.CONFIG.update({
+                "base_url": f"http://127.0.0.1:{redirect.server_address[1]}",
+                "model": "fake-model",
+                "api_key": "test-key",
+            })
+            with self.assertRaises(RuntimeError):
+                harness_server.call_openai("请回复", {}, [])
+        finally:
+            redirect.shutdown()
+            redirect.server_close()
+            destination.shutdown()
+            destination.server_close()
+        self.assertIsNone(received["authorization"])
+
     def test_root_redirects_to_planner_page(self):
         server = ThreadingHTTPServer(("127.0.0.1", 0), harness_server.HarnessHandler)
         thread = Thread(target=server.handle_request, daemon=True)
@@ -253,6 +340,22 @@ class HarnessContractTests(unittest.TestCase):
         self.assertEqual(response.getheader("Location"), harness_server.DASHBOARD_PATH)
         connection.close()
         server.server_close()
+
+    def test_static_server_does_not_expose_repository_or_runtime_files(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), harness_server.HarnessHandler)
+        thread = Thread(target=server.handle_request, daemon=True)
+        thread.start()
+        connection = HTTPConnection("127.0.0.1", server.server_address[1], timeout=2)
+        connection.request("GET", "/harness_server.py")
+        response = connection.getresponse()
+        response.read()
+        self.assertEqual(response.status, 404)
+        connection.close()
+        server.server_close()
+
+        self.assertTrue(harness_server.is_blocked_static_path("/.git/HEAD"))
+        self.assertTrue(harness_server.is_blocked_static_path("/__pycache__/harness_server.cpython-312.pyc"))
+        self.assertFalse(harness_server.is_blocked_static_path("/index.html?view=planner"))
 
 
 if __name__ == "__main__":

@@ -56,19 +56,27 @@ assert.deepEqual(twoMonthForecast, {
 
 const synthesisForecastLowTower = calculateGiftOnlyForecast({
   resources: [
-    { id: "monthly-synthesis-stones", cadence: "monthly", amount: 50, value_source: "default", unit: "synthesis_stone_gold" },
+    { id: "monthly-synthesis-stones", cadence: "monthly", amount: 70, value_source: "default", unit: "synthesis_stone_gold" },
     { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 49, input_kind: "floor", unit: "gift_box" },
   ],
 }, { periodDays: 60, rewardSnapshot: JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8")) });
-assert.equal(synthesisForecastLowTower.synthesisStones, 100, "a low tower must not add the 20 tower synthesis stones");
+assert.equal(synthesisForecastLowTower.synthesisStones, 100, "a low tower must contribute 50 shop stones per month, not the default 20 tower stones");
 
 const synthesisForecastHighTower = calculateGiftOnlyForecast({
   resources: [
-    { id: "monthly-synthesis-stones", cadence: "monthly", amount: 50, value_source: "default", unit: "synthesis_stone_gold" },
+    { id: "monthly-synthesis-stones", cadence: "monthly", amount: 70, value_source: "default", unit: "synthesis_stone_gold" },
     { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 99, input_kind: "floor", unit: "gift_box" },
   ],
 }, { periodDays: 60, rewardSnapshot: JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8")) });
-assert.equal(synthesisForecastHighTower.synthesisStones, 140, "a high tower adds 20 synthesis stones per month");
+assert.equal(synthesisForecastHighTower.synthesisStones, 140, "a high tower must be counted once: 50 shop + 20 tower per month");
+const postedMonthlySynthesisForecast = calculateGiftOnlyForecast({
+  resources: [
+    { id: "monthly-synthesis-stones", cadence: "monthly", amount: 70, value_source: "default", unit: "synthesis_stone_gold" },
+    { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 99, input_kind: "floor", unit: "gift_box" },
+  ],
+  resourcePostingHistory: [{ id: "monthly-post", resourceId: "monthly-synthesis-stones", postingKey: "monthly-synthesis-stones:60", periodDays: 60, active: true }],
+}, { periodDays: 60, rewardSnapshot: JSON.parse(fs.readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8")) });
+assert.equal(postedMonthlySynthesisForecast.synthesisStones, 40, "after posting the shop source, the forecast must retain only two months of tower stones");
 
 const specialPackage = {
   id: "special",
@@ -309,5 +317,27 @@ const futureSynthesisOnlyProjection = calculateGiftOnlyProjection({
 assert.equal(futureSynthesisOnlyProjection.twoMonthFree.synthesisStones, 1);
 assert.equal(futureSynthesisOnlyProjection.twoMonthFree.synthesisExpectedExp, 0, "future synthesis stones need concrete gold gifts before they can contribute");
 assert.equal(futureSynthesisOnlyProjection.twoMonthFree.totalExpectedExp, 0, "future synthesis stones alone must not create relationship EXP");
+
+const zeroDayIncomingProjection = calculateGiftOnlyProjection({
+  student,
+  thresholds,
+  currentLevel: 1,
+  currentProgress: 0,
+  targetLevel: 2,
+  gifts,
+  giftById,
+  giftBoxes: boxById,
+  periodDays: 0,
+  state: {
+    inventory: {},
+    giftBoxes: {},
+    equivalentGiftPools: {},
+    incomingResources: { giftBoxes: { "100008": 1 }, equivalentGiftPools: {} },
+    giftReservations: {},
+  },
+});
+assert.equal(zeroDayIncomingProjection.twoMonthFree.choiceBoxes, 0, "zero-day planning must not include posted future gift boxes");
+assert.equal(zeroDayIncomingProjection.twoMonthFree.totalExpectedExp, 0, "zero-day planning must not include future incoming EXP");
+assert.equal(zeroDayIncomingProjection.twoMonthFree.gap, 15, "zero-day planning should report the immediate relationship gap");
 
 console.log("gift-only planner tests passed");

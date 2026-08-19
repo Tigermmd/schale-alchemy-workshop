@@ -71,6 +71,21 @@ assert.equal(zeroDayPost.resourcePostingHistory.length, 0, "a zero-day current-o
 const rewardSnapshot = JSON.parse((await import("node:fs")).readFileSync(new URL("../relationship_data/unlimited_assault_rewards_cn.json", import.meta.url), "utf8"));
 const towerMapping = mapPeriodicResource({ id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 60, input_kind: "floor", unit: "gift_box" }, { periodDays: 30, rewardSnapshot });
 assert.equal(towerMapping.stockResources.synthesis_stone_gold, 20, "tower synthesis stones must enter the synthesis-stone bucket");
+const managedSynthesisResources = [
+  { id: "monthly-synthesis-stones", cadence: "monthly", amount: 70, value_source: "default", unit: "synthesis_stone_gold" },
+  { id: "monthly-unlimited-assault-gift-boxes", cadence: "monthly", amount: 99, input_kind: "floor", unit: "gift_box" },
+];
+const managedMonthlyMapping = mapPeriodicResource(managedSynthesisResources[0], { periodDays: 30, rewardSnapshot, resources: managedSynthesisResources });
+const managedTowerMapping = mapPeriodicResource(managedSynthesisResources[1], { periodDays: 30, rewardSnapshot, resources: managedSynthesisResources });
+assert.equal(managedMonthlyMapping.stockResources.synthesis_stone_gold, 50, "the default monthly row must post only the shop component once a tower floor is configured");
+assert.equal(managedTowerMapping.stockResources.synthesis_stone_gold, 20, "the tower row must post only its own 20-stone component");
+const managedPosted = postPeriodicResource(
+  createInventoryState({ resources: managedSynthesisResources, periodDays: 30 }),
+  "monthly-synthesis-stones",
+  { periodDays: 30, rewardSnapshot },
+);
+const managedPostedBoth = postPeriodicResource(managedPosted, "monthly-unlimited-assault-gift-boxes", { periodDays: 30, rewardSnapshot });
+assert.equal(managedPostedBoth.incomingResources.stockResources.synthesis_stone_gold, 70, "posting both sources must total 50 shop + 20 tower, not 90");
 const undone = undoPeriodicResource(postedGrandPurple, postedGrandPurple.resourcePostingHistory[0].id);
 assert.equal(undone.incomingResources.stockResources.manufacturing_stone, 0);
 assert.equal(undone.resourcePostingHistory.find((item) => item.resourceId === "weekly-manufacturing-stones").active, false);

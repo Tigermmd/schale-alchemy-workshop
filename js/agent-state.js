@@ -1,8 +1,8 @@
-import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
-import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v107";
+import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
+import { text as t } from "./i18n.js?v=dashboard-20260818-relationship-agent-arona-chat-v108";
 
 const ALLOWED_CHANGE_KINDS = new Set([
   // Kept for compatibility with older Harness responses.
@@ -360,9 +360,9 @@ export function buildAgentContext(state, calculatedResults, data, { message = ""
       cnProgress,
     },
     calculationTools: [
-      { id: "calculate_student_plan", readOnly: true, description: "Read the locally calculated two-month gift, resource, package, total EXP, and remaining-gap projection for a planned student." },
-      { id: "calculate_resource_contribution", readOnly: true, description: "Read whether Schedule/Cafe are allowed for a student and their calculated relationship EXP contribution." },
-      { id: "calculate_package_need", readOnly: true, description: "Read the locally calculated package recommendation; package facts come only from the CN snapshot." },
+      { id: "calculate_student_plan", mode: "precomputed_context", readOnly: true, description: "Read the locally calculated gift, resource, package, total EXP, and remaining-gap projection included in calculatedResults; this is not an executable model tool." },
+      { id: "calculate_resource_contribution", mode: "precomputed_context", readOnly: true, description: "Read the locally calculated Schedule/Cafe eligibility and relationship EXP contribution included in calculatedResults; this is not an executable model tool." },
+      { id: "calculate_package_need", mode: "precomputed_context", readOnly: true, description: "Read the locally calculated package efficiency included in calculatedResults; package facts come only from the CN snapshot and this is not an executable model tool." },
     ],
     plannerState: {
       forecastDays: normalizedState.forecastDays,
@@ -403,6 +403,7 @@ export function buildAgentContext(state, calculatedResults, data, { message = ""
       agentCannotModify: ["inventory", "giftBoxes", "incomingResources", "purchasedPackages", "localStorage", "javascript"],
       unreleasedStudents: "schedule and cafe EXP excluded; gifts only",
       randomGiftBoxes: "expectation only; never converted into concrete inventory",
+      calculationTools: "descriptions only; use calculatedResults instead of claiming that a tool was called",
     },
   };
 }
