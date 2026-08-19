@@ -1,9 +1,9 @@
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { formatExp, formatInteger, formatSmartQuantity } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculateGiftBoxExpectedExp, calculateGiftBoxesExpectedExp } from "./gift-box-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculateResourceForecast } from "./resource-model.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculateRelationshipSourceForecast } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -74,6 +74,11 @@ function periodMultiplier(resource, periodDays) {
   return 0;
 }
 
+function resourcePreviewDays(state) {
+  const value = Number(state?.resourceForecastDays ?? state?.periodDays ?? 30);
+  return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 30;
+}
+
 function renderResourceInput(resource, state, locale, lead) {
   const isConfigured = resource.amount !== null;
   if (resource.input_kind === "floor") {
@@ -117,11 +122,11 @@ function renderUnlimitedRewardSummary(summary, locale) {
   return `<div class="resource-reward-summary"><strong>${escapeHtml(t(locale, "resourceFloorSummary", summary.floor))}</strong>${rewards.map((reward) => `<span>${escapeHtml(reward)}</span>`).join("")}</div>`;
 }
 
-function renderResourceForecast(resource, forecast, locale) {
+function renderResourceForecast(resource, forecast, locale, previewDays) {
   if (!forecast) return `<strong>${escapeHtml(t(locale, "resourceWaitingInput"))}</strong>`;
-  if (forecast.kind === "unlimited_assault") return `${renderUnlimitedRewardSummary(forecast.summary, locale)}<small>${escapeHtml(t(locale, "resourceForecastLabel", resource.input_kind))}</small>`;
+  if (forecast.kind === "unlimited_assault") return `${renderUnlimitedRewardSummary(forecast.summary, locale)}<small>${escapeHtml(t(locale, "resourceForecastLabel", resource.input_kind))} · ${escapeHtml(t(locale, "resourceForecastWindow", previewDays))}</small>`;
   const value = forecast.kind === "relationship_exp" ? formatExp(forecast.value, locale) : formatSmartQuantity(forecast.value, locale);
-  return `<strong>${escapeHtml(value)}</strong><small>${escapeHtml(t(locale, "resourceForecastLabel", resource.input_kind))}</small>`;
+  return `<strong>${escapeHtml(value)}</strong><small>${escapeHtml(t(locale, "resourceForecastLabel", resource.input_kind))} · ${escapeHtml(t(locale, "resourceForecastWindow", previewDays))}</small>`;
 }
 
 function resourceMeta(resource, locale) {
@@ -149,7 +154,8 @@ function resourceIcon(resource, data) {
 
 function renderResourceRow({ resource, state, data, locale, evidenceById, sourceById }) {
   const isConfigured = resource.amount !== null;
-  const forecast = calculateResourceForecast(resource, resource.amount, state.periodDays, data.unlimitedAssaultRewards, { resources: state.resources });
+  const previewDays = resourcePreviewDays(state);
+  const forecast = calculateResourceForecast(resource, resource.amount, previewDays, data.unlimitedAssaultRewards, { resources: state.resources });
   const lead = evidenceById.get(resource.id);
   const source = lead?.source_id ? sourceById.get(lead.source_id) : null;
   const candidateUnit = locale === "en" ? lead?.candidate_unit_en : locale === "ja" ? lead?.candidate_unit_ja : lead?.candidate_unit_zh_cn;
@@ -160,16 +166,17 @@ function renderResourceRow({ resource, state, data, locale, evidenceById, source
     <div class="icon-frame resource-icon" aria-hidden="true">${resourceIcon(resource, data)}</div>
     <div class="resource-copy"><strong><span class="resource-name">${escapeHtml(t(locale, "resourceName", resource.id))}</span><em class="resource-status ${isConfigured ? "is-configured" : "is-missing"}">${escapeHtml(t(locale, isConfigured ? "resourceConfigured" : "resourceMissing"))}</em></strong><small>${escapeHtml(resourceMeta(resource, locale))}</small></div>
     ${renderResourceInput(resource, state, locale, lead)}
-    <div class="resource-forecast ${resource.input_kind === "floor" ? "is-reward-forecast" : ""}">${renderResourceForecast(resource, forecast, locale)}</div>
+    <div class="resource-forecast ${resource.input_kind === "floor" ? "is-reward-forecast" : ""}">${renderResourceForecast(resource, forecast, locale, previewDays)}</div>
     <details class="resource-row-details"><summary aria-label="${escapeHtml(`${t(locale, "resourceName", resource.id)} · ${t(locale, "resourceEvidenceDetails")}`)}">${escapeHtml(t(locale, "resourceName", resource.id))} · ${escapeHtml(t(locale, "resourceEvidenceDetails"))}</summary>${detailsContent}</details>
   </article>`;
 }
 
 function renderManufacturingProjection({ data, state, locale, localization }) {
+  const previewDays = resourcePreviewDays(state);
   const stoneResource = state.resources.find((resource) => resource.id === "weekly-manufacturing-stones");
   const projectedStones = stoneResource?.amount === null || stoneResource?.amount === undefined
     ? null
-    : stoneResource.amount * periodMultiplier(stoneResource, state.periodDays);
+    : stoneResource.amount * periodMultiplier(stoneResource, previewDays);
   const plans = Array.isArray(state.students) ? state.students : [];
   const cards = plans.length
     ? plans.map((plan) => {
@@ -197,6 +204,7 @@ function renderManufacturingProjection({ data, state, locale, localization }) {
 function renderRelationshipSourceProjection({ data, state, locale, localization }) {
   const plans = Array.isArray(state.students) ? state.students : [];
   if (!plans.length) return "";
+  const previewDays = resourcePreviewDays(state);
   const rows = plans.map((plan) => {
     const student = data.studentById?.get(String(plan.studentId));
     const isMainTarget = Number(plan.studentId) === Number(state.mainTargetStudentId);
@@ -205,7 +213,7 @@ function renderRelationshipSourceProjection({ data, state, locale, localization 
       studentId: plan.studentId,
       cnProgress: state.cnProgress,
       timeline: data.releaseTimeline ?? [],
-      periodDays: state.forecastDays,
+      periodDays: previewDays,
     });
     const label = student ? localizedName(student, "student", locale, localization) : t(locale, "unknown");
     const value = !isMainTarget
@@ -270,6 +278,7 @@ function renderGiftBoxWorkspace({ data, state, locale, localization }) {
 }
 
 export function renderResourcesWorkspace({ data = {}, state, locale, localization, evidence, openResourceId = null }) {
+  const previewDays = resourcePreviewDays(state);
   const resourcesCaption = t(locale, "resourcesCaption");
   const evidenceById = new Map((evidence?.rows ?? []).map((row) => [row.resource_id, row]));
   const sourceById = new Map((evidence?.sources ?? []).map((source) => [source.id, source]));
@@ -277,13 +286,13 @@ export function renderResourcesWorkspace({ data = {}, state, locale, localizatio
   const missing = state.resources.filter((resource) => resource.amount === null);
   const shouldKeepConfiguredOpen = Boolean(openResourceId && configured.some((resource) => resource.id === openResourceId));
   const projected = state.resources.reduce((sum, resource) => {
-    const forecast = calculateResourceForecast(resource, resource.amount, state.periodDays, data.unlimitedAssaultRewards, { resources: state.resources });
+    const forecast = calculateResourceForecast(resource, resource.amount, previewDays, data.unlimitedAssaultRewards, { resources: state.resources });
     if (forecast?.kind !== "relationship_exp") return sum;
     return sum + forecast.value;
   }, 0);
   return `<section class="resource-workspace panel" aria-labelledby="resource-title">
     <div class="section-heading"><div class="resource-heading-copy"><h2 id="resource-title">${t(locale, "resourcesTitle")}</h2>${resourcesCaption ? `<p class="section-caption">${escapeHtml(resourcesCaption)}</p>` : ""}</div></div>
-    <div class="resource-toolbar"><label><span>${t(locale, "periodDays")}</span><input type="number" min="0" max="366" step="1" data-period-days value="${state.periodDays}"></label><a class="template-link" href="./relationship_data/cn_planner_data_to_fill.md" target="_blank" rel="noreferrer">${t(locale, "fillDataTemplate")}</a></div>
+    <div class="resource-toolbar"><label><span>${t(locale, "resourcePreviewDays")}</span><input type="number" min="0" max="366" step="1" data-resource-period-days value="${previewDays}"></label><a class="template-link" href="./relationship_data/cn_planner_data_to_fill.md" target="_blank" rel="noreferrer">${t(locale, "fillDataTemplate")}</a></div>
     <div class="resource-kpi-grid"><article><span>${t(locale, "resourceConfigured")}</span><strong>${configured.length}/${state.resources.length}</strong></article><article><span>${t(locale, "effectiveExp")}</span><strong>${formatExp(projected, locale)}</strong></article><article><span>${t(locale, "resourceMissing")}</span><strong>${state.resources.length - configured.length}</strong></article></div>
     ${missing.length ? `<section class="resource-missing-panel" aria-labelledby="resource-missing-title"><div class="resource-missing-heading"><div><span class="resource-missing-kicker">${escapeHtml(t(locale, "resourceMissing"))}</span><h2 id="resource-missing-title">${escapeHtml(t(locale, "resourceMissingTitle"))}</h2></div><span>${missing.length}</span></div><div class="resource-list">${missing.map((resource) => renderResourceRow({ resource, state, data, locale, evidenceById, sourceById })).join("")}</div></section>` : ""}
     ${configured.length ? `<details class="resource-details"${shouldKeepConfiguredOpen ? " open" : ""}><summary>${escapeHtml(t(locale, "resourceInputDetails"))} · ${configured.length}</summary><div class="resource-list">${configured.map((resource) => renderResourceRow({ resource, state, data, locale, evidenceById, sourceById })).join("")}</div></details>` : ""}

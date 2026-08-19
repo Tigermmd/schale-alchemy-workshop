@@ -1,8 +1,8 @@
-import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { addStudentPlan, normalizePlannerState, removeStudentPlan, setMainTargetStudent } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculateRelationshipSourceForecast, getEligibleRelationshipSources, getStudentReleaseStatus, normalizeCnProgress } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculateGiftOnlyForecast } from "./gift-only-planner.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculatePackageEfficiency, calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 const ALLOWED_CHANGE_KINDS = new Set([
   // Kept for compatibility with older Harness responses.
@@ -110,6 +110,22 @@ export function extractConversationFacts(conversation = []) {
   };
 }
 
+function mergeConversationFacts(historyFacts, latestFacts) {
+  const fields = ["currentLevel", "currentProgress", "dailyCafeCount", "dailyScheduleCount", "forecastDays", "targetLevel"];
+  return {
+    ...historyFacts,
+    ...Object.fromEntries(fields.map((field) => [
+      field,
+      latestFacts?.[field] !== null && latestFacts?.[field] !== undefined
+        ? latestFacts[field]
+        : historyFacts?.[field] ?? null,
+    ])),
+    // A new student name is a scope change. Do not carry an old Mika hint
+    // into the next turn when the current message names another costume.
+    studentHints: latestFacts?.studentHints?.length ? latestFacts.studentHints : historyFacts?.studentHints ?? [],
+  };
+}
+
 function hasPlanningScope(text = "") {
   return /(?:规划|计划|怎么|如何|提升|需要多少|缺多少|(?<![不未])计入|未来.{0,12}(?:天|周|个月)|\d+\s*(?:天|周|个月)|raise|plan|need|how can)/i.test(text);
 }
@@ -134,10 +150,21 @@ function studentNameAliases(student) {
 
 function findRequestedStudentIds(text, data) {
   const students = data?.plannerStudents ?? data?.students ?? [];
+  const originalHint = /(?:原皮|普通版|常驻版|original|base)/i.test(text);
+  const costumeHint = /(?:泳装|水着|swimsuit|夏日|夏服|礼服|新年|正月|holiday|costume)/i.test(text);
+  const isCostumeVariant = (student) => {
+    const names = [student?.name_zh_cn, student?.name_en, student?.name_ja].filter(Boolean).join(" ");
+    return /[（(].+[）)]|泳装|水着|swimsuit|夏日|夏服|礼服|新年|正月|holiday|costume/i.test(names);
+  };
   return students
     .map((student) => ({ student, aliases: studentNameAliases(student) }))
     .sort((left, right) => Math.max(...right.aliases.map((alias) => alias.length), 0) - Math.max(...left.aliases.map((alias) => alias.length), 0))
-    .filter(({ aliases }) => aliases.some((alias) => text.includes(alias)))
+    .filter(({ student, aliases }) => {
+      if (!aliases.some((alias) => text.includes(alias))) return false;
+      if (originalHint && !costumeHint && isCostumeVariant(student)) return false;
+      if (costumeHint && !originalHint && !isCostumeVariant(student)) return false;
+      return true;
+    })
     .map(({ student }) => Number(student.student_id))
     .filter((studentId, index, ids) => Number.isFinite(studentId) && ids.indexOf(studentId) === index);
 }
@@ -160,8 +187,8 @@ function effectiveStateFromConversation(state, facts, data, requestedStudentIds 
     const candidates = students.filter((plan) => {
       const student = data?.studentById?.get(String(plan.studentId));
       const names = [student?.name_zh_cn, student?.name_en, student?.name_ja].filter(Boolean).join(" ").toLowerCase();
-      return (requestedIds.size && requestedIds.has(Number(plan.studentId)))
-        || !hint || names.includes(hint) || hint.includes(names) || /mika|米卡|未花/.test(hint) && /mika|米卡|未花/.test(names);
+      if (requestedIds.size) return requestedIds.has(Number(plan.studentId));
+      return !hint || names.includes(hint) || hint.includes(names) || /mika|米卡|未花/.test(hint) && /mika|米卡|未花/.test(names);
     });
     const targetPlans = candidates.length === 1 ? candidates : students.length === 1 ? students : [];
     students = students.map((plan) => targetPlans.some((target) => target.id === plan.id)
@@ -274,10 +301,17 @@ export function calculatePackageNeed({ projection } = {}) {
 }
 
 export function buildAgentContext(state, calculatedResults, data, { message = "", conversation = [], locale = "zh_cn" } = {}) {
-  const facts = extractConversationFacts([...(Array.isArray(conversation) ? conversation : []), ...(message ? [{ role: "user", content: message }] : [])]);
+  const historyFacts = extractConversationFacts(conversation);
+  const latestFacts = extractConversationFacts(message ? [{ role: "user", content: message }] : []);
+  const facts = mergeConversationFacts(historyFacts, latestFacts);
   const requestText = [message, conversationText(conversation)].filter(Boolean).join("\n");
-  const requestedStudentIds = findRequestedStudentIds(requestText, data);
-  const normalizedState = effectiveStateFromConversation(state, facts, data, requestedStudentIds);
+  const requestedStudentIds = findRequestedStudentIds(message, data);
+  // If the latest message is a follow-up without a student name, use the
+  // conversation scope. If it names a student, that latest scope wins.
+  const scopedRequestedStudentIds = requestedStudentIds.length
+    ? requestedStudentIds
+    : findRequestedStudentIds(requestText, data);
+  const normalizedState = effectiveStateFromConversation(state, facts, data, scopedRequestedStudentIds);
   const timeline = data?.releaseTimeline ?? [];
   const cnProgress = normalizeCnProgress(normalizedState.cnProgress, timeline, data?.plannerStudents ?? data?.students ?? []);
   const students = (data?.plannerStudents ?? data?.students ?? []).map((student) => ({
@@ -366,6 +400,7 @@ export function buildAgentContext(state, calculatedResults, data, { message = ""
     ],
     plannerState: {
       forecastDays: normalizedState.forecastDays,
+      resourceForecastDays: normalizedState.resourceForecastDays,
       periodDays: normalizedState.periodDays,
       mainTargetStudentId: normalizedState.mainTargetStudentId ?? null,
       students: normalizedState.students,
@@ -507,7 +542,7 @@ function applyPlanningChange(state, change, { timeline = [], students = [] } = {
     next = setMainTargetStudent(next, change.studentId);
   } else if (change.kind === "set_forecast_days") {
     const days = integerOr(change.value, next.forecastDays);
-    next = { ...next, forecastDays: days, periodDays: days };
+    next = { ...next, forecastDays: days };
   } else if (change.kind === "reorder_student_goals") {
     const order = new Map(change.studentIds.map((studentId, index) => [Number(studentId), index]));
     next = { ...next, students: [...next.students].sort((left, right) => order.get(Number(left.studentId)) - order.get(Number(right.studentId))) };

@@ -1,18 +1,18 @@
-import { loadDashboardData } from "./data-loader.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { loadDashboardData } from "./data-loader.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { prepareAllocation, renderPlannerStudentOptions, renderPlannerWorkspace, renderWorkbenchTabs, wirePlannerImageFallbacks } from "./planner-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { refreshInventoryGiftRows, renderInventoryWorkspace, wireInventoryImageFallbacks } from "./inventory-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 const elements = {
   loading: document.querySelector("#loading-state"),
@@ -72,7 +72,13 @@ function normalizePlanningDays(value, fallback) {
 
 function commitPlanningDays(value, fallback) {
   const days = normalizePlanningDays(value, fallback);
-  state.planner = writePlannerState(window.localStorage, { ...state.planner, periodDays: days, forecastDays: days });
+  state.planner = writePlannerState(window.localStorage, { ...state.planner, forecastDays: days });
+  renderActiveWorkbench();
+}
+
+function commitResourcePreviewDays(value, fallback) {
+  const days = normalizePlanningDays(value, fallback);
+  state.planner = writePlannerState(window.localStorage, { ...state.planner, resourceForecastDays: days, periodDays: days });
   renderActiveWorkbench();
 }
 
@@ -780,7 +786,7 @@ elements.detail.addEventListener("click", (event) => {
   const postResource = event.target.closest("[data-post-resource]");
   if (postResource) {
     state.planner = writePlannerState(window.localStorage, postPeriodicResource(state.planner, postResource.dataset.postResource, {
-      periodDays: state.planner.forecastDays,
+      periodDays: state.planner.resourceForecastDays,
       rewardSnapshot: data.snapshots.unlimitedAssaultRewards,
     }));
     renderActiveWorkbench();
@@ -999,14 +1005,14 @@ elements.detail.addEventListener("change", (event) => {
     rerenderInventoryAfterEdit(giftBoxInput);
     return;
   }
-  const periodInput = event.target.closest("[data-period-days]");
+  const periodInput = event.target.closest("[data-resource-period-days]");
   if (periodInput) {
-    commitPlanningDays(periodInput.value, state.planner.forecastDays);
+    commitResourcePreviewDays(periodInput.value, state.planner.resourceForecastDays);
     return;
   }
   const forecastDaysInput = event.target.closest("[data-planner-forecast-days]");
   if (forecastDaysInput) {
-    commitPlanningDays(forecastDaysInput.value, state.planner.periodDays);
+    commitPlanningDays(forecastDaysInput.value, state.planner.forecastDays);
   }
   const inventoryFilter = event.target.closest("[data-inventory-filter]");
   if (inventoryFilter) {

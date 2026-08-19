@@ -8,6 +8,7 @@ import { getCnGiftPackageCatalog, getEligibleGiftPackages } from "./package-cata
 const students = [
   { student_id: 10001, name_zh_cn: "甲", name_en: "A", default_order: 0 },
   { student_id: 10002, name_zh_cn: "乙", name_en: "B", default_order: 1 },
+  { student_id: 10059, name_zh_cn: "未花", name_en: "Mika", default_order: 127 },
   { student_id: 10122, name_zh_cn: "未花（泳装）", name_en: "Mika (Swimsuit)", default_order: 230, future_only: true },
 ];
 const timeline = buildReleaseTimeline(students);
@@ -78,6 +79,27 @@ assert.deepEqual(conversationFacts, {
   targetLevel: null,
   studentHints: ["mika原皮"],
 });
+
+const dualMikaState = {
+  ...state,
+  students: [
+    { id: "student-10059", studentId: 10059, currentLevel: 1, currentProgress: 0, targetLevel: 100 },
+    { id: "student-10122", studentId: 10122, currentLevel: 1, currentProgress: 0, targetLevel: 100 },
+  ],
+  mainTargetStudentId: 10122,
+};
+const dualMikaContext = buildAgentContext(
+  dualMikaState,
+  {},
+  data,
+  {
+    conversation: [{ role: "user", content: "先算未花（泳装）从1级到100级。" }],
+    message: "改算原皮未花，从61级提升到100级。",
+  },
+);
+const dualMikaPlans = new Map(dualMikaContext.confirmedFacts.plannedStudents.map((item) => [item.studentId, item.plan]));
+assert.equal(dualMikaPlans.get(10059).currentLevel, 61, "the latest message must update original Mika only");
+assert.equal(dualMikaPlans.get(10122).currentLevel, 1, "historical swimsuit Mika values must not leak into original Mika");
 
 const releasedState = { ...createEmptyPlannerState(), cnProgress: progress, students: [
   { id: "student-10001", studentId: 10001, currentLevel: 1, currentProgress: 0, targetLevel: 100 },
@@ -195,7 +217,7 @@ assert.deepEqual(applied.state.packagePlans, state.packagePlans);
 assert.equal(applied.state.inventory["5000"], undefined);
 const appliedZeroDay = applyPlanningProposal(state, { ...proposal, changes: [{ kind: "set_forecast_days", value: 0 }] }, { data });
 assert.equal(appliedZeroDay.state.forecastDays, 0);
-assert.equal(appliedZeroDay.state.periodDays, 0);
+assert.equal(appliedZeroDay.state.periodDays, 30, "changing the planner horizon must not change the resource preview horizon");
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_inventory", giftId: 5000, count: 999 }] }, { state, data }).ok, false);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_forecast_days", value: 60, inventory: {} }] }, { state, data }).ok, false);
 assert.equal(validatePlanningProposal({ ...proposal, changes: [{ kind: "set_package_plan", packageId: "p-1", planned: 1 }] }, { state, data }).ok, false);

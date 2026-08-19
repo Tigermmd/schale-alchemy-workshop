@@ -1,8 +1,8 @@
-import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { isGoldGift } from "./inventory-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculateGiftBoxExpectedExp } from "./gift-box-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { isGoldGift } from "./inventory-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculateGiftOnlyForecast, calculatePaidGiftPackageExp, partitionGiftPackagesForTimeline } from "./gift-only-planner.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { calculateRequiredRelationshipExp, planGiftAllocation } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 function numberOr(value, fallback = 0) {
   const number = Number(value);

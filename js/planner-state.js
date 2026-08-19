@@ -1,5 +1,5 @@
 export const PLANNER_STORAGE_KEY = "schale-relationship-planner-v1";
-export const PLANNER_STATE_VERSION = 6;
+export const PLANNER_STATE_VERSION = 7;
 
 export const RESOURCE_DEFINITIONS = Object.freeze([
   { id: "weekly-manufacturing-stones", cadence: "weekly", category: "free", unit: "manufacturing_stone", default_amount: 17 },
@@ -185,6 +185,10 @@ export function createEmptyPlannerState() {
     version: PLANNER_STATE_VERSION,
     server: "cn",
     cnProgress: null,
+    // The planner horizon and the inventory/resource preview horizon are
+    // separate controls. Resource rows are monthly/weekly facts; their
+    // preview may be changed without changing the planning question.
+    resourceForecastDays: 30,
     periodDays: 60,
     forecastDays: 60,
     mainTargetStudentId: null,
@@ -258,7 +262,6 @@ export function normalizePlannerState(input) {
     Object.entries(source.giftBoxes && typeof source.giftBoxes === "object" ? source.giftBoxes : {})
       .map(([boxId, count]) => [String(boxId), integerOr(count, 0)]),
   );
-  const sourceVersion = Number(source.version ?? 0);
   const sourceStock = source.stockResources && typeof source.stockResources === "object"
     ? source.stockResources
     : null;
@@ -295,10 +298,11 @@ export function normalizePlannerState(input) {
   const students = Array.isArray(source.students)
     ? source.students.map(normalizeStudentPlan).filter((student) => student.studentId > 0)
     : [];
-  const requestedPeriodDays = sourceVersion < PLANNER_STATE_VERSION && source.forecastDays !== undefined
-    ? source.forecastDays
-    : source.periodDays ?? source.forecastDays ?? base.periodDays;
-  const normalizedPeriodDays = Math.min(366, Math.max(0, integerOr(requestedPeriodDays, base.periodDays)));
+  const requestedForecastDays = source.forecastDays ?? source.periodDays ?? base.forecastDays;
+  const normalizedForecastDays = Math.min(366, Math.max(0, integerOr(requestedForecastDays, base.forecastDays)));
+  const requestedResourceForecastDays = source.resourceForecastDays
+    ?? (source.version === undefined && source.periodDays !== undefined ? source.periodDays : 30);
+  const normalizedResourceForecastDays = Math.min(366, Math.max(0, integerOr(requestedResourceForecastDays, 30)));
   const studentDrafts = Object.fromEntries(
     Object.entries(source.studentDrafts && typeof source.studentDrafts === "object" ? source.studentDrafts : {})
       .map(([studentId, plan]) => [String(studentId), normalizeStudentPlan({ ...plan, studentId })])
@@ -306,8 +310,11 @@ export function normalizePlannerState(input) {
   );
   return {
     ...base,
-    periodDays: normalizedPeriodDays,
-    forecastDays: normalizedPeriodDays,
+    // `periodDays` is retained as the legacy/export name for the resource
+    // preview horizon. New code must use the explicit field below.
+    periodDays: normalizedResourceForecastDays,
+    resourceForecastDays: normalizedResourceForecastDays,
+    forecastDays: normalizedForecastDays,
     mainTargetStudentId: integerOr(source.mainTargetStudentId, 0)
       || students[0]?.studentId
       || null,

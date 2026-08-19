@@ -1,7 +1,7 @@
-import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { formatExp, formatInteger } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { formatExp, formatInteger } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 function escapeHtml(value) {
   return String(value ?? "")

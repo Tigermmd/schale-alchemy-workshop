@@ -163,8 +163,8 @@ const configuredResourceHtml = renderResourcesWorkspace({
 });
 assert.match(configuredResourceHtml, /选择通关层数/);
 assert.match(configuredResourceHtml, /通关至 99 层/);
-assert.match(configuredResourceHtml, /金色礼物自选 ×12/);
-assert.match(configuredResourceHtml, /紫色礼物随机 ×6/);
+assert.match(configuredResourceHtml, /金色礼物自选 ×6/);
+assert.match(configuredResourceHtml, /紫色礼物随机 ×3/);
 assert.doesNotMatch(configuredResourceHtml, /每月制约解除决战礼物盒[\s\S]{0,500}未知/);
 
 const touchCountState = setResourceAmount(setResourceAmount(createEmptyPlannerState(), "daily-schedule-exp", 7), "daily-cafe-exp", 8);

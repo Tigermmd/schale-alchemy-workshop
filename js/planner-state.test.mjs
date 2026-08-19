@@ -26,7 +26,7 @@ assert.equal(parseStudentIdInput("Koyuki / 小雪 #10063"), 10063);
 assert.equal(parseStudentIdInput("not a student"), 0);
 
 const empty = createEmptyPlannerState();
-assert.equal(empty.version, 6);
+assert.equal(empty.version, 7);
 assert.equal(empty.students.length, 0);
 assert.ok(empty.resources.some((resource) => resource.id === "weekly-manufacturing-stones"));
 assert.equal(empty.resources.find((resource) => resource.id === "weekly-manufacturing-stones").value_source, "default");
@@ -120,8 +120,12 @@ assert.equal(preservedPersistedLegacyMarker.incomingResources.giftBoxes["100009"
 const normalizedTwice = normalizePlannerState(legacyGrandAssaultPosting);
 assert.deepEqual(normalizedTwice.resourcePostingHistory, legacyGrandAssaultPosting.resourcePostingHistory, "posting migration must be idempotent");
 const inconsistentPeriod = normalizePlannerState({ version: 6, periodDays: 30, forecastDays: 60 });
-assert.equal(inconsistentPeriod.periodDays, 30);
-assert.equal(inconsistentPeriod.forecastDays, 30, "state normalization must keep the planning period unified");
+assert.equal(inconsistentPeriod.periodDays, 30, "legacy periodDays remains the resource-preview period");
+assert.equal(inconsistentPeriod.forecastDays, 60, "planning forecast days must not be overwritten by the resource period");
+assert.equal(inconsistentPeriod.resourceForecastDays, 30, "legacy states get an independent one-month resource preview period");
+const independentPeriods = normalizePlannerState({ version: 7, periodDays: 30, forecastDays: 90, resourceForecastDays: 30 });
+assert.equal(independentPeriods.forecastDays, 90, "planning period and resource preview period must be independent");
+assert.equal(independentPeriods.resourceForecastDays, 30, "resource preview period must remain one month");
 const migratedOldSynthesisDefault = normalizePlannerState({
   version: 6,
   resources: [{ id: "monthly-synthesis-stones", amount: 50, value_source: "default" }],
@@ -137,8 +141,8 @@ const preservedUserSynthesisValue = normalizePlannerState({
   resources: [{ id: "monthly-synthesis-stones", amount: 50, value_source: "user" }],
 });
 assert.equal(preservedUserSynthesisValue.resources.find((resource) => resource.id === "monthly-synthesis-stones").amount, 50, "a player's explicit 50/month override must remain editable and preserved");
-const zeroDayPeriod = normalizePlannerState({ version: 6, periodDays: 0, forecastDays: 0 });
-assert.equal(zeroDayPeriod.periodDays, 0, "planner state should preserve an explicit zero-day window");
+const zeroDayPeriod = normalizePlannerState({ version: 7, periodDays: 0, forecastDays: 0, resourceForecastDays: 0 });
+assert.equal(zeroDayPeriod.periodDays, 0, "resource preview state should preserve an explicit zero-day window");
 assert.equal(zeroDayPeriod.forecastDays, 0, "planner state should preserve an explicit zero-day window");
 
 const migratedGrandAssault = normalizePlannerState({
@@ -190,7 +194,7 @@ const presetFloor = setResourceAmount(enteredCustomFloor, "monthly-unlimited-ass
 assert.equal(presetFloor.resources.find((resource) => resource.id === "monthly-unlimited-assault-gift-boxes").floor_mode, null, "choosing a preset floor must leave custom mode");
 
 const normalized = normalizePlannerState({ version: 999, inventory: { "5001": 2 }, students: [{ studentId: 10001 }] });
-assert.equal(normalized.version, 6);
+assert.equal(normalized.version, 7);
 assert.equal(normalized.inventory["5001"], 2);
 assert.equal(normalized.students[0].currentLevel, 1);
 assert.equal(normalized.students[0].targetLevel, 1);

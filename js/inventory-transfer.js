@@ -1,4 +1,4 @@
-import { createInventoryState } from "./inventory-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { createInventoryState } from "./inventory-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 export const INVENTORY_TRANSFER_FORMAT = "schale-relationship-inventory";
 export const INVENTORY_TRANSFER_SCHEMA_VERSION = 1;
@@ -96,7 +96,10 @@ export function createInventoryExportPayload(state, { exportedAt = new Date().to
     schemaVersion: INVENTORY_TRANSFER_SCHEMA_VERSION,
     server: "cn",
     exportedAt: String(exportedAt),
-    periodDays: normalized.periodDays,
+    // `periodDays` remains for older imports; the explicit field prevents an
+    // inventory export from changing the planner horizon when it is loaded.
+    periodDays: normalized.resourceForecastDays,
+    resourceForecastDays: normalized.resourceForecastDays,
     inventory: cloneMap(normalized.inventory),
     giftBoxes: cloneMap(normalized.giftBoxes),
     stockResources: cloneMap(normalized.stockResources),
@@ -196,6 +199,7 @@ export function parseInventoryImport(input, { giftIds, giftBoxIds } = {}) {
     return { ok: false, reason: incomingStock.error || incomingBoxes.error || incomingPools.error || incomingExp.error };
   }
   if (payload.periodDays !== undefined && (!Number.isInteger(payload.periodDays) || payload.periodDays < 0 || payload.periodDays > 366)) return { ok: false, reason: "periodDays_must_be_between_0_and_366" };
+  if (payload.resourceForecastDays !== undefined && (!Number.isInteger(payload.resourceForecastDays) || payload.resourceForecastDays < 0 || payload.resourceForecastDays > 366)) return { ok: false, reason: "resourceForecastDays_must_be_between_0_and_366" };
   const resources = normalizeResources(payload.resources);
   if (resources.error) return { ok: false, reason: resources.error };
   const resourcePostingHistory = normalizePostingHistory(payload.resourcePostingHistory);
@@ -203,6 +207,7 @@ export function parseInventoryImport(input, { giftIds, giftBoxIds } = {}) {
 
   const state = createInventoryState({
     periodDays: payload.periodDays,
+    resourceForecastDays: payload.resourceForecastDays ?? payload.periodDays,
     inventory: inventory.value,
     giftBoxes: giftBoxes.value,
     stockResources: stockResources.value,
@@ -231,8 +236,8 @@ export function applyInventoryImport(currentState, importedState, { preserveStoc
   const imported = createInventoryState(importedState);
   return {
     ...current,
-    periodDays: imported.periodDays,
-    forecastDays: imported.periodDays,
+    periodDays: imported.resourceForecastDays,
+    resourceForecastDays: imported.resourceForecastDays,
     inventory: imported.inventory,
     giftBoxes: imported.giftBoxes,
     stockResources: preserveStockResources ? current.stockResources : imported.stockResources,

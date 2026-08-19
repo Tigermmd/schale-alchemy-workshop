@@ -19,6 +19,7 @@ const html = renderResourcesWorkspace({
   state: {
     periodDays: 30,
     forecastDays: 30,
+    resourceForecastDays: 30,
     students: [],
     giftBoxes: {},
     resources: [{ id: "weekly-manufacturing-stones", cadence: "weekly", unit: "manufacturing_stone", amount: 17 }, {
@@ -90,6 +91,7 @@ assert.doesNotMatch(html, /随机盒 100000 与紫色随机盒 100009/);
 assert.doesNotMatch(html, /resource-art-strip/);
 assert.doesNotMatch(html, /schaledb-gdd-logo\.png|kivo-logo/);
 assert.match(html, /resource-toolbar/);
+assert.match(html, /data-resource-period-days value="30"/);
 assert.doesNotMatch(html, /100000|100008|100009/);
 assert.match(html, /class="icon-frame resource-icon"/);
 assert.match(styles, /\.gift-box-inventory\s*\{/);
@@ -106,6 +108,28 @@ assert.doesNotMatch(html, /大决战礼物/);
 assert.doesNotMatch(html, /大决战.*(?:共|合计|总计).*6/);
 assert.doesNotMatch(html, /monthly-grand-assault-gift-boxes/);
 assert.doesNotMatch(html, /已确认|用户确认/);
+
+const independentResourcePreviewHtml = renderResourcesWorkspace({
+  data: { giftBoxes: [], unlimitedAssaultRewards: null },
+  state: {
+    periodDays: 60,
+    forecastDays: 90,
+    resourceForecastDays: 30,
+    students: [],
+    giftBoxes: {},
+    resources: [{
+      id: "monthly-synthesis-stones",
+      cadence: "monthly",
+      unit: "synthesis_stone_gold",
+      amount: 70,
+      value_source: "default",
+    }],
+  },
+  locale: "zh_cn",
+  evidence: { sources: [], rows: [] },
+});
+assert.match(independentResourcePreviewHtml, /data-resource-period-days value="30"/, "resource preview must not mirror the 90-day planning forecast");
+assert.doesNotMatch(independentResourcePreviewHtml, /value="90"/, "resource page must not show the planning forecast as its own period");
 
 const customFloorHtml = renderResourcesWorkspace({
   data: { giftBoxes: [], unlimitedAssaultRewards: null },

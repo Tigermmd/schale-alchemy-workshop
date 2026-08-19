@@ -1,10 +1,10 @@
-import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { boostedGiftGroups, giftValuesForFilter } from "./dashboard-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import {
   localizedName,
   localizedReactionLabel,
   localeTag,
   text as t,
-} from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+} from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 const STAGES = ["1", "2", "3"];
 

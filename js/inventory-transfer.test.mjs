@@ -53,6 +53,8 @@ assert.equal(zeroDayImport.state.periodDays, 0);
 const current = createInventoryState({
   students: [{ studentId: 10063, currentLevel: 1, targetLevel: 2 }],
   packages: [{ id: "package-draft", name: "keep me" }],
+  forecastDays: 90,
+  resourceForecastDays: 30,
   inventory: { "5100": 8 },
 });
 const applied = applyInventoryImport(current, roundTrip.state);
@@ -60,6 +62,8 @@ assert.deepEqual(applied.students, current.students);
 assert.deepEqual(applied.packages, current.packages);
 assert.equal(applied.inventory["5000"], 3);
 assert.equal(applied.inventory["5100"], undefined);
+assert.equal(applied.forecastDays, 90, "inventory import must not overwrite the planning horizon");
+assert.equal(applied.resourceForecastDays, 30, "inventory import keeps the resource preview horizon separate");
 
 const preservedArona = applyInventoryImport(current, roundTrip.state, { preserveStockResources: true, preservePackageInventoryPostings: true });
 assert.equal(preservedArona.stockResources.manufacturing_stone, 0);

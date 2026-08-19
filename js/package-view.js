@@ -1,8 +1,8 @@
-import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
-import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v109";
+import { calculatePackageEfficiency } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { resolveStudentFavoriteGiftId } from "./gift-only-planner.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { formatExp, formatInteger, formatQuantity } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { safeExternalUrl } from "./url-safety.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
 function escapeHtml(value) {
   return String(value ?? "")
