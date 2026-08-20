@@ -4,6 +4,18 @@
 
 ![夏莱炼金工房主视觉](assets/promo-hero.png)
 
+## 手帐滑动图（4:5）
+
+![夏莱炼金工房封面](scrapbook/cover.png)
+
+![好感规划](scrapbook/planner.png)
+
+![库存管理](scrapbook/inventory.png)
+
+![Agent 助手](scrapbook/agent.png)
+
+可编辑源：[scrapbook/preview.html](scrapbook/preview.html)。图中页面使用项目真实截图，学生头像、礼物图标和界面素材来自仓库缓存；底图为本项目宣传用原创装饰素材。
+
 推荐配文：
 
 > 夏莱炼金工房

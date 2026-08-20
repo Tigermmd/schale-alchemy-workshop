@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>夏莱炼金工房｜手帐宣传图预览</title>
+  <style>
+    :root {
+      --ink: #173253;
+      --muted: #4d6c83;
+      --blue: #1269b3;
+      --sky: #dff4ff;
+      --paper: #fffdf8;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: #d9eaf5; }
+    body {
+      margin: 0;
+      padding: 32px;
+      color: var(--ink);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", system-ui, sans-serif;
+    }
+
+    .intro {
+      width: min(1080px, 100%);
+      margin: 0 auto 24px;
+      padding: 16px 20px;
+      border-left: 4px solid #267fc4;
+      background: rgba(255,255,255,.76);
+      box-shadow: 0 10px 24px rgba(40, 83, 111, .1);
+    }
+    .intro strong { display: block; margin-bottom: 4px; font-size: 18px; }
+    .intro span { color: var(--muted); font-size: 13px; }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(320px, 540px));
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .sheet {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      isolation: isolate;
+      background: #f7fbff;
+      box-shadow: 0 18px 40px rgba(30, 75, 105, .22);
+    }
+    .sheet::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 14px;
+      border: 1px solid rgba(28, 102, 160, .18);
+      pointer-events: none;
+    }
+    .backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    .paper {
+      position: absolute;
+      background: rgba(255, 253, 248, .95);
+      border: 1px solid rgba(29, 86, 132, .16);
+      box-shadow: 0 10px 18px rgba(39, 77, 105, .14);
+    }
+    .tape {
+      position: absolute;
+      width: 92px;
+      height: 24px;
+      background: rgba(57, 143, 205, .72);
+      box-shadow: 0 2px 5px rgba(35, 83, 116, .14);
+      z-index: 5;
+    }
+    .tape::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .22;
+      background: repeating-linear-gradient(90deg, transparent 0 8px, #fff 9px 10px);
+    }
+    .sticker {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      color: #fff;
+      background: #1c78bf;
+      border: 5px solid rgba(255,255,255,.84);
+      box-shadow: 0 4px 9px rgba(27, 78, 119, .22);
+      font-size: 25px;
+      font-weight: 800;
+      transform: rotate(-9deg);
+      z-index: 5;
+    }
+    .sticker.gold { color: #9a6315; background: #ffd78b; }
+    .sticker.coral { background: #f4897d; }
+
+    .eyebrow {
+      margin: 0;
+      color: #267eb9;
+      font-size: clamp(10px, 1.2vw, 14px);
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+    h1, h2, p { margin: 0; }
+    h1 {
+      color: var(--ink);
+      font-size: clamp(32px, 5vw, 62px);
+      line-height: 1.04;
+      letter-spacing: -.06em;
+    }
+    h2 {
+      color: var(--ink);
+      font-size: clamp(26px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -.04em;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: clamp(13px, 1.8vw, 20px);
+      line-height: 1.5;
+      font-weight: 600;
+    }
+    .small {
+      color: #5c7890;
+      font-size: clamp(10px, 1.3vw, 14px);
+      line-height: 1.45;
+    }
+
+    .cover .copy {
+      position: absolute;
+      top: 86px;
+      left: 72px;
+      width: 420px;
+    }
+    .cover h1 { margin-top: 15px; }
+    .cover .sub { margin-top: 20px; width: 310px; }
+    .cover .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+      width: 320px;
+    }
+    .chip {
+      padding: 8px 12px;
+      color: #fff;
+      background: #173d67;
+      font-size: clamp(10px, 1.3vw, 14px);
+      font-weight: 700;
+      box-shadow: 3px 3px 0 rgba(25, 86, 137, .18);
+    }
+    .cover .note {
+      position: absolute;
+      left: 70px;
+      bottom: 82px;
+      width: 390px;
+      padding: 14px 17px;
+      transform: rotate(-2deg);
+    }
+    .cover .note strong { display: block; font-size: clamp(13px, 1.8vw, 20px); }
+    .cover .note .small { margin-top: 4px; }
+    .cover .tape { top: 84px; left: 280px; transform: rotate(-5deg); }
+    .cover .sticker { top: 50px; right: 48px; }
+
+    .feature .feature-copy {
+      position: absolute;
+      left: 66px;
+      right: 66px;
+      bottom: 62px;
+      padding: 20px 22px 18px;
+    }
+    .feature .feature-copy h2 { margin-top: 7px; }
+    .feature .feature-copy .sub { margin-top: 10px; max-width: 450px; }
+    .feature .feature-copy .small { margin-top: 10px; }
+    .feature .tape { top: 106px; left: 170px; transform: rotate(4deg); }
+    .feature .sticker { top: 34px; right: 42px; }
+    .feature .screen {
+      position: absolute;
+      top: 104px;
+      left: 72px;
+      width: 67%;
+      padding: 8px;
+      background: rgba(255,255,255,.93);
+      border: 1px solid rgba(19, 71, 113, .25);
+      box-shadow: 8px 10px 0 rgba(39, 111, 165, .13), 0 12px 22px rgba(34, 80, 110, .18);
+      transform: rotate(-1.5deg);
+    }
+    .feature .screen img { display: block; width: 100%; height: auto; }
+    .feature .portrait {
+      position: absolute;
+      width: 92px;
+      height: 92px;
+      object-fit: cover;
+      border: 6px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 6px 12px rgba(26, 77, 116, .2);
+      right: 72px;
+      top: 250px;
+      transform: rotate(5deg);
+    }
+    .feature .gift {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      padding: 4px;
+      background: rgba(255,255,255,.88);
+      border: 3px solid #fff;
+      box-shadow: 0 4px 10px rgba(25, 78, 117, .18);
+    }
+    .feature .g1 { right: 72px; top: 355px; transform: rotate(-8deg); }
+    .feature .g2 { right: 130px; top: 408px; transform: rotate(7deg); }
+    .planner .feature-copy { background: rgba(255, 253, 248, .92); }
+    .inventory .feature-copy { background: rgba(228, 245, 255, .93); }
+    .agent .feature-copy { background: rgba(255, 253, 248, .94); }
+
+    .metric-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
+    .metric {
+      padding: 8px 11px;
+      background: #e1f4ff;
+      border-left: 4px solid #2b8cc4;
+      color: #194367;
+      font-size: clamp(10px, 1.3vw, 14px);
+      font-weight: 800;
+    }
+    .inventory .metric { background: #fff; border-left-color: #e9a22b; }
+    .agent .metric { background: #e8f7ff; border-left-color: #5e9ad6; }
+
+    @media (max-width: 780px) {
+      body { padding: 16px; }
+      .gallery { grid-template-columns: minmax(260px, 540px); gap: 18px; }
+    }
+    @media print {
+      html { background: #fff; }
+      body { padding: 0; }
+      .intro { display: none; }
+      .gallery { display: block; }
+      .sheet { break-after: page; width: 1080px; height: 1350px; box-shadow: none; }
+    }
+    .exporting { padding: 0; }
+    .exporting .gallery { display: block; }
+    .exporting .sheet { width: 1080px; height: 1350px; box-shadow: none; }
+  </style>
+</head>
+<body>
+  <div class="intro">
+    <strong>夏莱炼金工房｜手帐宣传图预览</strong>
+    <span>四张画布均为 4:5；文字、截图和游戏素材由 HTML 叠加，底图只负责氛围与装饰。浏览器打印或截图时请只截取单张画布。</span>
+  </div>
+
+  <main class="gallery">
+    <section class="sheet cover" id="cover">
+      <img class="backdrop" src="cover-bg.png" alt="">
+      <span class="tape"></span>
+      <span class="sticker gold">✦</span>
+      <div class="copy">
+        <p class="eyebrow">BLUE ARCHIVE · GIFT PLANNER</p>
+        <h1>夏莱炼金工房</h1>
+        <p class="sub">给国服老师的礼物与好感规划页。把库存、学生和目标，整理到同一张桌面上。</p>
+        <div class="chips">
+          <span class="chip">选学生</span>
+          <span class="chip">算缺口</span>
+          <span class="chip">看天数</span>
+          <span class="chip">做决定</span>
+        </div>
+      </div>
+      <div class="paper note">
+        <strong>本地运行 · JSON 导入 · 三语界面</strong>
+        <p class="small">非官方玩家工具 · 素材来源与使用边界见 README</p>
+      </div>
+    </section>
+
+    <section class="sheet feature planner" id="planner">
+      <img class="backdrop" src="planner-bg.png" alt="">
+      <span class="tape"></span>
+      <span class="sticker">♡</span>
+      <div class="paper screen">
+        <img src="screens/relationship.png" alt="学生关系与制造页面截图">
+      </div>
+      <img class="portrait" src="student-10122.webp" alt="学生头像">
+      <img class="gift g1" src="gift-5000.webp" alt="礼物图标">
+      <img class="gift g2" src="gift-5004.webp" alt="礼物图标">
+      <div class="paper feature-copy">
+        <p class="eyebrow">01 / PLAN</p>
+        <h2>好感规划</h2>
+        <p class="sub">选学生，设目标；页面直接回答两件事：还差多少，以及按当前资源预计多少天。</p>
+        <div class="metric-row">
+          <span class="metric">好感缺口</span>
+          <span class="metric">预计达成天数</span>
+          <span class="metric">礼物分配</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet feature inventory" id="inventory">
+      <img class="backdrop" src="inventory-bg.png" alt="">
+      <span class="tape"></span>
+      <span class="sticker coral">✦</span>
+      <div class="paper screen">
+        <img src="screens/inventory.png" alt="库存管理页面截图">
+      </div>
+      <img class="gift g1" src="gift-5013.webp" alt="礼物图标">
+      <img class="gift g2" src="gift-5100.webp" alt="礼物图标">
+      <div class="paper feature-copy">
+        <p class="eyebrow">02 / INVENTORY</p>
+        <h2>库存管理</h2>
+        <p class="sub">具体礼物、金色礼物盒、紫色礼物盒和资源分开记；导入库存后，不用从头录。</p>
+        <div class="metric-row">
+          <span class="metric">当前持有</span>
+          <span class="metric">预留与剩余</span>
+          <span class="metric">JSON 导入 / 导出</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="sheet feature agent" id="agent">
+      <img class="backdrop" src="agent-bg.png" alt="">
+      <span class="tape"></span>
+      <span class="sticker gold">?</span>
+      <div class="paper screen">
+        <img src="screens/agent.png" alt="Agent 助手页面截图">
+      </div>
+      <div class="paper feature-copy">
+        <p class="eyebrow">03 / ASSISTANT</p>
+        <h2>Agent 助手</h2>
+        <p class="sub">把目标和库存交给对话框。它可以解释计算、提出规划；每项变更都要由你确认。</p>
+        <div class="metric-row">
+          <span class="metric">先回答</span>
+          <span class="metric">再确认</span>
+          <span class="metric">不直接改库存</span>
+        </div>
+        <p class="small">只在本机连接你填写的接口；API Key 不写入网页存储。</p>
+      </div>
+    </section>
+  </main>
+  <script src="export.js"></script>
+</body>
+</html>
