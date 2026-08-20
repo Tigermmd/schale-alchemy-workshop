@@ -64,7 +64,7 @@
 }
 
 .agent-chat-window .agent-message-user {
-  align-self: end;
+  justify-self: end;
   justify-content: flex-end;
 }
 
