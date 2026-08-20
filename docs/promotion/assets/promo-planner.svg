@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1254" height="1254" viewBox="0 0 1254 1254">
+  <image href="promo-planner-bg.png" width="1254" height="1254" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="54" y="54" width="1146" height="1146" rx="42" fill="#102d4c" fill-opacity=".78"/>
+  <text x="112" y="160" fill="#fff" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="58" font-weight="700">礼物规划</text>
+  <text x="116" y="220" fill="#bdeeff" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="28">目标、库存、免费资源，一张卡看清</text>
+  <g transform="translate(112 890)">
+    <rect width="510" height="92" rx="22" fill="#fff" fill-opacity=".94"/>
+    <text x="32" y="40" fill="#173253" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="26" font-weight="700">好感缺口</text>
+    <text x="32" y="73" fill="#317a9e" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="21">还差多少，直接显示</text>
+  </g>
+  <g transform="translate(652 890)">
+    <rect width="490" height="92" rx="22" fill="#fff" fill-opacity=".94"/>
+    <text x="32" y="40" fill="#173253" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="26" font-weight="700">预计天数</text>
+    <text x="32" y="73" fill="#317a9e" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="21">按平均日收益估算</text>
+  </g>
+</svg>
