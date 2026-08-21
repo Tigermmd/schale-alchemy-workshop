@@ -10,7 +10,7 @@
 - `crafting_expected_relationship.json`：完整三阶段制造中，每位学生的节点期望、礼物产出和每枚制造启动石的期望好感。
 - `paid_packages_cn.json`：国服礼包目录、价格、限购、内容、适用学生和来源快照。
 - `gift_boxes_cn.json`：礼物盒类型、礼物池、随机规则和物品 ID。
-- `resource_evidence_cn.json`：国服周期资源的来源、口径和可配置值。
+- `resource_evidence_cn.json`：国服周期资源的来源、计算方式和可配置值。
 - `unlimited_assault_rewards_cn.json`：制约解除作战 1–124 层奖励快照及礼物盒、金色合成石汇总。
 - `schedule_rank_rewards_cn.json`：日程地区 Rank、每日券数和好感奖励模型。
 - `jp_release_timeline.json`：日服学生上线顺序，用于推算国服学生进度。

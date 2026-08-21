@@ -36,7 +36,7 @@ assert.doesNotMatch(packageView, /localizedName\(student, \"student\", locale, l
 assert.doesNotMatch(resourceView, /`#\$\{plan\.studentId\}`/, "资源投影不应把内部学生 ID 作为可见兜底文本");
 assert.doesNotMatch(studentRender, /<p>#\$\{escapeHtml\(gift\.id\)<\/p>/, "礼物图鉴不应把内部礼物 ID 当作可见信息");
 assert.doesNotMatch(i18n, /inventorySearchPlaceholder: "名称或 ID"|inventorySearchPlaceholder: "Name or ID"|inventorySearchPlaceholder: "名前またはID"/, "库存搜索入口不应把内部 ID 作为主要文案");
-assert.doesNotMatch(studentRender, /class="profile-note"/, "个人信息首屏不应放计算口径长说明");
+assert.doesNotMatch(studentRender, /class="profile-note"/, "个人信息首屏不应放计算说明长文");
 assert.doesNotMatch(agentView, /class="agent-step-title"/, "Agent 设置不应重复渲染第 1 步标题");
 assert.doesNotMatch(agentView, /agent-setup-steps|agent-settings-step|agentSetupStep/, "Agent 不应保留三步引导和旧设置容器");
 assert.doesNotMatch(agentCss, /agent-setup-steps|agent-settings-step/, "Agent CSS 不应保留已删除的三步引导样式");

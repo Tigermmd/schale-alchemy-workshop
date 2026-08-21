@@ -4,7 +4,7 @@
     "server": "cn",
     "as_of": "2026-08-10",
     "currency": "CNY",
-    "note": "国服礼包目录以官方公告为基础，并采用礼物养成规划口径；礼物盒内部期望使用 gift_boxes_cn.json 的等概率模型。",
+    "note": "国服礼包目录以官方公告为基础，并采用礼物养成规划规则；礼物盒内部期望使用 gift_boxes_cn.json 的等概率模型。",
     "normalization_note_zh_cn": "用户所说的‘金制造石’按当前数据中的物品 ID 82 归一为‘金色合成石’；如果这里实际指另一种道具，请补充游戏内物品 ID。",
     "weekly_paid_packages": "none_confirmed",
     "student_package_rule": {
@@ -17,7 +17,7 @@
       "monthly_gifts_78": "78 元，每月限购 1 次：10 个随机金礼物 + 5 个金礼物自选 + 1 个随机紫礼物。",
       "limited_selection_gifts_98": "98 元，限购 3 次：5 个金礼物自选 + 5 个美丽花束。",
       "limited_student_favorites_98": "98 元，限购 3 次：指定学生最喜欢紫礼物 6 个 + 指定学生最喜欢金礼物 10 个 + 2 个美丽花束。",
-      "limited_manufacturing_156": "156 元，当前规划口径：20 个拱心石 + 25 个金色合成石。",
+      "limited_manufacturing_156": "156 元，当前规划规则：20 个拱心石 + 25 个金色合成石。",
       "weekly_paid_packages": "国服当前没有需要纳入规划的每周制造、礼物或好感礼包。",
       "limited_or_fes_student_package_rule": "每次上线限定或 FES 学生时，按该学生预留一份专属礼物礼包，用于国服千里眼规划。"
     }
@@ -308,7 +308,7 @@
         { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
       ],
       "source": "https://bluearchive-cn.com/news/1803",
-      "note": "规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+      "note": "规划规则：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
     },
     {
       "id": "cn-third-anniversary-manufacturing-156",
@@ -328,7 +328,7 @@
         { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
       ],
       "source": "https://bluearchive-cn.com/news/1872",
-      "note": "规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+      "note": "规划规则：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
     },
     {
       "id": "cn-2024-autumn-lucky-bag-156",
@@ -506,7 +506,7 @@
         { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
       ],
       "source": "https://bluearchive-cn.com/news/1500",
-      "note": "规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+      "note": "规划规则：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
     },
     {
       "id": "cn-alive-commemorative-gifts-98",
@@ -755,7 +755,7 @@
         { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
       ],
       "source": "https://bluearchive-cn.com/news/1672",
-      "note": "规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+      "note": "规划规则：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
     },
     {
       "id": "cn-serenade-manufacturing-156",
@@ -774,7 +774,7 @@
         { "kind": "item", "item_id": 82, "name_zh_cn": "金色合成石", "name_en": "Gold Synthesis Stone", "quantity": 25 }
       ],
       "source": "https://bluearchive-cn.com/news/1735",
-      "note": "规划口径：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
+      "note": "规划规则：20 个拱心石 + 25 个金色合成石；礼包限购 2 次。"
     }
   ]
 }
