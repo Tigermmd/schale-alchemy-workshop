@@ -10,5 +10,7 @@ assert.match(css, /\.agent-chat-window \.agent-message-user\s*\{[\s\S]*justify-s
 assert.match(css, /\.agent-message-body\s*\{[\s\S]*overflow-wrap:\s*anywhere;/, "long model replies should wrap inside the bubble");
 assert.match(css, /\.agent-chat-window\s*\{[\s\S]*background:\s*rgba\(255, 255, 255, \.78\)/, "chat window should use a translucent surface");
 assert.match(css, /\.agent-chat-window\s*\{[\s\S]*backdrop-filter:\s*blur\(/, "translucent chat window should soften the page behind it");
+assert.match(css, /\.agent-chat-window \.agent-chat\s*\{[\s\S]*assets\/ui\/stages\/mission_5_0\.webp/, "chat conversation should use a game scene as its visual background");
+assert.match(css, /\.agent-chat-window \.agent-chat\s*\{[\s\S]*rgba\(251, 253, 254, \.35\)/, "game scene should fade into a readable conversation surface");
 
 console.log("agent chat layout tests passed");
