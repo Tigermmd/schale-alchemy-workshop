@@ -34,6 +34,8 @@
       font-size: 13px;
     }
     .intro strong { display: block; color: var(--ink); font-size: 17px; margin-bottom: 3px; }
+    .intro a, .cover-foot a { color: var(--blue); font-weight: 800; text-decoration: none; }
+    .intro a:hover, .intro a:focus-visible, .cover-foot a:hover, .cover-foot a:focus-visible { text-decoration: underline; }
     .gallery { display: grid; grid-template-columns: repeat(2, minmax(320px, 540px)); justify-content: center; gap: 28px; }
     .sheet-frame { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; }
     .sheet {
@@ -243,7 +245,7 @@
   </style>
 </head>
 <body>
-  <div class="intro"><strong>夏莱炼金工房｜宣传图预览</strong>五张画布均为 4:5；真实页面截图负责展示功能，文字负责讲清楚“这是什么、怎么用、能得到什么”。</div>
+  <div class="intro"><strong>夏莱炼金工房｜宣传图预览</strong>五张画布均为 4:5；真实页面截图负责展示功能，文字负责讲清楚“这是什么、怎么用、能得到什么”。 <a href="https://github.com/Tigermmd/schale-alchemy-workshop" target="_blank" rel="noreferrer">查看 GitHub 仓库</a></div>
   <main class="gallery">
     <div class="sheet-frame"><section class="sheet cover" id="cover">
       <div class="topbar"><strong>夏莱炼金工房</strong><span>BLUE ARCHIVE / PLAYER TOOL</span></div>
@@ -251,7 +253,7 @@
       <div class="cover-intro"><p class="eyebrow">给老师的礼物养成工具</p><h1>把好感规划<br>变成清单</h1><p class="lead">导入库存，选定学生，直接看到好感缺口、礼物分配和预计天数。</p><div class="cover-label"><span class="label">国服口径</span><span class="label">本地运行</span><span class="label">中 / EN / 日</span></div></div>
       <div class="cover-shot"><img src="screens/relationship.png" alt="学生关系与制造页面截图"></div>
       <div class="paper cover-guide"><p class="eyebrow">从这里开始</p><p class="cover-guide-title">三步看懂“还差多少”</p><div class="cover-steps"><div class="cover-step"><b>01</b><strong>导入库存</strong><span>兼容 arona.icu JSON，也可手动编辑。</span></div><div class="cover-step"><b>02</b><strong>选择学生</strong><span>查看喜欢礼物和目标好感。</span></div><div class="cover-step"><b>03</b><strong>得到结果</strong><span>缺口、天数、资源来源一眼看清。</span></div></div></div>
-      <p class="cover-foot">非官方玩家工具 · 数据与素材来源见 README</p>
+      <p class="cover-foot">非官方玩家工具 · 数据与素材来源见 README · <a href="https://github.com/Tigermmd/schale-alchemy-workshop" target="_blank" rel="noreferrer">GitHub / Tigermmd/schale-alchemy-workshop</a></p>
     </section></div>
 
     <div class="sheet-frame"><section class="sheet feature codex" id="codex">
