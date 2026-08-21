@@ -20,9 +20,6 @@
 
 这是一个非官方玩家工具，与 NEXON、《蔚蓝档案》运营方、SchaleDB、arona.icu 和 Kivo Wiki 均无隶属关系。
 
-## 开发署名
-
-本项目全部由 GPT-5.6 Luna 开发，项目署名为 Codex（GPT-5.6 Luna）。
 
 ## 功能
 
