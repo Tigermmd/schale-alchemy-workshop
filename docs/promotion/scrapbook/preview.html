@@ -35,15 +35,20 @@
     }
     .intro strong { display: block; color: var(--ink); font-size: 17px; margin-bottom: 3px; }
     .gallery { display: grid; grid-template-columns: repeat(2, minmax(320px, 540px)); justify-content: center; gap: 28px; }
+    .sheet-frame { position: relative; width: 100%; aspect-ratio: 4 / 5; overflow: hidden; }
     .sheet {
       position: relative;
       width: 100%;
-      aspect-ratio: 4 / 5;
+      width: 1080px;
+      height: 1350px;
+      aspect-ratio: auto;
       overflow: hidden;
       background: var(--paper);
       border: 1px solid #b8d2e3;
       box-shadow: 0 16px 34px rgba(30, 70, 100, .2);
       isolation: isolate;
+      transform: scale(var(--sheet-scale, 1));
+      transform-origin: top left;
     }
     .sheet::before {
       content: "";
@@ -221,7 +226,8 @@
     .footer { position: absolute; left: 62px; bottom: 24px; color: var(--muted); font-size: 10px; }
     .exporting { padding: 0; }
     .exporting .gallery { display: block; }
-    .exporting .sheet { width: 1080px; height: 1350px; box-shadow: none; }
+    .exporting .sheet-frame { width: 1080px; height: 1350px; aspect-ratio: auto; }
+    .exporting .sheet { width: 1080px; height: 1350px; box-shadow: none; transform: none; }
     @media (max-width: 780px) { body { padding: 16px; } .gallery { grid-template-columns: minmax(280px, 540px); gap: 18px; } }
     @media print { html { background: #fff; } body { padding: 0; } .intro { display: none; } .gallery { display: block; } .sheet { break-after: page; width: 1080px; height: 1350px; box-shadow: none; } }
   </style>
@@ -229,46 +235,46 @@
 <body>
   <div class="intro"><strong>夏莱炼金工房｜宣传图预览</strong>五张画布均为 4:5；真实页面截图负责展示功能，文字负责讲清楚“这是什么、怎么用、能得到什么”。</div>
   <main class="gallery">
-    <section class="sheet cover" id="cover">
+    <div class="sheet-frame"><section class="sheet cover" id="cover">
       <div class="topbar"><strong>夏莱炼金工房</strong><span>BLUE ARCHIVE / PLAYER TOOL</span></div>
       <div class="page-tag">INTRO / 01</div><span class="tape"></span><span class="sticker">✦</span>
       <div class="cover-intro"><p class="eyebrow">给老师的礼物养成工具</p><h1>把好感规划<br>变成清单</h1><p class="lead">导入库存，选定学生，直接看到好感缺口、礼物分配和预计天数。</p><div class="cover-label"><span class="label">国服口径</span><span class="label">本地运行</span><span class="label">中 / EN / 日</span></div></div>
       <div class="cover-shot"><img src="screens/relationship.png" alt="学生关系与制造页面截图"></div>
       <div class="paper cover-guide"><p class="eyebrow">从这里开始</p><p class="cover-guide-title">三步看懂“还差多少”</p><div class="cover-steps"><div class="cover-step"><b>01</b><strong>导入库存</strong><span>兼容 arona.icu JSON，也可手动编辑。</span></div><div class="cover-step"><b>02</b><strong>选择学生</strong><span>查看喜欢礼物和目标好感。</span></div><div class="cover-step"><b>03</b><strong>得到结果</strong><span>缺口、天数、资源来源一眼看清。</span></div></div></div>
       <p class="cover-foot">非官方玩家工具 · 数据与素材来源见 README</p>
-    </section>
+    </section></div>
 
-    <section class="sheet feature codex" id="codex">
+    <div class="sheet-frame"><section class="sheet feature codex" id="codex">
       <div class="topbar"><strong>夏莱炼金工房</strong><span>CODEX / BUILD LOG</span></div><div class="page-tag">BUILD / 02</div><span class="tape"></span><span class="sticker">⌁</span>
       <div class="feature-head"><p class="eyebrow">开发记录</p><h2>从第一行到最后一张图，都是 Codex</h2><p class="lead">数据整理、计算逻辑、界面、测试和宣传图，全部在 Codex 中完成。</p></div>
       <div class="codex-board"><div class="codex-terminal"><div class="codex-terminal-bar"><i></i><span>schale-alchemy-workshop / build</span></div><div class="codex-terminal-body"><div class="codex-terminal-command">codex ship --project schale-alchemy-workshop</div><div class="codex-terminal-line"><b>RESEARCH</b><span>整理国服口径与礼物数据</span></div><div class="codex-terminal-line"><b>BUILD</b><span>实现规划、库存与 Agent 界面</span></div><div class="codex-terminal-line"><b>TEST</b><span>运行逻辑测试与浏览器验收</span></div><div class="codex-terminal-line"><b>DESIGN</b><span>制作五张宣传画布</span></div><div class="codex-terminal-line"><b>STATUS</b><span>ready to share <span class="codex-terminal-cursor" aria-hidden="true"></span></span></div></div></div><div class="codex-proof"><span class="codex-proof-mark">0</span><span class="codex-proof-label">人工代码</span><strong>全 Codex 开发</strong><small>代码、测试、界面、数据整理与宣传图，均由 Codex 完成。</small></div></div>
       <div class="codex-phases"><div class="codex-phase"><b>01 / RESEARCH</b><strong>调研</strong><span>数据与口径</span></div><div class="codex-phase"><b>02 / BUILD</b><strong>构建</strong><span>功能与界面</span></div><div class="codex-phase"><b>03 / TEST</b><strong>验证</strong><span>测试与回归</span></div><div class="codex-phase"><b>04 / SHIP</b><strong>交付</strong><span>图像与发布</span></div></div>
       <div class="paper feature-note"><p class="eyebrow">BUILD LOG</p><p class="lead">从数据整理到宣传图，开发全程由 Codex 完成。</p><p class="fine">打开项目即可看到代码、测试与本地运行入口。</p></div><p class="footer">CODEX-ONLY BUILD · 五张宣传画布</p>
-    </section>
+    </section></div>
 
-    <section class="sheet feature planner" id="planner">
+    <div class="sheet-frame"><section class="sheet feature planner" id="planner">
       <div class="topbar"><strong>夏莱炼金工房</strong><span>RELATIONSHIP PLANNER</span></div><div class="page-tag">FEATURE / 03</div><span class="tape"></span><span class="sticker">♡</span>
       <div class="feature-head"><p class="eyebrow">好感规划</p><h2>先看结论，再看明细</h2><p class="lead">目标、库存、免费资源统一计算；页面先告诉你缺口和天数。</p></div>
       <div class="screen"><img src="screens/relationship.png" alt="学生关系与制造页面截图"></div><img class="portrait" src="student-10122.webp" alt="学生头像"><img class="gift g1" src="gift-5000.webp" alt="礼物图标"><img class="gift g2" src="gift-5004.webp" alt="礼物图标">
       <div class="info-strip"><div class="info-card"><strong>好感缺口</strong><span>距离目标还差多少</span></div><div class="info-card"><strong>预计达成天数</strong><span>按免费资源日均收益估算</span></div><div class="info-card"><strong>礼物分配</strong><span>优先使用适合当前学生的礼物</span></div></div>
       <div class="paper feature-note"><p class="eyebrow">你会看到什么</p><p class="lead">当前库存贡献 / 周期免费资源 / 具体礼物分配</p><p class="fine">按目标学生的礼物偏好，直接查看缺口与进度。</p></div><p class="footer">真实页面截图 · 好感与制造数据按项目当前快照计算</p>
-    </section>
+    </section></div>
 
-    <section class="sheet feature inventory" id="inventory">
+    <div class="sheet-frame"><section class="sheet feature inventory" id="inventory">
       <div class="topbar"><strong>夏莱炼金工房</strong><span>INVENTORY / LEDGER</span></div><div class="page-tag">FEATURE / 04</div><span class="tape"></span><span class="sticker">✦</span>
       <div class="feature-head"><p class="eyebrow">库存管理</p><h2>先记账，再规划</h2><p class="lead">具体礼物、礼物盒和制造资源分开记录，规划预留也单独显示。</p></div>
       <div class="screen"><img src="screens/inventory.png" alt="库存管理页面截图"></div>
       <div class="info-strip"><div class="info-card"><img src="gift-5000.webp" alt=""><strong>具体礼物</strong><span>52 种礼物<br>数量可编辑</span></div><div class="info-card"><img src="gift-5004.webp" alt=""><strong>金色礼物盒</strong><span>自选盒<br>保留期望值</span></div><div class="info-card"><img src="gift-5013.webp" alt=""><strong>紫色礼物盒</strong><span>随机盒<br>按颜色池计算</span></div><div class="info-card"><img src="gift-5100.webp" alt=""><strong>制造资源</strong><span>启动石、合成石<br>单独记账</span></div></div>
       <div class="paper feature-note"><p class="eyebrow">账本口径</p><p class="lead">具体礼物、金色自选盒、紫色随机盒，按各自规则计算期望。</p><p class="fine">支持 arona.icu 库存 JSON 导入 / 导出。</p></div><p class="footer">当前持有 · 周期计入 · 已预留 · 规划后剩余</p>
-    </section>
+    </section></div>
 
-    <section class="sheet feature agent" id="agent">
+    <div class="sheet-frame"><section class="sheet feature agent" id="agent">
       <div class="topbar"><strong>夏莱炼金工房</strong><span>AGENT / CONVERSATION</span></div><div class="page-tag">FEATURE / 05</div><span class="tape"></span><span class="sticker">?</span>
       <div class="feature-head"><p class="eyebrow">Arona 对话入口</p><h2>打开就是一个聊天窗</h2><p class="lead">先问问题；连接设置放在二级面板，未配置时也会告诉你下一步。</p></div>
       <div class="screen"><img src="screens/agent.png" alt="Agent 助手页面截图"></div>
       <div class="info-strip"><div class="info-card"><strong>先问问题</strong><div class="bubble user">这位学生还差多少好感？</div></div><div class="info-card"><strong>设置放后面</strong><div class="bubble answer">聊天窗保留在首屏，连接设置按需展开。</div></div><div class="info-card"><strong>确认后应用</strong><div class="bubble confirm">建议先展示，应用需确认。</div></div></div>
       <div class="paper feature-note"><p class="eyebrow">ARONA CHAT</p><p class="lead">对话负责解释和整理方案，规划变更由你确认后应用。</p><p class="fine">API Key 仅在本机 Harness 进程内使用。</p></div><p class="footer">聊天首屏 · 连接设置二级展开 · 用户确认后应用</p>
-    </section>
+    </section></div>
   </main>
   <script src="export.js"></script>
 </body>
