@@ -1,5 +1,21 @@
 # 礼物工坊
 
+## 六页宣传图
+
+[![01 开场](docs/promotion/scrapbook/opening.png)](docs/promotion/scrapbook/opening.png)
+
+[![02 功能介绍](docs/promotion/scrapbook/cover.png)](docs/promotion/scrapbook/cover.png)
+
+[![03 开发记录](docs/promotion/scrapbook/codex.png)](docs/promotion/scrapbook/codex.png)
+
+[![04 养成规划](docs/promotion/scrapbook/planner.png)](docs/promotion/scrapbook/planner.png)
+
+[![05 库存管理](docs/promotion/scrapbook/inventory.png)](docs/promotion/scrapbook/inventory.png)
+
+[![06 Agent 助手](docs/promotion/scrapbook/agent.png)](docs/promotion/scrapbook/agent.png)
+
+## 项目简介
+
 面向《蔚蓝档案》玩家的国服礼物与好感规划工具。它运行在本机浏览器中，库存和规划数据保存在浏览器本地。
 
 项目提供中文、English、日本語三种界面。学生、礼物、制造和好感相关数据，以及部分缓存图片素材，主要参考 [SchaleDB](https://schaledb.com/) 的公开数据；库存 JSON 导入/导出、养成规划和资源管理等交互参考 [arona.icu](https://arona.icu/)；国服进度与周期资源则结合 [Kivo Wiki](https://kivo.wiki/)、国服官网公告和玩家资料整理。
@@ -118,25 +134,6 @@ SCHALE_HARNESS_PORT=8766 python3 harness_server.py
 库存、规划、语言和部分页面设置保存在浏览器本地。项目采用本地运行方式，个人库存留在浏览器本地。启用 Agent 后，发送给模型服务的数据范围见上方 Agent 说明。
 
 使用 Agent 时，API Key 仅进入本机 Harness 进程内存。分享项目或提交代码前，请检查仓库内容，确保个人库存 JSON、日志、截图和其他凭据保持在项目外。
-
-## 六页宣传图
-
-下面六张图按实际发布顺序展示项目：开场、功能介绍、开发记录、养成规划、库存管理和 Agent 助手。点击图片可查看原图。
-
-<table>
-  <tr>
-    <td align="center"><a href="docs/promotion/scrapbook/opening.png"><img src="docs/promotion/scrapbook/opening.png" alt="01 开场" width="260"></a><br><sub>01 · 开场</sub></td>
-    <td align="center"><a href="docs/promotion/scrapbook/cover.png"><img src="docs/promotion/scrapbook/cover.png" alt="02 功能介绍" width="260"></a><br><sub>02 · 功能介绍</sub></td>
-    <td align="center"><a href="docs/promotion/scrapbook/codex.png"><img src="docs/promotion/scrapbook/codex.png" alt="03 开发记录" width="260"></a><br><sub>03 · 开发记录</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="docs/promotion/scrapbook/planner.png"><img src="docs/promotion/scrapbook/planner.png" alt="04 养成规划" width="260"></a><br><sub>04 · 养成规划</sub></td>
-    <td align="center"><a href="docs/promotion/scrapbook/inventory.png"><img src="docs/promotion/scrapbook/inventory.png" alt="05 库存管理" width="260"></a><br><sub>05 · 库存管理</sub></td>
-    <td align="center"><a href="docs/promotion/scrapbook/agent.png"><img src="docs/promotion/scrapbook/agent.png" alt="06 Agent 助手" width="260"></a><br><sub>06 · Agent 助手</sub></td>
-  </tr>
-</table>
-
-完整预览和发布文案见 [`docs/promotion/launch-kit.md`](docs/promotion/launch-kit.md)。
 
 ## 开发与测试
 
