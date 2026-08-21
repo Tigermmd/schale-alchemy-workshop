@@ -8,5 +8,7 @@ assert.match(css, /\.agent-chat-window \.agent-chat\s*\{[\s\S]*align-content:\s*
 assert.match(css, /\.agent-chat-window \.agent-message\s*\{[\s\S]*width:\s*100%;[\s\S]*max-width:\s*52rem;/, "chat message tracks should use the available reading width");
 assert.match(css, /\.agent-chat-window \.agent-message-user\s*\{[\s\S]*justify-self:\s*end;/, "user message tracks should align to the right edge of the chat");
 assert.match(css, /\.agent-message-body\s*\{[\s\S]*overflow-wrap:\s*anywhere;/, "long model replies should wrap inside the bubble");
+assert.match(css, /\.agent-chat-window\s*\{[\s\S]*background:\s*rgba\(255, 255, 255, \.78\)/, "chat window should use a translucent surface");
+assert.match(css, /\.agent-chat-window\s*\{[\s\S]*backdrop-filter:\s*blur\(/, "translucent chat window should soften the page behind it");
 
 console.log("agent chat layout tests passed");
