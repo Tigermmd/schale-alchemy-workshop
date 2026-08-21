@@ -1,7 +1,5 @@
 # 礼物工坊
 
-## 六页宣传图
-
 [![01 开场](docs/promotion/scrapbook/opening.png)](docs/promotion/scrapbook/opening.png)
 
 [![02 功能介绍](docs/promotion/scrapbook/cover.png)](docs/promotion/scrapbook/cover.png)
