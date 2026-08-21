@@ -12,9 +12,13 @@ assert.doesNotMatch(html, /portrait\/10000\.webp/, "Agent must not show a studen
 assert.doesNotMatch(html, /agent-connection-empty/, "Unconfigured Agent should stay inside the chat workspace");
 assert.doesNotMatch(html, /agent-connection-visual|agent-visual-anchors/, "Agent connection state should not use decorative collage art");
 assert.match(html, /class="agent-chat"/, "Unconfigured Agent should still show the chat area");
+assert.match(html, /class="agent-chat-header"/, "Agent should present one compact chat identity header");
+assert.match(html, /class="agent-composer(?:\s|\")/, "Agent should always show the chat composer");
+assert.doesNotMatch(html, /class="agent-workspace panel"/, "Agent should not wrap the chat in another dashboard card");
 assert.match(html, /agent-empty-unconfigured/, "Unconfigured Agent should explain how to connect inside the chat");
 assert.match(html, /data-agent-open-settings/, "Unconfigured Agent should offer a direct settings action");
-assert.match(html, /class="agent-quick"/, "Unconfigured Agent should show useful starter questions");
+assert.doesNotMatch(html, /class="agent-quick"/, "Unconfigured Agent should not show unusable starter questions");
+assert.doesNotMatch(html, /agent-plan-summary-empty/, "Empty planning status should not compete with the first chat view");
 assert.doesNotMatch(html, /<details class="agent-settings-details" open>/, "Connection settings should remain a secondary collapsed surface");
 assert.match(html, /name="baseUrl"[^>]*value="https:\/\/api\.deepseek\.com"/, "Agent should prefill the official DeepSeek API endpoint");
 assert.match(html, /name="model"[^>]*value="deepseek-v4-flash"/, "Agent should prefill the requested Flash model");
@@ -36,6 +40,8 @@ const configuredHtml = renderAgentWorkspace({
 });
 assert.doesNotMatch(configuredHtml, /agent-visual-anchors|momotalk\.png|arona-avatar-1\.png/);
 assert.match(configuredHtml, /class="agent-chat"/);
+assert.match(configuredHtml, /class="agent-quick"/, "Configured Agent should show starter questions only when usable");
+assert.doesNotMatch(configuredHtml, /agent-plan-summary-empty/, "Configured Agent should not show an empty planning card");
 
 const chatHtml = renderAgentWorkspace({
   locale: "zh_cn",

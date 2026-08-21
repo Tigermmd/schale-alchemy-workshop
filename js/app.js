@@ -10,7 +10,7 @@ import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-2026081
 import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111&ui=v112";
 import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
