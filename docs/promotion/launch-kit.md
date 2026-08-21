@@ -8,6 +8,8 @@
 
 ![夏莱炼金工房封面](scrapbook/cover.png)
 
+![全 Codex 开发](scrapbook/codex.png)
+
 ![好感规划](scrapbook/planner.png)
 
 ![库存管理](scrapbook/inventory.png)
@@ -45,7 +47,7 @@
 > 项目地址：<https://github.com/Tigermmd/schale-alchemy-workshop>
 > 本地运行，不需要注册账号。非官方玩家工具。
 
-配图顺序：主视觉 → 规划 → 库存 → Agent。
+配图顺序：主视觉 → 全 Codex 开发 → 规划 → 库存 → Agent。
 
 ## B站视频
 
@@ -97,7 +99,7 @@
 
 ## 发布前只检查这四项
 
-- [ ] 主视觉、规划、库存三张图能正常打开。
+- [ ] 主视觉与五张手帐图能正常打开。
 - [ ] 演示视频使用脱敏库存，不展示 API Key 或个人数据。
 - [ ] 帖子正文保留 GitHub 地址和“非官方玩家工具”。
 - [ ] 发布前重新确认 README 中的数据来源与第三方内容说明。
