@@ -1,16 +1,16 @@
 # 夏莱礼物工坊
 
-[![01 开场](docs/promotion/scrapbook/opening.png)](docs/promotion/scrapbook/opening.png)
+[![01 开场](docs/promotion/scrapbook/opening.png?v=6e7baf6)](docs/promotion/scrapbook/opening.png?v=6e7baf6)
 
-[![02 功能介绍](docs/promotion/scrapbook/cover.png)](docs/promotion/scrapbook/cover.png)
+[![02 功能介绍](docs/promotion/scrapbook/cover.png?v=6e7baf6)](docs/promotion/scrapbook/cover.png?v=6e7baf6)
 
-[![03 开发记录](docs/promotion/scrapbook/codex.png)](docs/promotion/scrapbook/codex.png)
+[![03 开发记录](docs/promotion/scrapbook/codex.png?v=6e7baf6)](docs/promotion/scrapbook/codex.png?v=6e7baf6)
 
-[![04 养成规划](docs/promotion/scrapbook/planner.png)](docs/promotion/scrapbook/planner.png)
+[![04 养成规划](docs/promotion/scrapbook/planner.png?v=6e7baf6)](docs/promotion/scrapbook/planner.png?v=6e7baf6)
 
-[![05 库存管理](docs/promotion/scrapbook/inventory.png)](docs/promotion/scrapbook/inventory.png)
+[![05 库存管理](docs/promotion/scrapbook/inventory.png?v=6e7baf6)](docs/promotion/scrapbook/inventory.png?v=6e7baf6)
 
-[![06 Agent 助手](docs/promotion/scrapbook/agent.png)](docs/promotion/scrapbook/agent.png)
+[![06 Agent 助手](docs/promotion/scrapbook/agent.png?v=6e7baf6)](docs/promotion/scrapbook/agent.png?v=6e7baf6)
 
 ## 项目简介
 
