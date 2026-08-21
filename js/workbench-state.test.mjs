@@ -9,6 +9,10 @@ assert.deepEqual(getWorkbenchChromeState("relationship"), {
   titleKey: "workbenchRelationship",
   showStudentDirectory: true,
 });
+assert.deepEqual(getWorkbenchChromeState("knowledge"), {
+  titleKey: "workbenchKnowledge",
+  showStudentDirectory: false,
+});
 assert.deepEqual(getWorkbenchChromeState("unknown"), {
   titleKey: "workbenchPlanner",
   showStudentDirectory: false,

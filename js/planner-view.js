@@ -1,5 +1,5 @@
 import { calculatePlanningSummary } from "./planning-summary.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
-import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { localizedName, text as t } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111&knowledge=v1";
 import { formatExp, formatInteger } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { getEligibleRelationshipSources } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
@@ -143,6 +143,7 @@ function workbenchIcon(id) {
     resources: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 9h16M9 13.5a2.8 2.8 0 1 1 5.6 0c0 1.7-2.8 3.3-2.8 3.3s-2.8-1.6-2.8-3.3Z"/>',
     packages: '<path d="M5 8.5h14l-1 11H6l-1-11Z"/><path d="M8 8.5V6a4 4 0 0 1 8 0v2.5M12 12.2l.55 1.1 1.2.17-.87.85.2 1.2-1.08-.57-1.08.57.2-1.2-.87-.85 1.2-.17.55-1.1Z"/>',
     relationship: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20M8 7h8M8 10h6"/>',
+    knowledge: '<path d="M12 4a8 8 0 1 0 8 8"/><path d="M12 4v4M12 12l3 2M16.5 4.5l1.2 1.2M20 12h-2"/>',
     agent: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 3v-3H6.5A2.5 2.5 0 0 1 4 12.5v-7Z"/><path d="m12 6.2.55 1.45 1.55.1-1.2.98.4 1.5-1.3-.8-1.3.8.4-1.5-1.2-.98 1.55-.1L12 6.2Z"/>',
   };
   return `<svg class="workbench-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[id] ?? icons.planner}</svg>`;
@@ -155,6 +156,7 @@ export function renderWorkbenchTabs({ locale, active, data = {} }) {
     ["resources", t(locale, "workbenchResources")],
     ["packages", t(locale, "workbenchPackages")],
     ["relationship", t(locale, "workbenchRelationship")],
+    ["knowledge", t(locale, "workbenchKnowledge")],
     ["agent", t(locale, "workbenchAgent")],
   ];
   return `<nav class="workbench-tabs" aria-label="${escapeHtml(t(locale, "workbenchNavigation"))}"><div class="workbench-tab-list">${tabs.map(([id, label]) => `<button type="button" class="workbench-tab ${id === active ? "is-active" : ""}" data-workbench="${id}" aria-current="${id === active ? "page" : "false"}"><span class="workbench-tab-art">${workbenchIcon(id)}</span><span>${escapeHtml(label)}</span></button>`).join("")}</div><label class="workbench-mobile-picker"><span>${escapeHtml(t(locale, "mobileWorkspaceLabel"))}</span><select data-workbench-select aria-label="${escapeHtml(t(locale, "mobileWorkspaceLabel"))}">${tabs.map(([id, label]) => `<option value="${id}" ${id === active ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}</select></label></nav>`;

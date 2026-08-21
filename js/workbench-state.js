@@ -4,6 +4,7 @@ const WORKBENCH_TITLE_KEYS = {
   inventory: "workbenchInventory",
   resources: "workbenchResources",
   packages: "workbenchPackages",
+  knowledge: "workbenchKnowledge",
   agent: "workbenchAgent",
 };
 
