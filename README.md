@@ -61,6 +61,8 @@ python3 harness_server.py
 
 打开 <http://127.0.0.1:8765/>。
 
+macOS 可直接双击项目目录中的 `start.command`，自动启动服务并打开页面。
+
 如果只需要静态查看页面，可以运行：
 
 ```bash

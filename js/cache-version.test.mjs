@@ -19,7 +19,7 @@ function assertVersionedUrl(specifier, sourceFile) {
 const indexHtml = fs.readFileSync(path.join(dashboardRoot, "index.html"), "utf8");
 assert.match(indexHtml, new RegExp(`styles\\.css\\?v=${BUILD_VERSION}`));
 assert.match(indexHtml, new RegExp(`agent\\.css\\?v=${BUILD_VERSION}`));
-assert.match(indexHtml, new RegExp(`js/app\\.js\\?v=${BUILD_VERSION}`));
+assert.match(indexHtml, new RegExp(`js/boot\\.js\\?v=${BUILD_VERSION}`));
 
 for (const fileName of fs.readdirSync(jsRoot).filter((name) => name.endsWith(".js"))) {
   const filePath = path.join(jsRoot, fileName);
