@@ -60,7 +60,7 @@ assert.doesNotMatch(specialHtml, /限定\/FES学生专属礼物礼包（未花�
 assert.doesNotMatch(specialHtml, /全礼物好感/);
 assert.match(specialHtml, /时髦梳子 ×6/, "水着未花的紫色礼包礼物不能沿用原皮芭菲");
 assert.match(specialHtml, /夏日泳圈 ×10/, "水着未花的金色礼包礼物不能沿用原皮曲奇");
-assert.match(specialHtml, /按未花（泳装）上线时可能复刻的内容估算，仅供参考/, "学生上线礼包必须明确标注为参考估算");
+assert.match(specialHtml, /按未花（泳装）上线时可能复刻的内容估算，属于上线参考/, "学生上线礼包必须明确标注为参考估算");
 assert.match(specialHtml, /按目标学生对礼包内实际礼物的反应计算/);
 assert.doesNotMatch(specialHtml, /千层酥咖啡厅的正宗芭菲 ×6/);
 assert.doesNotMatch(specialHtml, /高级曲奇礼盒套装 ×10/);

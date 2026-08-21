@@ -82,7 +82,7 @@ const reservationNoticeHtml = renderPlannerWorkspace({
   localization: {},
   notice: "plannerReservationPosted",
 });
-assert.match(reservationNoticeHtml, /礼物已预留，未扣库存/, "the planner must acknowledge a successful reservation");
+assert.match(reservationNoticeHtml, /礼物已预留；可到库存页释放或确认消耗/, "the planner must acknowledge a successful reservation");
 
 const manyStudents = Array.from({ length: 30 }, (_, index) => ({ student_id: 11000 + index, name_zh_cn: `测试学生${index}`, name_en: `Test Student ${index}`, name_ja: `テスト${index}` }));
 const allMatchingOptions = renderPlannerStudentOptions({ students: manyStudents, query: "test", locale: "zh_cn", localization: {} });

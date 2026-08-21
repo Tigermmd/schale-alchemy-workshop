@@ -197,7 +197,7 @@ const giftBoxHtml = renderResourcesWorkspace({
   evidence: { sources: [], rows: [] },
 });
 assert.match(giftBoxHtml, /礼物盒好感期望/);
-assert.match(giftBoxHtml, /国服概率待确认/);
+assert.match(giftBoxHtml, /国服概率未填/);
 const withGiftBox = setGiftBoxCount(createEmptyPlannerState(), "100000", 2);
 assert.equal(withGiftBox.giftBoxes["100000"], 2);
 
@@ -247,7 +247,7 @@ const userConfirmedGiftBoxHtml = renderResourcesWorkspace({
   locale: 'zh_cn',
   evidence: { sources: [], rows: [] },
 });
-assert.match(userConfirmedGiftBoxHtml, /按确认值等概率计算/);
+assert.match(userConfirmedGiftBoxHtml, /按当前填写值等概率计算/);
 assert.match(userConfirmedGiftBoxHtml, /总期望好感：240\.00/);
 
 const manufacturingState = createEmptyPlannerState();

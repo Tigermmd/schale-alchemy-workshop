@@ -21,7 +21,7 @@
       "kind": "user_confirmation",
       "evidence_status": "user_confirmed",
       "confirmed_at": "2026-08-10",
-      "note_zh_cn": "用户确认选择盒范围为全部可制造金色礼物；随机盒在对应颜色的全部可制造礼物中等概率随机。"
+      "note_zh_cn": "选择盒范围为全部可制造金色礼物；随机盒在对应颜色的全部可制造礼物中等概率随机。"
     },
     {
       "id": "schaledb-cn-crafting",
