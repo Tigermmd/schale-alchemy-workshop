@@ -444,7 +444,7 @@ class HarnessHandler(SimpleHTTPRequestHandler):
 def main() -> None:
     port = int(os.environ.get("SCHALE_HARNESS_PORT", str(DEFAULT_PORT)))
     server = ThreadingHTTPServer((HOST, port), HarnessHandler)
-    print(f"夏莱炼金工房: http://{HOST}:{port}{DASHBOARD_PATH}", flush=True)
+    print(f"礼物工坊: http://{HOST}:{port}{DASHBOARD_PATH}", flush=True)
     print(f"Harness API: http://{HOST}:{port}/api/health", flush=True)
     try:
         server.serve_forever()

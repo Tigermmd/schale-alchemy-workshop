@@ -21,11 +21,11 @@ if ! /usr/bin/curl -fsS "http://127.0.0.1:${PORT}/api/health" >/dev/null 2>&1; t
     /bin/sleep 0.2
   done
   if (( ! ready )); then
-    echo "夏莱炼金工房启动失败，日志：$LOG_FILE"
+    echo "礼物工坊启动失败，日志：$LOG_FILE"
     kill "$server_pid" 2>/dev/null || true
     exit 1
   fi
 fi
 
 /usr/bin/open "$URL"
-echo "夏莱炼金工房已打开：$URL"
+echo "礼物工坊已打开：$URL"

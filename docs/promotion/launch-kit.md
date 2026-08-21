@@ -1,14 +1,14 @@
-# 夏莱炼金工房｜首发宣传包
+# 礼物工坊｜首发宣传包
 
 ## 主视觉
 
-![夏莱炼金工房主视觉](assets/promo-hero.png)
+![礼物工坊主视觉](assets/promo-hero.png)
 
 ## 手帐滑动图（6 页 · 4:5）
 
-![夏莱炼金工房开场主视觉](scrapbook/opening.png)
+![礼物工坊开场主视觉](scrapbook/opening.png)
 
-![夏莱炼金工房封面](scrapbook/cover.png)
+![礼物工坊封面](scrapbook/cover.png)
 
 ![全 Codex 开发](scrapbook/codex.png)
 
@@ -22,7 +22,7 @@
 
 推荐配文：
 
-> 夏莱炼金工房
+> 礼物工坊
 > 给蔚蓝档案玩家用的国服礼物 / 好感规划工具。
 > 导入库存，选定学生，直接看好感缺口和预计天数。
 > GitHub：<https://github.com/Tigermmd/schale-alchemy-workshop>
@@ -37,7 +37,7 @@
 
 标题：
 
-> 做了一个蔚蓝档案国服礼物好感规划工具：夏莱炼金工房
+> 做了一个蔚蓝档案国服礼物好感规划工具：礼物工坊
 
 正文：
 
@@ -61,7 +61,7 @@
 
 分镜：
 
-1. 0～5 秒：展示开场主视觉，字幕“夏莱炼金工房”。
+1. 0～5 秒：展示开场主视觉，字幕“礼物工坊”。
 2. 5～15 秒：导入 arona.icu 库存 JSON，字幕“库存不用重新录”。
 3. 15～30 秒：选择学生和目标等级，展示“好感缺口 / 预计达成天数”。
 4. 30～42 秒：切到库存页，展示礼物、礼物盒、预留和剩余分开记录。
@@ -70,7 +70,7 @@
 
 简介：
 
-> 夏莱炼金工房：蔚蓝档案国服礼物与好感规划工具。
+> 礼物工坊：蔚蓝档案国服礼物与好感规划工具。
 > 导入库存 → 选择学生 → 看缺口和预计天数。
 > GitHub：<https://github.com/Tigermmd/schale-alchemy-workshop>
 
@@ -79,7 +79,7 @@
 > 做了个《蔚蓝档案》礼物规划工具。
 > 导入库存，选目标学生，直接看还差多少好感、预计要多少天。
 > 还兼容 arona.icu 库存 JSON。
-> 夏莱炼金工房：<https://github.com/Tigermmd/schale-alchemy-workshop>
+> 礼物工坊：<https://github.com/Tigermmd/schale-alchemy-workshop>
 
 ## 评论区固定回复
 

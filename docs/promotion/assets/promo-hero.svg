@@ -2,8 +2,8 @@
   <image href="promo-hero-bg.png" width="1536" height="1024" preserveAspectRatio="xMidYMid slice"/>
   <rect width="700" height="1024" fill="#f7fbff" fill-opacity=".82"/>
   <rect x="72" y="74" width="112" height="8" rx="4" fill="#2b8cc4"/>
-  <text x="72" y="170" fill="#173253" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="64" font-weight="700">夏莱炼金工房</text>
-  <text x="76" y="228" fill="#317a9e" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="25" font-weight="700" letter-spacing="3">SCHALE ALCHEMY WORKSHOP</text>
+  <text x="72" y="170" fill="#173253" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="64" font-weight="700">礼物工坊</text>
+  <text x="76" y="228" fill="#317a9e" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="25" font-weight="700" letter-spacing="3">SCHALÉ GIFT WORKSHOP</text>
   <text x="76" y="330" fill="#173253" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="34" font-weight="700">蔚蓝档案 · 国服礼物 / 好感规划</text>
   <text x="76" y="405" fill="#31526d" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="27">导入库存　→　选择学生　→　看懂缺口</text>
   <text x="76" y="450" fill="#31526d" font-family="Arial, 'PingFang SC', 'Noto Sans CJK SC', sans-serif" font-size="27">规划礼物　→　估算天数　→　再决定怎么养</text>
