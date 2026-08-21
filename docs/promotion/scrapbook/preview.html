@@ -222,6 +222,10 @@
     .inventory .info-strip { top: 964px; grid-template-columns: repeat(4, 1fr); }
     .inventory .info-card { border-left-color: var(--gold); }
     .inventory .info-card img { float: left; width: 34px; height: 34px; object-fit: contain; margin-right: 7px; }
+    .inventory .info-card .gift-icons { float: left; display: flex; align-items: center; gap: 0; width: 68px; height: 34px; margin-right: 7px; }
+    .inventory .info-card .gift-icons img { float: none; width: 23px; height: 34px; margin: 0; }
+    .inventory .info-card .resource-icons { float: left; display: flex; align-items: center; gap: 1px; width: 68px; height: 34px; margin-right: 7px; }
+    .inventory .info-card .resource-icons img { float: none; width: 31px; height: 31px; margin: 0; }
     .agent .info-strip { top: 964px; grid-template-columns: 1.1fr 1fr 1.1fr; }
     .agent .info-card { border-left-color: #6b9aca; }
     .agent .bubble { padding: 9px 11px; background: #e8f7ff; }
@@ -270,7 +274,7 @@
       <div class="topbar"><strong>夏莱炼金工房</strong><span>INVENTORY / LEDGER</span></div><div class="page-tag">FEATURE / 04</div><span class="tape"></span><span class="sticker">✦</span>
       <div class="feature-head"><p class="eyebrow">库存管理</p><h2>先记账，再规划</h2><p class="lead">具体礼物、礼物盒和制造资源分开记录，规划预留也单独显示。</p></div>
       <div class="screen"><img src="screens/inventory.png" alt="库存管理页面截图"></div>
-      <div class="info-strip"><div class="info-card"><img src="gift-5000.webp" alt=""><strong>具体礼物</strong><span>52 种礼物<br>数量可编辑</span></div><div class="info-card"><img src="gift-5004.webp" alt=""><strong>金色礼物盒</strong><span>自选盒<br>保留期望值</span></div><div class="info-card"><img src="gift-5013.webp" alt=""><strong>紫色礼物盒</strong><span>随机盒<br>按颜色池计算</span></div><div class="info-card"><img src="gift-5100.webp" alt=""><strong>制造资源</strong><span>启动石、合成石<br>单独记账</span></div></div>
+      <div class="info-strip"><div class="info-card"><span class="gift-icons" aria-hidden="true"><img src="gift-5000.webp" alt=""><img src="gift-5004.webp" alt=""><img src="gift-5013.webp" alt=""></span><strong>具体礼物</strong><span>52 种礼物<br>数量可编辑</span></div><div class="info-card"><img src="../../../assets/items/100008.webp" alt="金色礼物自选盒"><strong>金色礼物盒</strong><span>自选盒<br>保留期望值</span></div><div class="info-card"><img src="../../../assets/items/100009.webp" alt="紫色礼物随机盒"><strong>紫色礼物盒</strong><span>随机盒<br>按颜色池计算</span></div><div class="info-card"><span class="resource-icons" aria-hidden="true"><img src="../../../assets/items/3.webp" alt=""><img src="../../../assets/items/82.webp" alt=""></span><strong>制造资源</strong><span>启动石、合成石<br>单独记账</span></div></div>
       <div class="paper feature-note"><p class="eyebrow">账本口径</p><p class="lead">具体礼物、金色自选盒、紫色随机盒，按各自规则计算期望。</p><p class="fine">支持 arona.icu 库存 JSON 导入 / 导出。</p></div><p class="footer">当前持有 · 周期计入 · 已预留 · 规划后剩余</p>
     </section></div>
 
