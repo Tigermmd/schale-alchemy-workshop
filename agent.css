@@ -150,4 +150,5 @@
   .agent-chat-window .agent-message { width: 100%; max-width: none; }
   .agent-chat-window .agent-chat-form { grid-template-columns: 1fr; }
   .agent-chat-window .agent-chat-actions { justify-content: flex-end; }
+  .agent-empty-unconfigured { align-items: flex-start; flex-direction: column; }
 }

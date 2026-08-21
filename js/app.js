@@ -710,6 +710,13 @@ elements.detail.addEventListener("click", (event) => {
     renderActiveWorkbench();
     return;
   }
+  const openAgentSettings = event.target.closest("[data-agent-open-settings]");
+  if (openAgentSettings) {
+    const settingsDetails = elements.detail.querySelector(".agent-settings-details");
+    settingsDetails?.setAttribute("open", "");
+    window.setTimeout(() => elements.detail.querySelector("#agent-settings-form input[name=apiKey]")?.focus(), 0);
+    return;
+  }
   const quickQuestion = event.target.closest("[data-agent-question]");
   if (quickQuestion) {
     const message = elements.detail.querySelector("#agent-chat-form textarea[name=message]");

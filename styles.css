@@ -2282,10 +2282,6 @@ textarea::placeholder { color: #9aabba; }
 .agent-plan-summary-row small { color: var(--muted); font-size: .56rem; }
 .agent-plan-summary-row b { color: var(--navy); font-size: .7rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .agent-plan-summary-empty { min-height: 3rem; align-items: center; }
-.agent-connection-empty { display: flex; align-items: center; gap: .7rem; padding: 1rem; border: 1px dashed #acd8e2; border-radius: var(--radius-md); background: var(--cyan-soft); }
-.agent-connection-mark { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--navy); color: #fff; font-size: 1rem; }
-.agent-connection-empty strong { color: var(--navy); font-size: .8rem; }
-.agent-connection-empty p { margin-top: .18rem; color: var(--muted); font-size: .65rem; line-height: 1.45; }
 .agent-quick { display: grid; gap: .4rem; padding: .7rem .8rem; border-color: #b8dfe1; background: var(--cyan-soft); }
 .agent-quick > div { display: flex; flex-wrap: wrap; gap: .35rem; }
 .agent-quick-button { padding: .4rem .5rem; border: 1px solid #b8dfe1; border-radius: var(--radius-sm); background: #fff; color: #236d70; font-size: .63rem; text-align: left; }
@@ -2309,6 +2305,10 @@ textarea::placeholder { color: #9aabba; }
 .agent-message > span { color: var(--muted); font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .agent-message p,
 .agent-empty { margin-top: .25rem; color: var(--ink); font-size: .7rem; line-height: 1.6; white-space: pre-wrap; }
+.agent-empty-unconfigured { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
+.agent-empty-copy { min-width: 0; }
+.agent-empty-copy strong { display: block; color: var(--navy); font-size: .75rem; }
+.agent-empty-copy p { margin-top: .18rem; }
 .agent-thinking-message { background: #f4fcfc; }
 .agent-thinking-copy { display: flex; align-items: center; gap: .42rem; color: var(--blue-deep) !important; font-weight: 800; }
 .agent-thinking-cursor { color: var(--cyan); font-size: .95rem; line-height: 1; animation: agent-thinking-pulse 1.05s ease-in-out infinite; }
@@ -2817,7 +2817,6 @@ details > summary { color: #21679f; font-weight: 800; }
 .agent-chat-form,
 .agent-context-details { border: 1px solid #d6e2ea; border-radius: 8px; background: #fff; box-shadow: none; }
 .agent-plan-summary { background: #f7fafc; }
-.agent-connection-empty { min-height: 0; padding: 14px; border: 1px solid #b9dfe2; border-radius: 8px; background: #e8f8f8; }
 .agent-proposal { background: #fff8e8; }
 
 /* v51: inventory resource rows keep one fixed icon column at every width. */
