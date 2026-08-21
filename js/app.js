@@ -1,6 +1,6 @@
 import { loadDashboardData } from "./data-loader.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { filterStudents, getCraftingMechanismSummary, readBrandStudentId, readPackageTargetStudentId, readSelectedStudentId, writeBrandStudentId, writeSelectedStudentId } from "./dashboard-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
-import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
+import { LANGUAGE_OPTIONS, localeTag, localizedName, readStoredLocale, text as t, writeStoredLocale } from "./i18n.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111&ui=v113";
 import { addStudentPlan, normalizePlannerState, parseStudentIdInput, readPlannerState, removeStudentPlan, setGiftBoxCount, setInventoryCount, setMainTargetStudent, setResourceAmount, writePlannerState } from "./planner-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { confirmGiftReservations, migrateLegacyAutoPostedPackageContents, postPeriodicResource, releaseGiftReservations, reserveGiftAllocation, setEquivalentGiftPoolCount, setStockResourceCount, syncPurchasedPackagesToInventory, synthesizeGoldGift, undoPeriodicResource } from "./inventory-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { applyInventoryImport, parseInventoryImport, serializeInventoryExport } from "./inventory-transfer.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
@@ -10,7 +10,7 @@ import { renderResourcesWorkspace } from "./resource-view.js?v=dashboard-2026081
 import { renderPackagesWorkspace } from "./package-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { renderBrandStudentOptions, renderStudentDetails, renderStudentList, wireImageFallbacks } from "./render.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { buildAgentContext, applyPlanningProposal, canReuseConfiguredProxy, mergePlanningProposals, stagePlanningProposal, validatePlanningProposal } from "./agent-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
-import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111&ui=v112";
+import { renderAgentWorkspace } from "./agent-view.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111&ui=v113";
 import { getDefaultCnProgress, normalizeCnProgress } from "./release-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 import { getWorkbenchChromeState, updateInventoryFilter } from "./workbench-state.js?v=dashboard-20260819-schale-alchemy-workshop-agent-chat-v111";
 
@@ -388,7 +388,7 @@ async function testAgentConnection() {
   try {
     if (settings.apiKey) await postAgent("/api/config", settings);
     await postAgent("/api/config/test", {});
-    state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configuredBaseUrl: settings.baseUrl, configuredModel: settings.model, draftBaseUrl: settings.baseUrl, draftModel: settings.model, configured: true, notice: t(state.locale, "agentConnectionOk") };
+    state.agent = { ...state.agent, baseUrl: settings.baseUrl, model: settings.model, configuredBaseUrl: settings.baseUrl, configuredModel: settings.model, draftBaseUrl: settings.baseUrl, draftModel: settings.model, configured: true, notice: "" };
   } catch (error) { state.agent.notice = `${t(state.locale, "agentRequestFailed")}${error.message}`; }
   renderActiveWorkbench();
 }

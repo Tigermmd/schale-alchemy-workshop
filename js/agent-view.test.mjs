@@ -41,6 +41,8 @@ const configuredHtml = renderAgentWorkspace({
 assert.doesNotMatch(configuredHtml, /agent-visual-anchors|momotalk\.png|arona-avatar-1\.png/);
 assert.match(configuredHtml, /class="agent-chat"/);
 assert.match(configuredHtml, /class="agent-quick"/, "Configured Agent should show starter questions only when usable");
+assert.match(configuredHtml, /准备好了，可以开始对话/, "Configured Agent should use a ready-state message");
+assert.doesNotMatch(configuredHtml, /连接后开始对话/, "Configured Agent should not claim it is waiting for connection");
 assert.doesNotMatch(configuredHtml, /agent-plan-summary-empty/, "Configured Agent should not show an empty planning card");
 
 const chatHtml = renderAgentWorkspace({
