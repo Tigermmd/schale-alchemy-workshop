@@ -119,6 +119,25 @@ SCHALE_HARNESS_PORT=8766 python3 harness_server.py
 
 使用 Agent 时，API Key 仅进入本机 Harness 进程内存。分享项目或提交代码前，请检查仓库内容，确保个人库存 JSON、日志、截图和其他凭据保持在项目外。
 
+## 六页宣传图
+
+下面六张图按实际发布顺序展示项目：开场、功能介绍、开发记录、养成规划、库存管理和 Agent 助手。点击图片可查看原图。
+
+<table>
+  <tr>
+    <td align="center"><a href="docs/promotion/scrapbook/opening.png"><img src="docs/promotion/scrapbook/opening.png" alt="01 开场" width="260"></a><br><sub>01 · 开场</sub></td>
+    <td align="center"><a href="docs/promotion/scrapbook/cover.png"><img src="docs/promotion/scrapbook/cover.png" alt="02 功能介绍" width="260"></a><br><sub>02 · 功能介绍</sub></td>
+    <td align="center"><a href="docs/promotion/scrapbook/codex.png"><img src="docs/promotion/scrapbook/codex.png" alt="03 开发记录" width="260"></a><br><sub>03 · 开发记录</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="docs/promotion/scrapbook/planner.png"><img src="docs/promotion/scrapbook/planner.png" alt="04 养成规划" width="260"></a><br><sub>04 · 养成规划</sub></td>
+    <td align="center"><a href="docs/promotion/scrapbook/inventory.png"><img src="docs/promotion/scrapbook/inventory.png" alt="05 库存管理" width="260"></a><br><sub>05 · 库存管理</sub></td>
+    <td align="center"><a href="docs/promotion/scrapbook/agent.png"><img src="docs/promotion/scrapbook/agent.png" alt="06 Agent 助手" width="260"></a><br><sub>06 · Agent 助手</sub></td>
+  </tr>
+</table>
+
+完整预览和发布文案见 [`docs/promotion/launch-kit.md`](docs/promotion/launch-kit.md)。
+
 ## 开发与测试
 
 ```bash
