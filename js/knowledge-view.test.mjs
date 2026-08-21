@@ -27,6 +27,7 @@ assert.match(zh, /100级/);
 assert.match(zh, /完整等级表/);
 assert.match(zh, /咖啡厅/);
 assert.match(zh, /未实装学生/);
+assert.match(zh, /<th scope="row">100<\/th>[\s\S]*?<td>—<\/td>/);
 assert.doesNotMatch(zh, /240225\.00/);
 
 for (const locale of ["en", "ja"]) {

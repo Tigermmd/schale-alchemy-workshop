@@ -45,7 +45,7 @@ function renderLevelTable(rows, thresholds, locale) {
   const cap = Number(thresholds?.relationship_level_cap) || 100;
   const body = rows.map((row) => `<tr>
     <th scope="row">${escapeHtml(number(row.level, locale))}</th>
-    <td>${escapeHtml(number(row.next_level_exp, locale))}</td>
+    <td>${Number(row.level) >= cap || row.can_advance_in_simulator === false ? "—" : escapeHtml(number(row.next_level_exp, locale))}</td>
     <td>${escapeHtml(number(row.cumulative_exp_to_reach_level, locale))}</td>
   </tr>`).join("");
   return `<details class="knowledge-level-details">
