@@ -1,4 +1,4 @@
-# 礼物工坊
+# 夏莱礼物工坊
 
 [![01 开场](docs/promotion/scrapbook/opening.png)](docs/promotion/scrapbook/opening.png)
 
@@ -68,8 +68,8 @@ Agent 负责提出规划变更，玩家确认后由网页本地应用。库存�
 运行环境：Python 3.10 或更高版本。不需要安装 npm 依赖。
 
 ```bash
-git clone https://github.com/Tigermmd/schale-alchemy-workshop.git
-cd schale-alchemy-workshop
+git clone https://github.com/Tigermmd/schale-gift-workshop.git
+cd schale-gift-workshop
 python3 harness_server.py
 ```
 
